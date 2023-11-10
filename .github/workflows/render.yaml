@@ -1,0 +1,41 @@
+name: Render paper with Nix and Quarto
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install Nix
+      uses: DeterminateSystems/nix-installer-action@main
+      with:
+        logger: pretty
+        log-directives: nix_installer=trace
+        backtrace: full
+
+    - name: Nix cache
+      uses: DeterminateSystems/magic-nix-cache-action@main
+
+    - name: Build development environment
+      run: |
+        nix-build
+
+    - name: Render
+      run: nix-shell --run "quarto render paper.qmd --to jss-pdf"
+
+    # Commit and push all changed files.
+    - name: GIT Commit Build Artifacts (coverage, dist, devdist, docs)
+      run: |
+        git config --global user.name "GA Bot"
+        git config --global user.email "github_actions@bot.noreply.com"
+        git add .
+        git commit -a -m "rendered file"
+        git push
