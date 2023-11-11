@@ -146,7 +146,7 @@
 \makeatletter
 \makeatother
 \makeatletter
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[enhanced, frame hidden, boxrule=0pt, interior hidden, sharp corners, borderline west={3pt}{0pt}{shadecolor}, breakable]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[frame hidden, enhanced, breakable, interior hidden, borderline west={3pt}{0pt}{shadecolor}, sharp corners, boxrule=0pt]}{\end{tcolorbox}}\fi
 \makeatother
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
@@ -155,8 +155,8 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same} % disable monospaced font for URLs
 \hypersetup{
-  pdftitle={A Short Demo Article: Regression Models for Count Data in R},
-  pdfauthor={Achim Zeileis; Second Author},
+  pdftitle={Reproducible development environments with rix},
+  pdfauthor={Bruno Rodrigues; Philipp Baumann},
   pdfkeywords={JSS, style guide, comma-separated, not capitalized, R},
   colorlinks=true,
   linkcolor={blue},
@@ -168,13 +168,14 @@
 %% -- Article metainformation (author, title, ...) -----------------------------
 
 %% Author information
-\author{Achim Zeileis~\orcidlink{0000-0003-0918-3766}\\Universität
-Innsbruck \And Second Author\\Plus Affiliation}
-\Plainauthor{Achim Zeileis, Second Author} %% comma-separated
+\author{Bruno Rodrigues~\orcidlink{0000-0002-3211-3689}\\Ministry of
+higher education and research, Luxembourg \And Philipp Baumann\\Plus
+Affiliation}
+\Plainauthor{Bruno Rodrigues, Philipp Baumann} %% comma-separated
 
-\title{A Short Demo Article: Regression Models for Count Data in R}
-\Plaintitle{A Short Demo Article: Regression Models for Count Data in
-R} %% without formatting
+\title{Reproducible development environments with rix}
+\Plaintitle{Reproducible development environments with
+rix} %% without formatting
 
 %% an abstract and keywords
 \Abstract{This short article illustrates how to write a manuscript for
@@ -207,14 +208,14 @@ capitalized, \proglang{R}}
 %% The address of (at least) one author should be given
 %% in the following format:
 \Address{
-Achim Zeileis\\
+Bruno Rodrigues\\
 Department of Statistics\\
-Universitätsstr. 15\\
-Innsbruck Austria\\
-E-mail: \email{Achim.Zeileis@R-project.org}\\
-URL: \url{https://www.zeileis.org/}\\
+18, Montée de la Pétrusse\\
+Luxembourg Luxembourg\\
+E-mail: \email{bruno@brodrigues.co}\\
+URL: \url{https://www.brodrigues.co}\\
 \\~
-Second Author\\
+Philipp Baumann\\
 \\~
 
 }
@@ -223,7 +224,7 @@ Second Author\\
 \maketitle
 \section{Introduction: Count data regression in R}\label{sec-intro}
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, breakable, bottomrule=.15mm, rightrule=.15mm, colback=white, left=2mm, arc=.35mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
 
 The introduction is in principle ``as usual''. However, it should
 usually embed both the implemented \emph{methods} and the
@@ -294,7 +295,7 @@ where the regression coefficients \(\beta\) are estimated by maximum
 likelihood (ML) using the iterative weighted least squares (IWLS)
 algorithm.
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, breakable, bottomrule=.15mm, rightrule=.15mm, colback=white, left=2mm, arc=.35mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
 
 TODO: Note that around the equation above there should be no spaces
 (avoided in the {\LaTeX} code by \texttt{\%} lines) so that ``normal''
@@ -325,7 +326,7 @@ further arguments to \fct{glm} (including alternative specifications of
 starting values) see \texttt{?glm}. For estimating a Poisson model
 \texttt{family\ =\ poisson} has to be specified.
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, breakable, bottomrule=.15mm, rightrule=.15mm, colback=white, left=2mm, arc=.35mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
 
 As the synopsis above is a code listing that is not meant to be
 executed, one can use either the dedicated \texttt{\{Code\}} environment
@@ -406,7 +407,7 @@ R> data(mtcars)
 and a basic frequency distribution of the response variable is displayed
 in \textbf{?@fig-quine}.
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, breakable, bottomrule=.15mm, rightrule=.15mm, colback=white, left=2mm, arc=.35mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
 
 For code input and output, the style files provide dedicated
 environments. Either the ``agnostic'' \texttt{\{CodeInput\}} and
@@ -427,7 +428,7 @@ above).
 
 \section{Summary and discussion}\label{sec-summary}
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, breakable, bottomrule=.15mm, rightrule=.15mm, colback=white, left=2mm, arc=.35mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
 
 As usual\ldots{}
 
@@ -436,7 +437,7 @@ As usual\ldots{}
 \section*{Computational details}\label{computational-details}
 \addcontentsline{toc}{section}{Computational details}
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, breakable, bottomrule=.15mm, rightrule=.15mm, colback=white, left=2mm, arc=.35mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
 
 If necessary or useful, information about certain computational details
 such as version numbers, operating systems, or compilers could be
@@ -455,7 +456,7 @@ Network (CRAN) at {[}https://CRAN.R-project.org/{]}.
 \section*{Acknowledgments}\label{acknowledgments}
 \addcontentsline{toc}{section}{Acknowledgments}
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, breakable, bottomrule=.15mm, rightrule=.15mm, colback=white, left=2mm, arc=.35mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
 
 All acknowledgments (note the AE spelling) should be collected in this
 unnumbered section before the references. It may contain the usual
@@ -476,7 +477,7 @@ may be added here (if any).
 \section*{More technical details}\label{sec-techdetails}
 \addcontentsline{toc}{section}{More technical details}
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, breakable, bottomrule=.15mm, rightrule=.15mm, colback=white, left=2mm, arc=.35mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
 
 Appendices can be included after the bibliography (with a page break).
 Each section within the appendix should have a proper section title
@@ -507,7 +508,7 @@ which includes the following topics:
 \section*{Using BibTeX}\label{sec-bibtex}
 \addcontentsline{toc}{section}{Using BibTeX}
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, breakable, bottomrule=.15mm, rightrule=.15mm, colback=white, left=2mm, arc=.35mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
 
 References need to be provided in a \textsc{Bib}{\TeX} file
 (\texttt{.bib}). All references should be made with \texttt{@cite}
