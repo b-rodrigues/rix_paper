@@ -146,7 +146,7 @@
 \makeatletter
 \makeatother
 \makeatletter
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[frame hidden, enhanced, breakable, interior hidden, borderline west={3pt}{0pt}{shadecolor}, sharp corners, boxrule=0pt]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, interior hidden, enhanced, breakable, sharp corners, frame hidden, borderline west={3pt}{0pt}{shadecolor}]}{\end{tcolorbox}}\fi
 \makeatother
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
@@ -157,7 +157,7 @@
 \hypersetup{
   pdftitle={Reproducible development environments with rix},
   pdfauthor={Bruno Rodrigues; Philipp Baumann},
-  pdfkeywords={JSS, style guide, comma-separated, not capitalized, R},
+  pdfkeywords={reproducibility, R, Nix},
   colorlinks=true,
   linkcolor={blue},
   filecolor={Maroon},
@@ -169,7 +169,7 @@
 
 %% Author information
 \author{Bruno Rodrigues~\orcidlink{0000-0002-3211-3689}\\Ministry of
-higher education and research, Luxembourg \And Philipp Baumann\\Plus
+Research and Higher education, Luxembourg \And Philipp Baumann\\Plus
 Affiliation}
 \Plainauthor{Bruno Rodrigues, Philipp Baumann} %% comma-separated
 
@@ -178,21 +178,19 @@ Affiliation}
 rix} %% without formatting
 
 %% an abstract and keywords
-\Abstract{This short article illustrates how to write a manuscript for
-the \emph{Journal of Statistical Software} (JSS) using its {\LaTeX}
-style files. Generally, we ask to follow JSS's style guide and FAQs
-precisely. Also, it is recommended to keep the {\LaTeX} code as simple
-as possible, i.e., avoid inclusion of packages/commands that are not
-necessary. For outlining the typical structure of a JSS article some
-brief text snippets are employed that have been inspired by
-\citet{ZeileisKleiberJackman2008}, discussing count data regression in
-\proglang{R}. Editorial comments and instructions are marked by vertical
-bars.}
+\Abstract{In order to create an analysis that is easily reproducible, it
+is not enough to write clean code and document it well. One must also
+make sure to list all the dependencies of the analysis clearly and
+ideally provide an easy way to install said dependencies. There are
+several tools that can be used to list dependencies and to make them
+easily installable by someone that wishes to reproduce a study, such as
+Docker, a containerization solution. This paper will present the Nix
+package manager, and an R package called \{rix\} that lowers Nix's
+learning curve for users of the R programming language.}
 
 %% at least one keyword must be supplied
-\Keywords{JSS, style guide, comma-separated, not
-capitalized, \proglang{R}}
-\Plainkeywords{JSS, style guide, comma-separated, not capitalized, R}
+\Keywords{reproducibility, \proglang{R}, \proglang{Nix}}
+\Plainkeywords{reproducibility, R, Nix}
 
 %% publication information
 %% NOTE: Typically, this can be left commented and will be filled out by the technical editor
@@ -222,9 +220,10 @@ Philipp Baumann\\
 
 \begin{document}
 \maketitle
-\section{Introduction: Count data regression in R}\label{sec-intro}
+\section{Introduction: Reproducibility is also about
+software}\label{sec-intro}
 
-\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
 
 The introduction is in principle ``as usual''. However, it should
 usually embed both the implemented \emph{methods} and the
@@ -247,35 +246,47 @@ commands can be employed. See the {\LaTeX} code for more details.
 
 \end{tcolorbox}
 
-Modeling count variables is a common task in economics and the social
-sciences. The classical Poisson regression model for count data is often
-of limited use in these disciplines because empirical count data sets
-typically exhibit overdispersion and/or an excess number of zeros. The
-former issue can be addressed by extending the plain Poisson regression
-model in various directions: e.g., using sandwich covariances or
-estimating an additional dispersion parameter (in a so-called
-quasi-Poisson model). Another more formal way is to use a negative
-binomial (NB) regression. All of these models belong to the family of
-generalized linear models (GLMs). However, although these models
-typically can capture overdispersion rather well, they are in many
-applications not sufficient for modeling excess zeros. Since
-\citet{Mullahy1986} there is increased interest in zero-augmented models
-that address this issue by a second model component capturing zero
-counts. An overview of count data models in econometrics, including
-hurdle and zero-inflated models, is provided in
-\citet{CameronTrivedi2013}.
+\citet{peng2011} introduced the idea of reproducibility being on a
+continuum: on one of the ends of this continuum, we only have access to
+the paper describing the studies, which is not reproducible at all.
+Then, if to this paper we make the original source code of the analysis
+that was written to compute the results of the study available,
+reproducibility is improved, albeit only by a little. Adding the
+original data to this package improves reproducibility yet again.
+Finally, if to all this we add what Roger Peng named the \emph{linked
+and executable code and data}, we reach the gold standard of full
+replication.
 
-In \proglang{R} \citet{R}, GLMs are provided by the model fitting
-functions \fct{glm} in the \pkg{stats} package and \fct{glm.nb} in the
-\pkg{MASS} package \citep{VenablesRipley2002} along with associated
-methods for diagnostics and inference. The manuscript that this document
-is based on \citep{ZeileisKleiberJackman2008} then introduced hurdle and
-zero-inflated count models in the functions \fct{hurdle} and
-\fct{zeroinfl} in the \pkg{pcsl} package \citet{Jackman2015}. Of course,
-much more software could be discussed here, including (but not limited
-to) generalized additive models for count data as available in the
-\proglang{R} packages \pkg{mgcv} \citet{Wood2006}, \pkg{gamlss}
-\citet{StasinopoulosRigby2007}, or \pkg{VGAM} \citet{Yee2009}.
+What is this \emph{linked and executable code and data}? Another way to
+name this crucial piece of the reproducibility puzzle is
+\emph{computational environment}. The computational environment is all
+the software required to actually run the analysis. Here too, we can
+speak of a continuum. One could simply name and list the software used:
+for example, the \proglang{R} programming language. Sometimes, authors
+have the courtesy to also state the version of \proglang{R} used. Some
+authors go further, and also list the packages used, and ideally with
+their versions as well. Authors rarely state the operating system on
+which the analysis was done, even though it has been shown that running
+the same analysis with the same software but on different operating
+systems could lead to different results, as described in
+\citet{neupane2019}. Authors also only very rarely provide instructions
+to install the required tools and software in order to reproduce their
+studies.
+
+There are exceptions of course, a great example of a paper that provides
+everything needed to reproduce its results is \citet{mcdermott2021}. The
+author of this paper set up an accompagnying Github repository to the
+paper\footnote{https://github.com/grantmcdermott/skeptic-priors}
+containing all the instructions to install the required software and
+then run the analysis. If we take a closer look at this repository, we
+will notice that several tools were used to capture the compatutational
+environment and make it available to other researchers:
+
+\begin{itemize}
+\tightlist
+\item
+  First, the version of \proglang{R} was stated
+\end{itemize}
 
 \section{Models and software}\label{sec-models}
 
@@ -295,7 +306,7 @@ where the regression coefficients \(\beta\) are estimated by maximum
 likelihood (ML) using the iterative weighted least squares (IWLS)
 algorithm.
 
-\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
 
 TODO: Note that around the equation above there should be no spaces
 (avoided in the {\LaTeX} code by \texttt{\%} lines) so that ``normal''
@@ -326,7 +337,7 @@ further arguments to \fct{glm} (including alternative specifications of
 starting values) see \texttt{?glm}. For estimating a Poisson model
 \texttt{family\ =\ poisson} has to be specified.
 
-\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
 
 As the synopsis above is a code listing that is not meant to be
 executed, one can use either the dedicated \texttt{\{Code\}} environment
@@ -407,7 +418,7 @@ R> data(mtcars)
 and a basic frequency distribution of the response variable is displayed
 in \textbf{?@fig-quine}.
 
-\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
 
 For code input and output, the style files provide dedicated
 environments. Either the ``agnostic'' \texttt{\{CodeInput\}} and
@@ -428,7 +439,7 @@ above).
 
 \section{Summary and discussion}\label{sec-summary}
 
-\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
 
 As usual\ldots{}
 
@@ -437,7 +448,7 @@ As usual\ldots{}
 \section*{Computational details}\label{computational-details}
 \addcontentsline{toc}{section}{Computational details}
 
-\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
 
 If necessary or useful, information about certain computational details
 such as version numbers, operating systems, or compilers could be
@@ -456,7 +467,7 @@ Network (CRAN) at {[}https://CRAN.R-project.org/{]}.
 \section*{Acknowledgments}\label{acknowledgments}
 \addcontentsline{toc}{section}{Acknowledgments}
 
-\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
 
 All acknowledgments (note the AE spelling) should be collected in this
 unnumbered section before the references. It may contain the usual
@@ -477,7 +488,7 @@ may be added here (if any).
 \section*{More technical details}\label{sec-techdetails}
 \addcontentsline{toc}{section}{More technical details}
 
-\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
 
 Appendices can be included after the bibliography (with a page break).
 Each section within the appendix should have a proper section title
@@ -508,7 +519,7 @@ which includes the following topics:
 \section*{Using BibTeX}\label{sec-bibtex}
 \addcontentsline{toc}{section}{Using BibTeX}
 
-\begin{tcolorbox}[enhanced jigsaw, rightrule=.15mm, arc=.35mm, colback=white, bottomrule=.15mm, left=2mm, toprule=.15mm, leftrule=.75mm, opacityback=0, breakable]
+\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
 
 References need to be provided in a \textsc{Bib}{\TeX} file
 (\texttt{.bib}). All references should be made with \texttt{@cite}
