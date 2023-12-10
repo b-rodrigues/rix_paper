@@ -7,7 +7,7 @@ format:
 author:
   - name: Bruno Rodrigues 
     affiliations:
-      - name: Ministry of higher education and research, Luxembourg 
+      - name: Ministry of Research and Higher education, Luxembourg 
         department: Department of Statistics
         address: 18, Montée de la Pétrusse
         city: Luxembourg 
@@ -21,20 +21,23 @@ author:
     affiliations:
       - Plus Affiliation
 abstract: |
-  This short article illustrates how to write a manuscript for the
-  _Journal of Statistical Software_ (JSS) using its {{< latex >}} style files.
-  Generally, we ask to follow JSS's style guide and FAQs precisely. Also,
-  it is recommended to keep the {{< latex >}} code as simple as possible,
-  i.e., avoid inclusion of packages/commands that are not necessary.
-  For outlining the typical structure of a JSS article some brief text snippets are employed that have been inspired by @ZeileisKleiberJackman2008, discussing count data regression in [R]{.proglang}. Editorial comments and instructions are marked by vertical bars.
+  In order to create an analysis that is easily reproducible,
+  it is not enough to write clean code and document it well. One
+  must also make sure to list all the dependencies of the analysis
+  clearly and ideally provide an easy way to install said dependencies.
+  There are several tools that can be used to list dependencies and to
+  make them easily installable by someone that wishes to reproduce a study,
+  such as Docker, a containerization solution. This paper will present
+  the Nix package manager, and an R package called {rix} that lowers
+  Nix's learning curve for users of the R programming language.
 
-keywords: [JSS, style guide, comma-separated, not capitalized, R]
-keywords-formatted: [JSS, style guide, comma-separated, not capitalized, "[R]{.proglang}"]
+keywords: [reproducibility, R, Nix]
+keywords-formatted: [reproducibility, "[R]{.proglang}", "[Nix]{.proglang}"]
 
 bibliography: bibliography.bib  
 ---
 
-## Introduction: Count data regression in R {#sec-intro}
+## Introduction: Reproducibility is also about software {#sec-intro}
 
 ::: callout
 The introduction is in principle "as usual". However, it should usually embed both the implemented *methods* and the *software* into the respective relevant literature. For the latter both competing and complementary software should be discussed (within the same software environment and beyond), bringing out relative (dis)advantages. All software mentioned should be properly `@cited`'d. (See also [Using BibTeX] for more details on {{< bibtex >}}.)
@@ -44,9 +47,38 @@ For writing about software JSS requires authors to use the markup `[]{.proglang}
 If there is such markup in (sub)section titles (as above), a plain text version has to be provided in the {{< latex >}} command as well. Below we also illustrate how abbrevations should be introduced and citation commands can be employed. See the {{< latex >}} code for more details.
 :::
 
-Modeling count variables is a common task in economics and the social sciences. The classical Poisson regression model for count data is often of limited use in these disciplines because empirical count data sets typically exhibit overdispersion and/or an excess number of zeros. The former issue can be addressed by extending the plain Poisson regression model in various directions: e.g., using sandwich covariances or estimating an additional dispersion parameter (in a so-called quasi-Poisson model). Another more formal way is to use a negative binomial (NB) regression. All of these models belong to the family of generalized linear models (GLMs). However, although these models typically can capture overdispersion rather well, they are in many applications not sufficient for modeling excess zeros. Since @Mullahy1986 there is increased interest in zero-augmented models that address this issue by a second model component capturing zero counts. An overview of count data models in econometrics, including hurdle and zero-inflated models, is provided in @CameronTrivedi2013.
+@peng2011 introduced the idea of reproducibility being on a continuum: on one of
+the ends of this continuum, we only have access to the paper describing the
+studies, which is not reproducible at all. Then, if to this paper we make the
+original source code of the analysis that was written to compute the results of
+the study available, reproducibility is improved, albeit only by a little.
+Adding the original data to this package improves reproducibility yet again. Finally,
+if to all this we add what Roger Peng named the *linked and executable code and data*,
+we reach the gold standard of full replication.
 
-In [R]{.proglang} @R, GLMs are provided by the model fitting functions [glm]{.fct} in the [stats]{.pkg} package and [glm.nb]{.fct} in the [MASS]{.pkg} package [@VenablesRipley2002] along with associated methods for diagnostics and inference. The manuscript that this document is based on [@ZeileisKleiberJackman2008] then introduced hurdle and zero-inflated count models in the functions [hurdle]{.fct} and [zeroinfl]{.fct} in the [pcsl]{.pkg} package @Jackman2015. Of course, much more software could be discussed here, including (but not limited to) generalized additive models for count data as available in the [R]{.proglang} packages [mgcv]{.pkg} @Wood2006, [gamlss]{.pkg} @StasinopoulosRigby2007, or [VGAM]{.pkg} @Yee2009.
+What is this *linked and executable code and data*? Another way to name this
+crucial piece of the reproducibility puzzle is *computational environment*. The
+computational environment is all the software required to actually run the
+analysis. Here too, we can speak of a continuum. One could simply name and list
+the software used: for example, the [R]{.proglang} programming language.
+Sometimes, authors have the courtesy to also state the version of [R]{.proglang}
+used. Some authors go further, and also list the packages used, and ideally with
+their versions as well. Authors rarely state the operating system on which the
+analysis was done, even though it has been shown that running the same analysis
+with the same software but on different operating systems could lead to different
+results, as described in @neupane2019. Authors also only very rarely provide
+instructions to install the required tools and software in order to reproduce
+their studies.
+
+There are exceptions of course, a great example of a paper that provides everything
+needed to reproduce its results is @mcdermott2021. The author of this paper set up
+an accompagnying Github repository to the paper^[https://github.com/grantmcdermott/skeptic-priors]
+containing all the instructions to install the required software and then run the
+analysis. If we take a closer look at this repository, we will notice that several
+tools were used to capture the compatutational environment and make it available to
+other researchers:
+
+- First, the version of [R]{.proglang} was stated
 
 ## Models and software {#sec-models}
 
