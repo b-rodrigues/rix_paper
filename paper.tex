@@ -146,7 +146,7 @@
 \makeatletter
 \makeatother
 \makeatletter
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, interior hidden, enhanced, breakable, sharp corners, frame hidden, borderline west={3pt}{0pt}{shadecolor}]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, breakable, enhanced, borderline west={3pt}{0pt}{shadecolor}, frame hidden, interior hidden, boxrule=0pt]}{\end{tcolorbox}}\fi
 \makeatother
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
@@ -223,7 +223,7 @@ Philipp Baumann\\
 \section{Introduction: Reproducibility is also about
 software}\label{sec-intro}
 
-\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, leftrule=.75mm, opacityback=0, arc=.35mm, rightrule=.15mm, bottomrule=.15mm, colback=white, toprule=.15mm]
 
 The introduction is in principle ``as usual''. However, it should
 usually embed both the implemented \emph{methods} and the
@@ -249,13 +249,12 @@ commands can be employed. See the {\LaTeX} code for more details.
 \citet{peng2011} introduced the idea of reproducibility being on a
 continuum: on one of the ends of this continuum, we only have access to
 the paper describing the studies, which is not reproducible at all.
-Then, if to this paper we make the original source code of the analysis
-that was written to compute the results of the study available,
-reproducibility is improved, albeit only by a little. Adding the
-original data to this package improves reproducibility yet again.
-Finally, if to all this we add what Roger Peng named the \emph{linked
-and executable code and data}, we reach the gold standard of full
-replication.
+Then, if in addition, to this paper we make the original source code of
+the analysis that was written to compute the results of the study
+available, reproducibility is improved, albeit only by a little. Adding
+the original data improves reproducibility yet again. Finally, if to all
+this we add what Roger Peng named the \emph{linked and executable code
+and data}, we reach the gold standard of full replication.
 
 What is this \emph{linked and executable code and data}? Another way to
 name this crucial piece of the reproducibility puzzle is
@@ -285,34 +284,30 @@ environment and make it available to other researchers:
 \begin{itemize}
 \tightlist
 \item
-  First, the version of \proglang{R} was stated
+  The version of \proglang{R} was stated;
+\item
+  Packages and their versions were listed and saved into an
+  \texttt{renv.lock} file;
+\item
+  A \texttt{Makefile} was used to run the whole analysis and compile the
+  paper;
+\item
+  A \texttt{Dockerfile} was used to provide the complete computational
+  environment, including the right version of \proglang{R} and run the
+  whole analysis easily.
 \end{itemize}
 
-\section{Models and software}\label{sec-models}
+As we go down this list, we get closer to the gold standard of a
+perfectly reproducible study.
 
-The basic Poisson regression model for count data is a special case of
-the GLM framework \citet{McCullaghNelder1989}. It describes the
-dependence of a count response variable \(y_i\) (\(i = 1, \dots, n\)) by
-assuming a Poisson distribution \(y_i \sim \mathrm{Pois}(\mu_i)\). The
-dependence of the conditional mean \(E[y_i \, | \, x_i] = \mu_i\) on the
-regressors \(x_i\) is then specified via a log link and a linear
-predictor
+However, reaching this gold standard is quite costly: one needs to learn
+a tool to deal with package versions, then a build automation tool such
+as \proglang{make} and ideally \proglang{Docker} should be added to the
+list. \proglang{Docker} is a tool that makes it possible to run
+arbitrary code in a completely controlled and isolated environment as a
+way to capture the complete underlying system libraries.
 
-\begin{equation}\phantomsection\label{eq-mean}{
-\log(\mu_i) \quad = \quad x_i^\top \beta,
-}\end{equation}
-
-where the regression coefficients \(\beta\) are estimated by maximum
-likelihood (ML) using the iterative weighted least squares (IWLS)
-algorithm.
-
-\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
-
-TODO: Note that around the equation above there should be no spaces
-(avoided in the {\LaTeX} code by \texttt{\%} lines) so that ``normal''
-spacing is used and not a new paragraph started.
-
-\end{tcolorbox}
+\subsection{Prior art}\label{subsec-prior}
 
 \proglang{R} provides a very flexible implementation of the general GLM
 framework in the function \fct{glm} \citet{ChambersHastie1992} in the
@@ -337,7 +332,7 @@ further arguments to \fct{glm} (including alternative specifications of
 starting values) see \texttt{?glm}. For estimating a Poisson model
 \texttt{family\ =\ poisson} has to be specified.
 
-\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, leftrule=.75mm, opacityback=0, arc=.35mm, rightrule=.15mm, bottomrule=.15mm, colback=white, toprule=.15mm]
 
 As the synopsis above is a code listing that is not meant to be
 executed, one can use either the dedicated \texttt{\{Code\}} environment
@@ -418,7 +413,7 @@ R> data(mtcars)
 and a basic frequency distribution of the response variable is displayed
 in \textbf{?@fig-quine}.
 
-\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, leftrule=.75mm, opacityback=0, arc=.35mm, rightrule=.15mm, bottomrule=.15mm, colback=white, toprule=.15mm]
 
 For code input and output, the style files provide dedicated
 environments. Either the ``agnostic'' \texttt{\{CodeInput\}} and
@@ -439,7 +434,7 @@ above).
 
 \section{Summary and discussion}\label{sec-summary}
 
-\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, leftrule=.75mm, opacityback=0, arc=.35mm, rightrule=.15mm, bottomrule=.15mm, colback=white, toprule=.15mm]
 
 As usual\ldots{}
 
@@ -448,7 +443,7 @@ As usual\ldots{}
 \section*{Computational details}\label{computational-details}
 \addcontentsline{toc}{section}{Computational details}
 
-\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, leftrule=.75mm, opacityback=0, arc=.35mm, rightrule=.15mm, bottomrule=.15mm, colback=white, toprule=.15mm]
 
 If necessary or useful, information about certain computational details
 such as version numbers, operating systems, or compilers could be
@@ -467,7 +462,7 @@ Network (CRAN) at {[}https://CRAN.R-project.org/{]}.
 \section*{Acknowledgments}\label{acknowledgments}
 \addcontentsline{toc}{section}{Acknowledgments}
 
-\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, leftrule=.75mm, opacityback=0, arc=.35mm, rightrule=.15mm, bottomrule=.15mm, colback=white, toprule=.15mm]
 
 All acknowledgments (note the AE spelling) should be collected in this
 unnumbered section before the references. It may contain the usual
@@ -488,7 +483,7 @@ may be added here (if any).
 \section*{More technical details}\label{sec-techdetails}
 \addcontentsline{toc}{section}{More technical details}
 
-\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, leftrule=.75mm, opacityback=0, arc=.35mm, rightrule=.15mm, bottomrule=.15mm, colback=white, toprule=.15mm]
 
 Appendices can be included after the bibliography (with a page break).
 Each section within the appendix should have a proper section title
@@ -519,7 +514,7 @@ which includes the following topics:
 \section*{Using BibTeX}\label{sec-bibtex}
 \addcontentsline{toc}{section}{Using BibTeX}
 
-\begin{tcolorbox}[enhanced jigsaw, bottomrule=.15mm, arc=.35mm, breakable, toprule=.15mm, left=2mm, colback=white, rightrule=.15mm, opacityback=0, leftrule=.75mm]
+\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, leftrule=.75mm, opacityback=0, arc=.35mm, rightrule=.15mm, bottomrule=.15mm, colback=white, toprule=.15mm]
 
 References need to be provided in a \textsc{Bib}{\TeX} file
 (\texttt{.bib}). All references should be made with \texttt{@cite}
