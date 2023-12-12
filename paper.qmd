@@ -49,12 +49,12 @@ If there is such markup in (sub)section titles (as above), a plain text version 
 
 @peng2011 introduced the idea of reproducibility being on a continuum: on one of
 the ends of this continuum, we only have access to the paper describing the
-studies, which is not reproducible at all. Then, if to this paper we make the
-original source code of the analysis that was written to compute the results of
-the study available, reproducibility is improved, albeit only by a little.
-Adding the original data to this package improves reproducibility yet again. Finally,
-if to all this we add what Roger Peng named the *linked and executable code and data*,
-we reach the gold standard of full replication.
+studies, which is not reproducible at all. Then, if in addition, to this paper
+we make the original source code of the analysis that was written to compute the
+results of the study available, reproducibility is improved, albeit only by a
+little. Adding the original data improves reproducibility yet again. Finally, if
+to all this we add what Roger Peng named the *linked and executable code and
+data*, we reach the gold standard of full replication.
 
 What is this *linked and executable code and data*? Another way to name this
 crucial piece of the reproducibility puzzle is *computational environment*. The
@@ -78,21 +78,26 @@ analysis. If we take a closer look at this repository, we will notice that sever
 tools were used to capture the compatutational environment and make it available to
 other researchers:
 
-- First, the version of [R]{.proglang} was stated
+- The version of [R]{.proglang} was stated;
+- Packages and their versions were listed and saved into an `renv.lock` file;
+- A `Makefile` was used to run the whole analysis and compile the paper;
+- A `Dockerfile` was used to provide the complete computational environment, including the right version of [R]{.proglang} and run the whole analysis easily.
 
-## Models and software {#sec-models}
+As we go down this list, we get closer to the gold standard of a perfectly reproducible
+study.
 
-The basic Poisson regression model for count data is a special case of the GLM framework @McCullaghNelder1989. It describes the dependence of a count response variable $y_i$ ($i = 1, \dots, n$) by assuming a Poisson distribution $y_i \sim \mathrm{Pois}(\mu_i)$. The dependence of the conditional mean $E[y_i \, | \, x_i] = \mu_i$ on the regressors $x_i$ is then specified via a log link and a linear predictor
+However, reaching this gold standard is quite costly: one needs to learn a tool
+to deal with package versions, then a build automation tool such as
+[make]{.proglang} and ideally [Docker]{.proglang} should be added to the list.
+[Docker]{.proglang} is a tool that makes it possible to run arbitrary code in a
+completely controlled and isolated environment as a way to capture the complete
+underlying system libraries.
 
-$$
-\log(\mu_i) \quad = \quad x_i^\top \beta,
-$$ {#eq-mean}
 
-where the regression coefficients $\beta$ are estimated by maximum likelihood (ML) using the iterative weighted least squares (IWLS) algorithm.
+### Prior art {#subsec-prior}
 
-::: callout
-TODO: Note that around the equation above there should be no spaces (avoided in the {{< latex >}} code by `%` lines) so that "normal" spacing is used and not a new paragraph started.
-:::
+
+
 
 [R]{.proglang} provides a very flexible implementation of the general GLM framework in the function [glm]{.fct} @ChambersHastie1992 in the [stats]{.pkg} package. Its most important arguments are
 
