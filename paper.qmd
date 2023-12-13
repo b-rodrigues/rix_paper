@@ -27,9 +27,9 @@ abstract: |
   clearly and ideally provide an easy way to install said dependencies.
   There are several tools that can be used to list dependencies and to
   make them easily installable by someone that wishes to reproduce a study,
-  such as Docker, a containerization solution. This paper will present
-  the Nix package manager, and an R package called {rix} that lowers
-  Nix's learning curve for users of the R programming language.
+  such as [Docker].{proglang}, a containerization solution. This paper will present
+  the Nix package manager, and an [R].{proglang} package called [rix]{.pkg} that lowers
+  Nix's learning curve for users of the [R].{proglang} programming language.
 
 keywords: [reproducibility, R, Nix]
 keywords-formatted: [reproducibility, "[R]{.proglang}", "[Nix]{.proglang}"]
@@ -38,14 +38,6 @@ bibliography: bibliography.bib
 ---
 
 ## Introduction: Reproducibility is also about software {#sec-intro}
-
-::: callout
-The introduction is in principle "as usual". However, it should usually embed both the implemented *methods* and the *software* into the respective relevant literature. For the latter both competing and complementary software should be discussed (within the same software environment and beyond), bringing out relative (dis)advantages. All software mentioned should be properly `@cited`'d. (See also [Using BibTeX] for more details on {{< bibtex >}}.)
-
-For writing about software JSS requires authors to use the markup `[]{.proglang}` (programming languages and large programmable systems), `[]{.pkg}` (software packages), back ticks like \`code\` for code (functions, commands, arguments, etc.).
-
-If there is such markup in (sub)section titles (as above), a plain text version has to be provided in the {{< latex >}} command as well. Below we also illustrate how abbrevations should be introduced and citation commands can be employed. See the {{< latex >}} code for more details.
-:::
 
 @peng2011 introduced the idea of reproducibility being on a continuum: on one of
 the ends of this continuum, we only have access to the paper describing the
@@ -70,6 +62,132 @@ results, as described in @neupane2019. Authors also only very rarely provide
 instructions to install the required tools and software in order to reproduce
 their studies.
 
+Tools can be used at each of these steps to reach the gold standard of full
+replication. Let's first consider the task of listing the software used.
+[R]{.proglang} provides the `sessionInfo()` function whose output can be saved
+into a file. Below is an example output of `sessionInfo()`:
+
+```{r, eval = FALSE}
+sessionInfo()
+```
+
+```
+R version 4.3.2 (2023-10-31)
+Platform: aarch64-unknown-linux-gnu (64-bit)
+Running under: Ubuntu 22.04.3 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/aarch64-linux-gnu/openblas-pthread/libblas.so.3 
+LAPACK: /usr/lib/aarch64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+time zone: Etc/UTC
+tzcode source: system (glibc)
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods  
+[7] base     
+
+other attached packages:
+[1] nnet_7.3-19  mgcv_1.9-0   nlme_3.1-163
+
+loaded via a namespace (and not attached):
+[1] compiler_4.3.2 Matrix_1.6-1.1 tools_4.3.2    splines_4.3.2 
+[5] grid_4.3.2     lattice_0.21-9
+```
+
+If an author provides this information, other people trying to reproduce the
+study (or the author him- or herself in the future) can read this file
+and see which version of [R]{.proglang} was used, and which packages (and their
+versions) were used as well. However, others would still need to install the
+correct software themselves. An alternative to this is instead to use the [renv]{.pkg}
+package which generates a so-called `renv.lock` file which also lists
+[R]{.proglang} and package versions. Here is an example of such an `renv.lock` file:
+
+```
+{
+"R": {
+  "Version": "4.2.2",
+  "Repositories": [
+  {
+   "Name": "CRAN",
+   "URL": "https://packagemanager.rstudio.com/all/latest"
+  }
+  ]
+},
+"Packages": {
+  "MASS": {
+    "Package": "MASS",
+    "Version": "7.3-58.1",
+    "Source": "Repository",
+    "Repository": "CRAN",
+    "Hash": "762e1804143a332333c054759f89a706",
+    "Requirements": []
+  },
+  "Matrix": {
+    "Package": "Matrix",
+    "Version": "1.5-1",
+    "Source": "Repository",
+    "Repository": "CRAN",
+    "Hash": "539dc0c0c05636812f1080f473d2c177",
+    "Requirements": [
+      "lattice"
+    ]
+
+    ***and many more packages***
+```
+
+This file lists every package alongside their versions and the repository from
+which they were downloaded. Generating this file only requires one to run the
+`renv::init()` function. Someone else can then restore the same package library
+by running `renv::restore()`. The exact same packages get installed in an
+isolated, project-specific, library which doesn't interfere with the other,
+main, library of the user. [renv]{.pkg} does not restore the [R]{.proglang}
+itself though, so installing the right version of R needs to be handled
+separately. Before continuing, it should be noted that other packages exist
+which provide similar functionality to [renv]{.pkg}: there is [groundhog]{.pkg}
+by @simonsohn2023 which makes it rather easy to install packages as they were
+on CRAN at a given date. For example, the code snippet below install the
+[purrr]{.pkg} and [ggplot2]{.pkg} packages as they were on April 4th, 2017:
+
+```
+groundhog.library("
+    library(purrr)
+    library(ggplot2)",
+    "2017-10-04",
+    tolerate.R.version = "4.2.2")
+```
+
+These packages also get installed in a project-specfic library so there is no
+interferences between these packages and other versions of the same packages
+that one might use for other projects. Because [groundhog]{.pkg} does not
+install [R]{.proglang} itself, users should either install the required version
+themselves, or they should use the `tolerate.R.version` argument as shown in the
+example above. Otherwise, [groundhog]{.pkg} would not continue with the
+installation of the packages. Another such package, developed by @chan2023 is
+[rang]{.pkg}, which also installs packages as they were on a given date.
+Yet another way to install packages as they were on a give date is to use
+the Posit Package Manager, which provides snapshots of CRAN. For example,
+to install the required packages for an analysis as they were on the 30th of June
+2023, one could add the following line to the `.Rprofile` file:
+
+```
+options(repos = c(REPO_NAME = "https://packagemanager.posit.co/cran/__linux__/jammy/2023-06-30"))
+```
+
+The `.Rprofile` file is a file that gets read by R when starting a new session, which
+means that every call to the `install.packages()` function will now install the packages
+from this snapshotted mirror.
+
+
+
 There are exceptions of course, a great example of a paper that provides everything
 needed to reproduce its results is @mcdermott2021. The author of this paper set up
 an accompagnying Github repository to the paper^[https://github.com/grantmcdermott/skeptic-priors]
@@ -83,15 +201,20 @@ other researchers:
 - A `Makefile` was used to run the whole analysis and compile the paper;
 - A `Dockerfile` was used to provide the complete computational environment, including the right version of [R]{.proglang} and run the whole analysis easily.
 
-As we go down this list, we get closer to the gold standard of a perfectly reproducible
-study.
+As we go down this list, we get closer to the gold standard of a perfectly
+reproducible study.
 
 However, reaching this gold standard is quite costly: one needs to learn a tool
 to deal with package versions, then a build automation tool such as
 [make]{.proglang} and ideally [Docker]{.proglang} should be added to the list.
 [Docker]{.proglang} is a tool that makes it possible to run arbitrary code in a
 completely controlled and isolated environment as a way to capture the complete
-underlying system libraries.
+underlying system libraries. Simply put, a `Dockerfile` provides a complete
+description of the computational environment as well as the required instructions
+to build the complete project. One can then use [Docker]{.proglang} to build
+a so-called *image* which contains all the required software and instructions
+to build the project. From this image, it is then possible to run a *container*
+which actually runs the analysis.
 
 
 ### Prior art {#subsec-prior}
