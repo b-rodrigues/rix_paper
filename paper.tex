@@ -146,7 +146,7 @@
 \makeatletter
 \makeatother
 \makeatletter
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, breakable, enhanced, borderline west={3pt}{0pt}{shadecolor}, frame hidden, interior hidden, boxrule=0pt]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt, breakable, interior hidden, frame hidden, enhanced, sharp corners]}{\end{tcolorbox}}\fi
 \makeatother
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
@@ -184,9 +184,10 @@ make sure to list all the dependencies of the analysis clearly and
 ideally provide an easy way to install said dependencies. There are
 several tools that can be used to list dependencies and to make them
 easily installable by someone that wishes to reproduce a study, such as
-Docker, a containerization solution. This paper will present the Nix
-package manager, and an R package called \{rix\} that lowers Nix's
-learning curve for users of the R programming language.}
+{[}Docker{]}.\{proglang\}, a containerization solution. This paper will
+present the Nix package manager, and an {[}R{]}.\{proglang\} package
+called \pkg{rix} that lowers Nix's learning curve for users of the
+{[}R{]}.\{proglang\} programming language.}
 
 %% at least one keyword must be supplied
 \Keywords{reproducibility, \proglang{R}, \proglang{Nix}}
@@ -223,29 +224,6 @@ Philipp Baumann\\
 \section{Introduction: Reproducibility is also about
 software}\label{sec-intro}
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, leftrule=.75mm, opacityback=0, arc=.35mm, rightrule=.15mm, bottomrule=.15mm, colback=white, toprule=.15mm]
-
-The introduction is in principle ``as usual''. However, it should
-usually embed both the implemented \emph{methods} and the
-\emph{software} into the respective relevant literature. For the latter
-both competing and complementary software should be discussed (within
-the same software environment and beyond), bringing out relative
-(dis)advantages. All software mentioned should be properly
-\texttt{@cited}'d.~(See also \hyperref[sec-bibtex]{Using BibTeX} for
-more details on \textsc{Bib}{\TeX}.)
-
-For writing about software JSS requires authors to use the markup
-\texttt{{[}{]}\{.proglang\}} (programming languages and large
-programmable systems), \texttt{{[}{]}\{.pkg\}} (software packages), back
-ticks like `code` for code (functions, commands, arguments, etc.).
-
-If there is such markup in (sub)section titles (as above), a plain text
-version has to be provided in the {\LaTeX} command as well. Below we
-also illustrate how abbrevations should be introduced and citation
-commands can be employed. See the {\LaTeX} code for more details.
-
-\end{tcolorbox}
-
 \citet{peng2011} introduced the idea of reproducibility being on a
 continuum: on one of the ends of this continuum, we only have access to
 the paper describing the studies, which is not reproducible at all.
@@ -271,6 +249,137 @@ systems could lead to different results, as described in
 \citet{neupane2019}. Authors also only very rarely provide instructions
 to install the required tools and software in order to reproduce their
 studies.
+
+Tools can be used at each of these steps to reach the gold standard of
+full replication. Let's first consider the task of listing the software
+used. \proglang{R} provides the \texttt{sessionInfo()} function whose
+output can be saved into a file. Below is an example output of
+\texttt{sessionInfo()}:
+
+\begin{verbatim}
+sessionInfo()
+\end{verbatim}
+
+\begin{verbatim}
+R version 4.3.2 (2023-10-31)
+Platform: aarch64-unknown-linux-gnu (64-bit)
+Running under: Ubuntu 22.04.3 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/aarch64-linux-gnu/openblas-pthread/libblas.so.3 
+LAPACK: /usr/lib/aarch64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+time zone: Etc/UTC
+tzcode source: system (glibc)
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods  
+[7] base     
+
+other attached packages:
+[1] nnet_7.3-19  mgcv_1.9-0   nlme_3.1-163
+
+loaded via a namespace (and not attached):
+[1] compiler_4.3.2 Matrix_1.6-1.1 tools_4.3.2    splines_4.3.2 
+[5] grid_4.3.2     lattice_0.21-9
+\end{verbatim}
+
+If an author provides this information, other people trying to reproduce
+the study (or the author him- or herself in the future) can read this
+file and see which version of \proglang{R} was used, and which packages
+(and their versions) were used as well. However, others would still need
+to install the correct software themselves. An alternative to this is
+instead to use the \pkg{renv} package which generates a so-called
+\texttt{renv.lock} file which also lists \proglang{R} and package
+versions. Here is an example of such an \texttt{renv.lock} file:
+
+\begin{verbatim}
+{
+"R": {
+  "Version": "4.2.2",
+  "Repositories": [
+  {
+   "Name": "CRAN",
+   "URL": "https://packagemanager.rstudio.com/all/latest"
+  }
+  ]
+},
+"Packages": {
+  "MASS": {
+    "Package": "MASS",
+    "Version": "7.3-58.1",
+    "Source": "Repository",
+    "Repository": "CRAN",
+    "Hash": "762e1804143a332333c054759f89a706",
+    "Requirements": []
+  },
+  "Matrix": {
+    "Package": "Matrix",
+    "Version": "1.5-1",
+    "Source": "Repository",
+    "Repository": "CRAN",
+    "Hash": "539dc0c0c05636812f1080f473d2c177",
+    "Requirements": [
+      "lattice"
+    ]
+
+    ***and many more packages***
+\end{verbatim}
+
+This file lists every package alongside their versions and the
+repository from which they were downloaded. Generating this file only
+requires one to run the \texttt{renv::init()} function. Someone else can
+then restore the same package library by running
+\texttt{renv::restore()}. The exact same packages get installed in an
+isolated, project-specific, library which doesn't interfere with the
+other, main, library of the user. \pkg{renv} does not restore the
+\proglang{R} itself though, so installing the right version of R needs
+to be handled separately. Before continuing, it should be noted that
+other packages exist which provide similar functionality to \pkg{renv}:
+there is \pkg{groundhog} by \citet{simonsohn2023} which makes it rather
+easy to install packages as they were on CRAN at a given date. For
+example, the code snippet below install the \pkg{purrr} and
+\pkg{ggplot2} packages as they were on April 4th, 2017:
+
+\begin{verbatim}
+groundhog.library("
+    library(purrr)
+    library(ggplot2)",
+    "2017-10-04",
+    tolerate.R.version = "4.2.2")
+\end{verbatim}
+
+These packages also get installed in a project-specfic library so there
+is no interferences between these packages and other versions of the
+same packages that one might use for other projects. Because
+\pkg{groundhog} does not install \proglang{R} itself, users should
+either install the required version themselves, or they should use the
+\texttt{tolerate.R.version} argument as shown in the example above.
+Otherwise, \pkg{groundhog} would not continue with the installation of
+the packages. Another such package, developed by \citet{chan2023} is
+\pkg{rang}, which also installs packages as they were on a given date.
+Yet another way to install packages as they were on a give date is to
+use the Posit Package Manager, which provides snapshots of CRAN. For
+example, to install the required packages for an analysis as they were
+on the 30th of June 2023, one could add the following line to the
+\texttt{.Rprofile} file:
+
+\begin{verbatim}
+options(repos = c(REPO_NAME = "https://packagemanager.posit.co/cran/__linux__/jammy/2023-06-30"))
+\end{verbatim}
+
+The \texttt{.Rprofile} file is a file that gets read by R when starting
+a new session, which means that every call to the
+\texttt{install.packages()} function will now install the packages from
+this snapshotted mirror.
 
 There are exceptions of course, a great example of a paper that provides
 everything needed to reproduce its results is \citet{mcdermott2021}. The
@@ -305,7 +414,13 @@ a tool to deal with package versions, then a build automation tool such
 as \proglang{make} and ideally \proglang{Docker} should be added to the
 list. \proglang{Docker} is a tool that makes it possible to run
 arbitrary code in a completely controlled and isolated environment as a
-way to capture the complete underlying system libraries.
+way to capture the complete underlying system libraries. Simply put, a
+\texttt{Dockerfile} provides a complete description of the computational
+environment as well as the required instructions to build the complete
+project. One can then use \proglang{Docker} to build a so-called
+\emph{image} which contains all the required software and instructions
+to build the project. From this image, it is then possible to run a
+\emph{container} which actually runs the analysis.
 
 \subsection{Prior art}\label{subsec-prior}
 
@@ -332,7 +447,7 @@ further arguments to \fct{glm} (including alternative specifications of
 starting values) see \texttt{?glm}. For estimating a Poisson model
 \texttt{family\ =\ poisson} has to be specified.
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, leftrule=.75mm, opacityback=0, arc=.35mm, rightrule=.15mm, bottomrule=.15mm, colback=white, toprule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, leftrule=.75mm, bottomrule=.15mm, left=2mm, breakable, toprule=.15mm, colback=white, opacityback=0, rightrule=.15mm]
 
 As the synopsis above is a code listing that is not meant to be
 executed, one can use either the dedicated \texttt{\{Code\}} environment
@@ -413,7 +528,7 @@ R> data(mtcars)
 and a basic frequency distribution of the response variable is displayed
 in \textbf{?@fig-quine}.
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, leftrule=.75mm, opacityback=0, arc=.35mm, rightrule=.15mm, bottomrule=.15mm, colback=white, toprule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, leftrule=.75mm, bottomrule=.15mm, left=2mm, breakable, toprule=.15mm, colback=white, opacityback=0, rightrule=.15mm]
 
 For code input and output, the style files provide dedicated
 environments. Either the ``agnostic'' \texttt{\{CodeInput\}} and
@@ -434,7 +549,7 @@ above).
 
 \section{Summary and discussion}\label{sec-summary}
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, leftrule=.75mm, opacityback=0, arc=.35mm, rightrule=.15mm, bottomrule=.15mm, colback=white, toprule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, leftrule=.75mm, bottomrule=.15mm, left=2mm, breakable, toprule=.15mm, colback=white, opacityback=0, rightrule=.15mm]
 
 As usual\ldots{}
 
@@ -443,7 +558,7 @@ As usual\ldots{}
 \section*{Computational details}\label{computational-details}
 \addcontentsline{toc}{section}{Computational details}
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, leftrule=.75mm, opacityback=0, arc=.35mm, rightrule=.15mm, bottomrule=.15mm, colback=white, toprule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, leftrule=.75mm, bottomrule=.15mm, left=2mm, breakable, toprule=.15mm, colback=white, opacityback=0, rightrule=.15mm]
 
 If necessary or useful, information about certain computational details
 such as version numbers, operating systems, or compilers could be
@@ -462,7 +577,7 @@ Network (CRAN) at {[}https://CRAN.R-project.org/{]}.
 \section*{Acknowledgments}\label{acknowledgments}
 \addcontentsline{toc}{section}{Acknowledgments}
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, leftrule=.75mm, opacityback=0, arc=.35mm, rightrule=.15mm, bottomrule=.15mm, colback=white, toprule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, leftrule=.75mm, bottomrule=.15mm, left=2mm, breakable, toprule=.15mm, colback=white, opacityback=0, rightrule=.15mm]
 
 All acknowledgments (note the AE spelling) should be collected in this
 unnumbered section before the references. It may contain the usual
@@ -483,7 +598,7 @@ may be added here (if any).
 \section*{More technical details}\label{sec-techdetails}
 \addcontentsline{toc}{section}{More technical details}
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, leftrule=.75mm, opacityback=0, arc=.35mm, rightrule=.15mm, bottomrule=.15mm, colback=white, toprule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, leftrule=.75mm, bottomrule=.15mm, left=2mm, breakable, toprule=.15mm, colback=white, opacityback=0, rightrule=.15mm]
 
 Appendices can be included after the bibliography (with a page break).
 Each section within the appendix should have a proper section title
@@ -514,7 +629,7 @@ which includes the following topics:
 \section*{Using BibTeX}\label{sec-bibtex}
 \addcontentsline{toc}{section}{Using BibTeX}
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, leftrule=.75mm, opacityback=0, arc=.35mm, rightrule=.15mm, bottomrule=.15mm, colback=white, toprule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, leftrule=.75mm, bottomrule=.15mm, left=2mm, breakable, toprule=.15mm, colback=white, opacityback=0, rightrule=.15mm]
 
 References need to be provided in a \textsc{Bib}{\TeX} file
 (\texttt{.bib}). All references should be made with \texttt{@cite}
