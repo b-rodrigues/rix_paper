@@ -186,6 +186,10 @@ The `.Rprofile` file is a file that gets read by R when starting a new session, 
 means that every call to the `install.packages()` function will now install the packages
 from this snapshotted mirror.
 
+The next step in reaching the gold standard of reproducibility would be to not only
+install the right packages used for the analysis, but also the right version of
+[R]{.proglang}. Of course, it would be possible to install the right version manually,
+but here too, there are tools that simplify the process such as @rlib2023.
 
 
 There are exceptions of course, a great example of a paper that provides everything
