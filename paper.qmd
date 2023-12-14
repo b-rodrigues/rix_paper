@@ -27,9 +27,9 @@ abstract: |
   clearly and ideally provide an easy way to install said dependencies.
   There are several tools that can be used to list dependencies and to
   make them easily installable by someone that wishes to reproduce a study,
-  such as [Docker].{proglang}, a containerization solution. This paper will present
-  the Nix package manager, and an [R].{proglang} package called [rix]{.pkg} that lowers
-  Nix's learning curve for users of the [R].{proglang} programming language.
+  such as [Docker]{.proglang}, a containerization solution. This paper will present
+  the Nix package manager, and an [R]{.proglang} package called [rix]{.pkg} that lowers
+  Nix's learning curve for users of the [R]{.proglang} programming language.
 
 keywords: [reproducibility, R, Nix]
 keywords-formatted: [reproducibility, "[R]{.proglang}", "[Nix]{.proglang}"]
@@ -78,7 +78,7 @@ Running under: Ubuntu 22.04.3 LTS
 
 Matrix products: default
 BLAS:   /usr/lib/aarch64-linux-gnu/openblas-pthread/libblas.so.3 
-LAPACK: /usr/lib/aarch64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0
+LAPACK: /usr/lib/aarch64-linux-gnu/openblas-pthread/libopenblasp[...]
 
 locale:
  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
@@ -179,28 +179,62 @@ to install the required packages for an analysis as they were on the 30th of Jun
 2023, one could add the following line to the `.Rprofile` file:
 
 ```
-options(repos = c(REPO_NAME = "https://packagemanager.posit.co/cran/__linux__/jammy/2023-06-30"))
+options(repos = c(REPO_NAME = "https://packagemanager.posit.co/cran/
+                               __linux__/jammy/2023-06-30"))
 ```
 
-The `.Rprofile` file is a file that gets read by R when starting a new session, which
-means that every call to the `install.packages()` function will now install the packages
-from this snapshotted mirror.
+The `.Rprofile` file gets read by R when starting a new session, which means
+that every call to the `install.packages()` function will now install the
+packages from this snapshotted mirror.
 
-The next step in reaching the gold standard of reproducibility would be to not only
-install the right packages used for the analysis, but also the right version of
-[R]{.proglang}. Of course, it would be possible to install the right version manually,
-but here too, there are tools that simplify the process such as @rlib2023.
+The next step in reaching the gold standard of reproducibility would be to not
+only install the right packages used for the analysis, but also the right
+version of [R]{.proglang}. Of course, it would be possible to install the right
+version manually, but here too, there are tools that simplify the process such
+as [rig]{.proglang} by the R infrastructure team [-@rlib2023]. One could thus
+install the right version of [R]{.proglang} using [rig]{.proglang} allows to
+easily install different versions of [R]{.proglang}, one could use to install
+the right version to reproduce an analysis, and then use one of the listed
+packages above to install the right library of of [R]{.proglang} packages.
+However, this involves many manual steps and is thus error prone. It is also
+time-consuming to do so, especially if one wants to reproduce many studies.
 
+The final step towards the gold standard of reproducibility is to package the
+right version of [R]{.proglang} and [R]{.proglang} packages inside a
+[Docker]{.proglang} image. [Docker]{.proglang} is a containerisation tool: using
+[Docker]{.proglang} it is possible to package some *data product* with its
+dependencies into an image. From this image, containers can be run to reproduce
+the data product with its exact dependencies. A statistical analysis, from the
+simplest to the most complex one, can be seen as such a data product that comes
+with many software dependencies. *Dockerizing* an analysis consists in first
+building an image: in the build step, the dependencies of the analysis have to
+be installed and this can be achieved using the tools mentioned above. The
+scripts to run the analysis and the data are also added to the image at build
+time. Instances of that image, called containers, can then be executed, which
+give access to the exact development environment originally used for the study.
+It is also possible to script the building of the analysis itself, such that in
+one single call to the `docker run` command, a complete analysis is reproduced.
 
-There are exceptions of course, a great example of a paper that provides everything
-needed to reproduce its results is @mcdermott2021. The author of this paper set up
-an accompagnying Github repository to the paper^[https://github.com/grantmcdermott/skeptic-priors]
-containing all the instructions to install the required software and then run the
-analysis. If we take a closer look at this repository, we will notice that several
-tools were used to capture the compatutational environment and make it available to
-other researchers:
+The Rocker project initiated by @boettiger2017 provides many pre-built
+[Docker]{.proglang} to the [R]{.proglang} community of users. These images
+can be used as bases to build other images containing statistical analyses
+more easily than starting from a bare-bones image.
 
-- The version of [R]{.proglang} was stated;
+An optional step towards the gold standard is to use a build automation tool
+such as [Make]{.proglang} to run the whole analysis when the container is
+executed. Build automation tools make it easier to run arbitrary code in a
+series of well-defined steps. [R]{.proglang} programmers can use the
+[targets]{.pkg} by @landau2021 as a build automation tool.
+
+@mcdermott2021 is an example of a scientific study that reached the gold
+standard of reproducibility. The author of this paper set up an accompagnying
+Github repository to the
+paper^[https://github.com/grantmcdermott/skeptic-priors] containing all the
+instructions to install the required software and then run the analysis. If we
+take a closer look at this repository, we will notice that many of the tools
+previously mentioned were used to capture the compatutational environment and
+make it available to other researchers:
+
 - Packages and their versions were listed and saved into an `renv.lock` file;
 - A `Makefile` was used to run the whole analysis and compile the paper;
 - A `Dockerfile` was used to provide the complete computational environment, including the right version of [R]{.proglang} and run the whole analysis easily.
