@@ -146,7 +146,7 @@
 \makeatletter
 \makeatother
 \makeatletter
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, enhanced, boxrule=0pt, interior hidden, frame hidden, breakable, borderline west={3pt}{0pt}{shadecolor}]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[breakable, interior hidden, borderline west={3pt}{0pt}{shadecolor}, enhanced, boxrule=0pt, frame hidden, sharp corners]}{\end{tcolorbox}}\fi
 \makeatother
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
@@ -184,10 +184,10 @@ make sure to list all the dependencies of the analysis clearly and
 ideally provide an easy way to install said dependencies. There are
 several tools that can be used to list dependencies and to make them
 easily installable by someone that wishes to reproduce a study, such as
-{[}Docker{]}.\{proglang\}, a containerization solution. This paper will
-present the Nix package manager, and an {[}R{]}.\{proglang\} package
-called \pkg{rix} that lowers Nix's learning curve for users of the
-{[}R{]}.\{proglang\} programming language.}
+\proglang{Docker}, a containerization solution. This paper will present
+the Nix package manager, and an \proglang{R} package called \pkg{rix}
+that lowers Nix's learning curve for users of the \proglang{R}
+programming language.}
 
 %% at least one keyword must be supplied
 \Keywords{reproducibility, \proglang{R}, \proglang{Nix}}
@@ -267,7 +267,7 @@ Running under: Ubuntu 22.04.3 LTS
 
 Matrix products: default
 BLAS:   /usr/lib/aarch64-linux-gnu/openblas-pthread/libblas.so.3 
-LAPACK: /usr/lib/aarch64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0
+LAPACK: /usr/lib/aarch64-linux-gnu/openblas-pthread/libopenblasp[...]
 
 locale:
  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
@@ -373,33 +373,70 @@ on the 30th of June 2023, one could add the following line to the
 \texttt{.Rprofile} file:
 
 \begin{verbatim}
-options(repos = c(REPO_NAME = "https://packagemanager.posit.co/cran/__linux__/jammy/2023-06-30"))
+options(repos = c(REPO_NAME = "https://packagemanager.posit.co/cran/
+                               __linux__/jammy/2023-06-30"))
 \end{verbatim}
 
-The \texttt{.Rprofile} file is a file that gets read by R when starting
-a new session, which means that every call to the
-\texttt{install.packages()} function will now install the packages from
-this snapshotted mirror.
+The \texttt{.Rprofile} file gets read by R when starting a new session,
+which means that every call to the \texttt{install.packages()} function
+will now install the packages from this snapshotted mirror.
 
 The next step in reaching the gold standard of reproducibility would be
 to not only install the right packages used for the analysis, but also
 the right version of \proglang{R}. Of course, it would be possible to
 install the right version manually, but here too, there are tools that
-simplify the process such as \citet{rlib2023}.
+simplify the process such as \proglang{rig} by the R infrastructure team
+\citeyearpar{rlib2023}. One could thus install the right version of
+\proglang{R} using \proglang{rig} allows to easily install different
+versions of \proglang{R}, one could use to install the right version to
+reproduce an analysis, and then use one of the listed packages above to
+install the right library of of \proglang{R} packages. However, this
+involves many manual steps and is thus error prone. It is also
+time-consuming to do so, especially if one wants to reproduce many
+studies.
 
-There are exceptions of course, a great example of a paper that provides
-everything needed to reproduce its results is \citet{mcdermott2021}. The
-author of this paper set up an accompagnying Github repository to the
-paper\footnote{https://github.com/grantmcdermott/skeptic-priors}
+The final step towards the gold standard of reproducibility is to
+package the right version of \proglang{R} and \proglang{R} packages
+inside a \proglang{Docker} image. \proglang{Docker} is a
+containerisation tool: using \proglang{Docker} it is possible to package
+some \emph{data product} with its dependencies into an image. From this
+image, containers can be run to reproduce the data product with its
+exact dependencies. A statistical analysis, from the simplest to the
+most complex one, can be seen as such a data product that comes with
+many software dependencies. \emph{Dockerizing} an analysis consists in
+first building an image: in the build step, the dependencies of the
+analysis have to be installed and this can be achieved using the tools
+mentioned above. The scripts to run the analysis and the data are also
+added to the image at build time. Instances of that image, called
+containers, can then be executed, which give access to the exact
+development environment originally used for the study. It is also
+possible to script the building of the analysis itself, such that in one
+single call to the \texttt{docker\ run} command, a complete analysis is
+reproduced.
+
+The Rocker project initiated by \citet{boettiger2017} provides many
+pre-built \proglang{Docker} to the \proglang{R} community of users.
+These images can be used as bases to build other images containing
+statistical analyses more easily than starting from a bare-bones image.
+
+An optional step towards the gold standard is to use a build automation
+tool such as \proglang{Make} to run the whole analysis when the
+container is executed. Build automation tools make it easier to run
+arbitrary code in a series of well-defined steps. \proglang{R}
+programmers can use the \pkg{targets} by \citet{landau2021} as a build
+automation tool.
+
+\citet{mcdermott2021} is an example of a scientific study that reached
+the gold standard of reproducibility. The author of this paper set up an
+accompagnying Github repository to the paper\footnote{https://github.com/grantmcdermott/skeptic-priors}
 containing all the instructions to install the required software and
 then run the analysis. If we take a closer look at this repository, we
-will notice that several tools were used to capture the compatutational
-environment and make it available to other researchers:
+will notice that many of the tools previously mentioned were used to
+capture the compatutational environment and make it available to other
+researchers:
 
 \begin{itemize}
 \tightlist
-\item
-  The version of \proglang{R} was stated;
 \item
   Packages and their versions were listed and saved into an
   \texttt{renv.lock} file;
@@ -453,7 +490,7 @@ further arguments to \fct{glm} (including alternative specifications of
 starting values) see \texttt{?glm}. For estimating a Poisson model
 \texttt{family\ =\ poisson} has to be specified.
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, leftrule=.75mm, colback=white, rightrule=.15mm, left=2mm, opacityback=0, breakable, bottomrule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, opacityback=0, breakable, left=2mm, colback=white, arc=.35mm, rightrule=.15mm, toprule=.15mm, bottomrule=.15mm]
 
 As the synopsis above is a code listing that is not meant to be
 executed, one can use either the dedicated \texttt{\{Code\}} environment
@@ -534,7 +571,7 @@ R> data(mtcars)
 and a basic frequency distribution of the response variable is displayed
 in \textbf{?@fig-quine}.
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, leftrule=.75mm, colback=white, rightrule=.15mm, left=2mm, opacityback=0, breakable, bottomrule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, opacityback=0, breakable, left=2mm, colback=white, arc=.35mm, rightrule=.15mm, toprule=.15mm, bottomrule=.15mm]
 
 For code input and output, the style files provide dedicated
 environments. Either the ``agnostic'' \texttt{\{CodeInput\}} and
@@ -555,7 +592,7 @@ above).
 
 \section{Summary and discussion}\label{sec-summary}
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, leftrule=.75mm, colback=white, rightrule=.15mm, left=2mm, opacityback=0, breakable, bottomrule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, opacityback=0, breakable, left=2mm, colback=white, arc=.35mm, rightrule=.15mm, toprule=.15mm, bottomrule=.15mm]
 
 As usual\ldots{}
 
@@ -564,7 +601,7 @@ As usual\ldots{}
 \section*{Computational details}\label{computational-details}
 \addcontentsline{toc}{section}{Computational details}
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, leftrule=.75mm, colback=white, rightrule=.15mm, left=2mm, opacityback=0, breakable, bottomrule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, opacityback=0, breakable, left=2mm, colback=white, arc=.35mm, rightrule=.15mm, toprule=.15mm, bottomrule=.15mm]
 
 If necessary or useful, information about certain computational details
 such as version numbers, operating systems, or compilers could be
@@ -583,7 +620,7 @@ Network (CRAN) at {[}https://CRAN.R-project.org/{]}.
 \section*{Acknowledgments}\label{acknowledgments}
 \addcontentsline{toc}{section}{Acknowledgments}
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, leftrule=.75mm, colback=white, rightrule=.15mm, left=2mm, opacityback=0, breakable, bottomrule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, opacityback=0, breakable, left=2mm, colback=white, arc=.35mm, rightrule=.15mm, toprule=.15mm, bottomrule=.15mm]
 
 All acknowledgments (note the AE spelling) should be collected in this
 unnumbered section before the references. It may contain the usual
@@ -604,7 +641,7 @@ may be added here (if any).
 \section*{More technical details}\label{sec-techdetails}
 \addcontentsline{toc}{section}{More technical details}
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, leftrule=.75mm, colback=white, rightrule=.15mm, left=2mm, opacityback=0, breakable, bottomrule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, opacityback=0, breakable, left=2mm, colback=white, arc=.35mm, rightrule=.15mm, toprule=.15mm, bottomrule=.15mm]
 
 Appendices can be included after the bibliography (with a page break).
 Each section within the appendix should have a proper section title
@@ -635,7 +672,7 @@ which includes the following topics:
 \section*{Using BibTeX}\label{sec-bibtex}
 \addcontentsline{toc}{section}{Using BibTeX}
 
-\begin{tcolorbox}[enhanced jigsaw, toprule=.15mm, arc=.35mm, leftrule=.75mm, colback=white, rightrule=.15mm, left=2mm, opacityback=0, breakable, bottomrule=.15mm]
+\begin{tcolorbox}[enhanced jigsaw, leftrule=.75mm, opacityback=0, breakable, left=2mm, colback=white, arc=.35mm, rightrule=.15mm, toprule=.15mm, bottomrule=.15mm]
 
 References need to be provided in a \textsc{Bib}{\TeX} file
 (\texttt{.bib}). All references should be made with \texttt{@cite}
