@@ -239,23 +239,105 @@ make it available to other researchers:
 - A `Makefile` was used to run the whole analysis and compile the paper;
 - A `Dockerfile` was used to provide the complete computational environment, including the right version of [R]{.proglang} and run the whole analysis easily.
 
-As we go down this list, we get closer to the gold standard of a perfectly
-reproducible study.
-
 However, reaching this gold standard is quite costly: one needs to learn a tool
-to deal with package versions, then a build automation tool such as
-[make]{.proglang} and ideally [Docker]{.proglang} should be added to the list.
-[Docker]{.proglang} is a tool that makes it possible to run arbitrary code in a
-completely controlled and isolated environment as a way to capture the complete
-underlying system libraries. Simply put, a `Dockerfile` provides a complete
-description of the computational environment as well as the required instructions
-to build the complete project. One can then use [Docker]{.proglang} to build
-a so-called *image* which contains all the required software and instructions
-to build the project. From this image, it is then possible to run a *container*
-which actually runs the analysis.
+to deal with package versions, then [Docker]{.proglang} for all the other
+software, including the programming language that was used. Ideally, a build
+automation tool such as [make]{.proglang} should be added to the list. It should
+also be noted that these requirements are not limited to the [R]{.proglang}
+programming language. A very similar approach should be taken if one uses 
+[Python]{.proglang} for statistical analysis instead.
+
+As an alternative to the above approach, I will present the [Nix]{.proglang}
+package manager, which available for all major operating system and focuses on
+installing and building software in a reproducible manner. To make
+[Nix]{.proglang} more accessible to [R]{.proglang} programmers, I developed the
+[rix]{.pkg} which I will also present in this article.
 
 
-### Prior art {#subsec-prior}
+## The [Nix]{.proglang} package manager 
+
+[Nix]{.proglang} is a package manager that can be used to install and build
+software in a completely reproducible manner. With [Nix]{.proglang}
+it is possible to install [R]{.proglang} and [R]{.proglang} packages as well
+(whether these come from CRAN or Bioconductor)
+
+is that its repository of software is huge. As of writing, it contains more than
+80.000 packages, and the entirety of CRAN and Bioconductor is available through
+Nix’s repositories. This means that using Nix, it is possible to install not
+only R, but also all the packages required for your project. The obvious
+question is why use Nix instead of simply installing R and R packages as usual.
+The answer is that Nix makes sure to install every dependency of any package, up
+to required system libraries. For example, the `{xlsx}` package requires the
+Java programming language to be installed on your computer to successfully
+install. This can be difficult to achieve, and `{xlsx}` bullied many R
+developers throughout the years (especially those using a Linux distribution,
+`sudo R CMD javareconf` still plagues my nightmares). But with Nix, it suffices
+to declare that we want the `{xlsx}` package for our project, and Nix figures
+out automatically that Java is required and installs and configures it. It all
+just happens without any required intervention from the user. The second
+advantage of Nix is that it is possible to pin a certain revision of the Nix
+packages’ repository (called nixpkgs) for our project. Pinning a revision
+ensures that every package that Nix installs will always be at exactly the same
+versions, regardless of when in the future the packages get installed.
+
+With Nix, it is essentially possible to replace {renv} and Docker combined, or
+if you’re using mainly Python, you can replace `conda` or `requirements.txt`
+files. If you need other tools or languages like Python or Julia, this can also
+be done easily. Nix is available for Linux, macOS and Windows (via WSL2).
+Important remark: since using Nix on Windows must go through WSL, when we refer
+to "Linux" in the context of Nix, this includes Windows by default as well. It
+is also possible to build multi-language environments, containing R and Python,
+a LaTeX distribution and packages and so on.
+
+## The Nix programming language
+
+Nix is not just useful because it is possible to install many packages and even
+install older packages, but also because it comes with a complete functional
+programming language. This programming language is used to write *expressions*,
+and these expressions in turn are used to build software. Essentially, when you
+install a package using Nix, an expression gets downloaded from the Nix package
+repository (more on that in the next section), and it gets evaluated by the Nix
+package manager. This expression contains a so-called *derivation*. A derivation
+defines a build: some inputs, some commands, and then an output. Most of the
+time, a derivation downloads source code, builds the software from the source
+and then outputs a compiled binary. Derivations are extremely flexible, and you
+could write a derivation to build a complete environment and then build a
+complete reproducible pipeline. The output could be any of the discussed data
+products.
+
+Learning the Nix programming language is a good idea if you want to contribute
+to the Nix package repository, but you might not have to learn it in-depth if
+you simply wish to use it to build reproducible environments, as we will learn
+now. If you wish to learn about the programming language, I highly recommend [a
+tour of
+Nix](https://nixcloud.io/tour/?id=introduction/nix)^[https://nixcloud.io/tour/?id=introduction/nix].
+
+## The Nix package repository
+
+So, there’s the Nix package manager, the Nix programming language and the Nix
+package repository (henceforth nixpkgs). To look for packages click
+[here](https://search.nixos.org/packages)^[https://search.nixos.org/packages].
+The source code of all the packages (so the whole set of Nix expressions) can be
+found on [this Github
+repository](https://github.com/NixOS/nixpkgs)^[https://github.com/NixOS/nixpkgs].
+For example,
+[here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/libraries/quarto/default.nix)^[https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/libraries/quarto/default.nix]
+is the Nix expression that contains the derivation to build `quarto`. As you can
+see, the derivation uses the the pre-built Quarto binaries instead of building
+it from source. Adding packages to nixpkgs (or updating them) can be done by
+opening pull requests. For example,
+[here](https://github.com/NixOS/nixpkgs/pull/259443)^[https://github.com/NixOS/nixpkgs/pull/259443]
+is a pull request to make Quarto available to all platforms (before this PR
+Quarto was only available for Linux). PRs get reviewed and approuved by
+maintainers that also have the right to merge the PR into master. Once merged,
+the new or updated package is available for download. Because nixpkgs is a
+“just” Github repository, it is possible to use a specific commit hash to
+install the packages as they were at a specific point in time. For example, if
+you use this commit, 7c9cc5a6e, you’ll get the packages as of the 19th of
+October 2023, but if you used this one instead: 976fa3369, you’ll get packages
+from the 19th of August 2023. Using specific hashes is called "pinning" and you
+can read more about it [here](https://nixos.wiki/wiki/FAQ/Pinning_Nixpkgs). We
+will make extensive use of pinning.
 
 
 
