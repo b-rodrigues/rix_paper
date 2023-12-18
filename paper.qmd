@@ -257,28 +257,29 @@ installing and building software in a reproducible manner. To make
 ## The [Nix]{.proglang} package manager 
 
 [Nix]{.proglang} is a package manager that can be used to install and build
-software in a completely reproducible manner. With [Nix]{.proglang}
-it is possible to install [R]{.proglang} and [R]{.proglang} packages as well
-(whether these come from CRAN or Bioconductor)
+software in a completely reproducible manner. As of writing, it contains more
+than 80.000 packages, and the entirety of CRAN and Bioconductor is available
+through [Nix]{.proglang}’s repositories. This means that using [Nix]{.proglang},
+it is possible to install not only [R]{.proglang}, but also all the packages
+required for a project. The reason why one should use [Nix]{.proglang} to
+install [R]{.proglang} packages, and not use the usual, built-in,
+`install.packages()` function instead, is that when installing a package with
+[Nix]{.proglang}, [Nix]{.proglang} makes sure to install every dependency of
+every package, whether this dependency is another R package or a system-level
+dependency.
 
-is that its repository of software is huge. As of writing, it contains more than
-80.000 packages, and the entirety of CRAN and Bioconductor is available through
-Nix’s repositories. This means that using Nix, it is possible to install not
-only R, but also all the packages required for your project. The obvious
-question is why use Nix instead of simply installing R and R packages as usual.
-The answer is that Nix makes sure to install every dependency of any package, up
-to required system libraries. For example, the `{xlsx}` package requires the
-Java programming language to be installed on your computer to successfully
-install. This can be difficult to achieve, and `{xlsx}` bullied many R
-developers throughout the years (especially those using a Linux distribution,
-`sudo R CMD javareconf` still plagues my nightmares). But with Nix, it suffices
-to declare that we want the `{xlsx}` package for our project, and Nix figures
-out automatically that Java is required and installs and configures it. It all
-just happens without any required intervention from the user. The second
-advantage of Nix is that it is possible to pin a certain revision of the Nix
-packages’ repository (called nixpkgs) for our project. Pinning a revision
-ensures that every package that Nix installs will always be at exactly the same
-versions, regardless of when in the future the packages get installed.
+For example, the `{xlsx}` package requires the Java programming language to be
+installed on your computer to successfully install. This can be difficult to
+achieve, and `{xlsx}` bullied many R developers throughout the years (especially
+those using a Linux distribution, `sudo R CMD javareconf` still plagues my
+nightmares). But with Nix, it suffices to declare that we want the `{xlsx}`
+package for our project, and Nix figures out automatically that Java is required
+and installs and configures it. It all just happens without any required
+intervention from the user. The second advantage of Nix is that it is possible
+to pin a certain revision of the Nix packages’ repository (called nixpkgs) for
+our project. Pinning a revision ensures that every package that Nix installs
+will always be at exactly the same versions, regardless of when in the future
+the packages get installed.
 
 With Nix, it is essentially possible to replace {renv} and Docker combined, or
 if you’re using mainly Python, you can replace `conda` or `requirements.txt`
