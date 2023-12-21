@@ -268,18 +268,24 @@ install [R]{.proglang} packages, and not use the usual, built-in,
 every package, whether this dependency is another R package or a system-level
 dependency.
 
-For example, the `{xlsx}` package requires the Java programming language to be
-installed on your computer to successfully install. This can be difficult to
-achieve, and `{xlsx}` bullied many R developers throughout the years (especially
-those using a Linux distribution, `sudo R CMD javareconf` still plagues my
-nightmares). But with Nix, it suffices to declare that we want the `{xlsx}`
-package for our project, and Nix figures out automatically that Java is required
-and installs and configures it. It all just happens without any required
-intervention from the user. The second advantage of Nix is that it is possible
-to pin a certain revision of the Nix packages’ repository (called nixpkgs) for
-our project. Pinning a revision ensures that every package that Nix installs
-will always be at exactly the same versions, regardless of when in the future
-the packages get installed.
+For example, the [xlsx]{.pkg} package requires the [Java]{.proglang} programming
+language to be installed on your computer to successfully install. Depending on
+the system one tries to install [xlsx]{.pkg}, installing [Java]{.proglang} might
+not easy, nor even possible. But with [Nix]{.proglang}, it suffices to declare
+that the [xlsx]{.pkg} package is needed for the project, and [Nix]{.proglang}
+figures out automatically that [Java]{.proglang} is required and installs and
+configures it. It all just happens without any required intervention from the
+user.
+
+But where do these packages come from? When installing a package using Nix an
+expression written in the Nix programming language gets downloaded from the
+`nixpkgs` Github repository and evaluated. The evaluation of these expressions
+results in the installation of the package, alongside its dependencies. Because
+`nixpkgs` is a collection of expressions hosted on Github, it is possible to pin
+a specific revision of `nixpkgs` to ensure reproducibility of our project.
+Pinning a revision ensures that every package that Nix installs will always be
+at exactly the same versions, regardless of when in the future the packages get
+installed.
 
 With Nix, it is essentially possible to replace {renv} and Docker combined, or
 if you’re using mainly Python, you can replace `conda` or `requirements.txt`
