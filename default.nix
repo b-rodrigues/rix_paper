@@ -1,8 +1,5 @@
 let
  pkgs = import (fetchTarball "https://github.com/b-rodrigues/nixpkgs/archive/06b93631a20bc9c1e73d7b5c706af12ee01922aa.tar.gz") {};
- rpkgs = builtins.attrValues {
-  inherit (pkgs.rPackages) quarto targets tarchetypes visNetwork;
-};
   rix = [(pkgs.rPackages.buildRPackage {
             name = "rix";
             src = pkgs.fetchgit {
@@ -32,6 +29,6 @@ let
     LC_PAPER = "en_US.UTF-8";
     LC_MEASUREMENT = "en_US.UTF-8";
 
-    buildInputs = [  rpkgs tex system_packages rix ];
+    buildInputs = [ tex system_packages rix ];
       
   }
