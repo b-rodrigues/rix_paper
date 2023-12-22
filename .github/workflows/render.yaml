@@ -29,7 +29,7 @@ jobs:
         nix-build
 
     - name: Render
-      run: nix-shell --run "quarto render paper.qmd --to jss-pdf rendered_pdf/paper.pdf"
+      run: nix-shell --run "quarto render paper.qmd --to jss-pdf"
   
     - name: Upload rendered paper
       uses: actions/upload-artifact@v3
