@@ -3,7 +3,7 @@ let
  rpkgs = builtins.attrValues {
   inherit (pkgs.rPackages) quarto targets tarchetypes visNetwork;
 };
-  rix = (pkgs.buildRPackage {
+  rix = (pkgs.rPackages.buildRPackage {
            name = "rix";
            src = pkgs.fetchgit {
              url = "https://github.com/b-rodrigues/rix/";
