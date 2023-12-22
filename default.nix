@@ -33,6 +33,6 @@ let
     LC_PAPER = "en_US.UTF-8";
     LC_MEASUREMENT = "en_US.UTF-8";
 
-    buildInputs = [  rpkgs tex system_packages  ];
+    buildInputs = [  rpkgs tex system_packages rix ];
       
   }
