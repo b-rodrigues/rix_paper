@@ -146,7 +146,7 @@
 \makeatletter
 \makeatother
 \makeatletter
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, breakable, frame hidden, enhanced, interior hidden, borderline west={3pt}{0pt}{shadecolor}, sharp corners]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, borderline west={3pt}{0pt}{shadecolor}, frame hidden, breakable, boxrule=0pt, interior hidden, enhanced]}{\end{tcolorbox}}\fi
 \makeatother
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
@@ -516,7 +516,7 @@ install one's favourite text editor to edit the project's source code.
 \section*{Acknowledgments}\label{acknowledgments}
 \addcontentsline{toc}{section}{Acknowledgments}
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, rightrule=.15mm, arc=.35mm, leftrule=.75mm, toprule=.15mm, bottomrule=.15mm, colback=white, opacityback=0]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, left=2mm, toprule=.15mm, colback=white, leftrule=.75mm, breakable, rightrule=.15mm, bottomrule=.15mm, opacityback=0]
 
 All acknowledgments (note the AE spelling) should be collected in this
 unnumbered section before the references. It may contain the usual
@@ -537,7 +537,7 @@ may be added here (if any).
 \section*{More technical details}\label{sec-techdetails}
 \addcontentsline{toc}{section}{More technical details}
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, rightrule=.15mm, arc=.35mm, leftrule=.75mm, toprule=.15mm, bottomrule=.15mm, colback=white, opacityback=0]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, left=2mm, toprule=.15mm, colback=white, leftrule=.75mm, breakable, rightrule=.15mm, bottomrule=.15mm, opacityback=0]
 
 Appendices can be included after the bibliography (with a page break).
 Each section within the appendix should have a proper section title
@@ -568,7 +568,7 @@ which includes the following topics:
 \section*{Using BibTeX}\label{sec-bibtex}
 \addcontentsline{toc}{section}{Using BibTeX}
 
-\begin{tcolorbox}[enhanced jigsaw, breakable, left=2mm, rightrule=.15mm, arc=.35mm, leftrule=.75mm, toprule=.15mm, bottomrule=.15mm, colback=white, opacityback=0]
+\begin{tcolorbox}[enhanced jigsaw, arc=.35mm, left=2mm, toprule=.15mm, colback=white, leftrule=.75mm, breakable, rightrule=.15mm, bottomrule=.15mm, opacityback=0]
 
 References need to be provided in a \textsc{Bib}{\TeX} file
 (\texttt{.bib}). All references should be made with \texttt{@cite}
