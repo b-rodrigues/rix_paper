@@ -299,6 +299,13 @@ also possible to build multi-language environments, containing R and Python, a
 LaTeX distribution, and even install one's favourite text editor to edit the
 project's source code.
 
+## Reproducible development environments with Nix
+
+```{r}
+rix(r_ver = "4.2.2",
+    r_pkgs = c("dplyr", "chronicler"),
+    print = TRUE)
+```
 
 
 ## Acknowledgments {.unnumbered}
