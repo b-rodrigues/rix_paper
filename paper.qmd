@@ -253,7 +253,7 @@ installing and building software in a reproducible manner. To make
 [Nix]{.proglang} more accessible to [R]{.proglang} programmers, I developed the
 [rix]{.pkg} which I will also present in this article.
 
-## The [Nix]{.proglang} package manager 
+## The Nix package manager 
 
 [Nix]{.proglang} is a package manager that can be used to install and build
 software in a completely reproducible manner. As of writing, it contains more
