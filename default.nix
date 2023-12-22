@@ -3,20 +3,19 @@ let
  rpkgs = builtins.attrValues {
   inherit (pkgs.rPackages) quarto targets tarchetypes visNetwork;
 };
-  rix = (pkgs.rPackages.buildRPackage {
-           name = "rix";
-           src = pkgs.fetchgit {
-             url = "https://github.com/b-rodrigues/rix/";
-             branchName = "master";
-             rev = "ea92a88ecdfc2d74bdf1dde3e441d008521b1756";
-             sha256 = "sha256-fKNtFaWPyoiS7xOOlhjok3Ddqsij7CymoKAeTT8ygIU=";
-           };
-           propagatedBuildInputs = [
-             builtins.attrValues {
-                inherit (pkgs.rPackages) httr jsonlite sys;
-                }
-            ];
-           });
+  rix = [(pkgs.rPackages.buildRPackage {
+            name = "rix";
+            src = pkgs.fetchgit {
+              url = "https://github.com/b-rodrigues/rix";
+              branchName = "master";
+              rev = "ea92a88ecdfc2d74bdf1dde3e441d008521b1756";
+              sha256 = "sha256-fKNtFaWPyoiS7xOOlhjok3Ddqsij7CymoKAeTT8ygIU=";
+            };
+            propagatedBuildInputs = builtins.attrValues {
+              inherit (pkgs.rPackages) httr jsonlite sys;
+            };
+         })
+  ];
   tex = (pkgs.texlive.combine {
   inherit (pkgs.texlive) scheme-small amsmath booktabs setspace lineno cochineal tex-gyre framed multirow wrapfig fontawesome5 tcolorbox orcidlink environ tikzfill pdfcol;
 });
