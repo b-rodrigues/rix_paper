@@ -302,9 +302,11 @@ project's source code.
 ## Reproducible development environments with Nix
 
 ```{r}
-rix::rix(r_ver = "4.2.2",
-         r_pkgs = c("dplyr", "chronicler"),
-         print = TRUE)
+library(rix)
+
+rix(r_ver = "4.2.2",
+    r_pkgs = c("dplyr", "chronicler"),
+    print = TRUE)
 ```
 
 
