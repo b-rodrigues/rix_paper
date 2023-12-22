@@ -35,4 +35,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: paper_${{ github.sha }}
-        path: /github/workspace/rendered_pdf/
+        path: rendered_pdf/
