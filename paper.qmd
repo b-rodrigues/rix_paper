@@ -250,8 +250,8 @@ programming language. A very similar approach should be taken if one uses
 As an alternative to the above approach, I will present the [Nix]{.proglang}
 package manager, which available for all major operating system and focuses on
 installing and building software in a reproducible manner. To make
-[Nix]{.proglang} more accessible to [R]{.proglang} programmers, I developed the
-[rix]{.pkg} which I will also present in this article.
+[Nix]{.proglang} more accessible to [R]{.proglang} programmers, we developed the
+[rix]{.pkg} which we will present in this article.
 
 ## The Nix package manager 
 
