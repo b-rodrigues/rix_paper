@@ -29,16 +29,10 @@ jobs:
         nix-build
 
     - name: Render
-      run: nix-shell --run "quarto render paper.qmd --to jss-pdf"
-
-    # Commit and push all changed files.
-    - name: GIT Commit Build Artifacts (coverage, dist, devdist, docs)
-      run: |
-        git config --global user.name "GA Bot"
-        git config --global user.email "github_actions@bot.noreply.com"
-        git fetch origin
-        git switch rendered_pdf
-        git merge origin/master
-        git add paper.pdf
-        git commit -a -m "rendered file"
-        git push origin rendered_pdf
+      run: nix-shell --run "quarto render paper.qmd --to jss-pdf rendered_pdf/paper.pdf"
+  
+    - name: Upload rendered paper
+      uses: actions/upload-artifact@v3
+      with:
+        name: paper_${{ github.sha }}
+        path: /github/workspace/rendered_pdf/
