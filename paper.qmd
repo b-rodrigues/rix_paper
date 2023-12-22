@@ -306,6 +306,7 @@ library(rix)
 
 rix(r_ver = "4.2.2",
     r_pkgs = c("dplyr", "chronicler"),
+    project_path = tempdir(),
     print = TRUE)
 ```
 
