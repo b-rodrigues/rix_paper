@@ -253,7 +253,6 @@ installing and building software in a reproducible manner. To make
 [Nix]{.proglang} more accessible to [R]{.proglang} programmers, I developed the
 [rix]{.pkg} which I will also present in this article.
 
-
 ## The [Nix]{.proglang} package manager 
 
 [Nix]{.proglang} is a package manager that can be used to install and build
@@ -263,167 +262,43 @@ through [Nix]{.proglang}’s repositories. This means that using [Nix]{.proglang
 it is possible to install not only [R]{.proglang}, but also all the packages
 required for a project. The reason why one should use [Nix]{.proglang} to
 install [R]{.proglang} packages, and not use the usual, built-in,
-`install.packages()` function instead, is that when installing a package with
-[Nix]{.proglang}, [Nix]{.proglang} makes sure to install every dependency of
-every package, whether this dependency is another R package or a system-level
-dependency.
+`install.packages()` [R]{.proglang} function instead, is that when installing a
+package with [Nix]{.proglang}, [Nix]{.proglang} makes sure to install every
+dependency of every package, whether this dependency is another [R]{.proglang}
+package or a system-level dependency.
 
-For example, the [xlsx]{.pkg} package requires the [Java]{.proglang} programming
-language to be installed on your computer to successfully install. Depending on
-the system one tries to install [xlsx]{.pkg}, installing [Java]{.proglang} might
-not easy, nor even possible. But with [Nix]{.proglang}, it suffices to declare
-that the [xlsx]{.pkg} package is needed for the project, and [Nix]{.proglang}
-figures out automatically that [Java]{.proglang} is required and installs and
-configures it. It all just happens without any required intervention from the
-user.
+For example, the [xlsx]{.pkg} [R]{.proglang} package requires the
+[Java]{.proglang} programming language to be installed to successfully install.
+Depending on the what system one tries to install [xlsx]{.pkg}, installing
+[Java]{.proglang} might not easy, nor even possible. But with [Nix]{.proglang},
+it suffices to declare that the [xlsx]{.pkg} package is needed for the project,
+and [Nix]{.proglang} figures out automatically that [Java]{.proglang} is
+required and installs and configures it. It all just happens without any
+required intervention from the user.
 
-But where do these packages come from? When installing a package using Nix an
-expression written in the Nix programming language gets downloaded from the
-`nixpkgs` Github repository and evaluated. The evaluation of these expressions
-results in the installation of the package, alongside its dependencies. Because
-`nixpkgs` is a collection of expressions hosted on Github, it is possible to pin
-a specific revision of `nixpkgs` to ensure reproducibility of our project.
-Pinning a revision ensures that every package that Nix installs will always be
-at exactly the same versions, regardless of when in the future the packages get
-installed.
+But where do these packages come from? When installing a package using
+[Nix]{.proglang}, an expression written in the [Nix]{.proglang} programming
+language gets downloaded from the `nixpkgs` Github repository and evaluated.
+This expression contains a so-called *derivation*. A derivation defines a build:
+its dependencies, commands to build and install the package in question, and
+then an output. Most of the time, a derivation downloads source code, builds the
+software from the source and then outputs a compiled binary. Derivations are
+extremely flexible, and by writing one's own, it is possible to define and build
+environment for a project in a reproducible manner.
 
-With Nix, it is essentially possible to replace {renv} and Docker combined, or
-if you’re using mainly Python, you can replace `conda` or `requirements.txt`
-files. If you need other tools or languages like Python or Julia, this can also
-be done easily. Nix is available for Linux, macOS and Windows (via WSL2).
-Important remark: since using Nix on Windows must go through WSL, when we refer
-to "Linux" in the context of Nix, this includes Windows by default as well. It
-is also possible to build multi-language environments, containing R and Python,
-a LaTeX distribution and packages and so on.
+Because the whole set of [Nix]{.proglang} expression is hosted on Github, it is
+possible to pin a specific revision of `nixpkgs` to ensure reproducibility of
+our project. Pinning a revision ensures that every package that Nix installs
+will always be at exactly the same versions, regardless of when in the future
+the packages get installed.
 
-## The Nix programming language
+With Nix, it is essentially possible to replace [renv]{.pkg} and Docker
+combined, or in the case of [Python]{.proglang}, replace `requirements.txt`
+files which list package dependencies for [Python]{.proglang} projects. It is
+also possible to build multi-language environments, containing R and Python, a
+LaTeX distribution, and even install one's favourite text editor to edit the
+project's source code.
 
-Nix is not just useful because it is possible to install many packages and even
-install older packages, but also because it comes with a complete functional
-programming language. This programming language is used to write *expressions*,
-and these expressions in turn are used to build software. Essentially, when you
-install a package using Nix, an expression gets downloaded from the Nix package
-repository (more on that in the next section), and it gets evaluated by the Nix
-package manager. This expression contains a so-called *derivation*. A derivation
-defines a build: some inputs, some commands, and then an output. Most of the
-time, a derivation downloads source code, builds the software from the source
-and then outputs a compiled binary. Derivations are extremely flexible, and you
-could write a derivation to build a complete environment and then build a
-complete reproducible pipeline. The output could be any of the discussed data
-products.
-
-Learning the Nix programming language is a good idea if you want to contribute
-to the Nix package repository, but you might not have to learn it in-depth if
-you simply wish to use it to build reproducible environments, as we will learn
-now. If you wish to learn about the programming language, I highly recommend [a
-tour of
-Nix](https://nixcloud.io/tour/?id=introduction/nix)^[https://nixcloud.io/tour/?id=introduction/nix].
-
-## The Nix package repository
-
-So, there’s the Nix package manager, the Nix programming language and the Nix
-package repository (henceforth nixpkgs). To look for packages click
-[here](https://search.nixos.org/packages)^[https://search.nixos.org/packages].
-The source code of all the packages (so the whole set of Nix expressions) can be
-found on [this Github
-repository](https://github.com/NixOS/nixpkgs)^[https://github.com/NixOS/nixpkgs].
-For example,
-[here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/libraries/quarto/default.nix)^[https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/libraries/quarto/default.nix]
-is the Nix expression that contains the derivation to build `quarto`. As you can
-see, the derivation uses the the pre-built Quarto binaries instead of building
-it from source. Adding packages to nixpkgs (or updating them) can be done by
-opening pull requests. For example,
-[here](https://github.com/NixOS/nixpkgs/pull/259443)^[https://github.com/NixOS/nixpkgs/pull/259443]
-is a pull request to make Quarto available to all platforms (before this PR
-Quarto was only available for Linux). PRs get reviewed and approuved by
-maintainers that also have the right to merge the PR into master. Once merged,
-the new or updated package is available for download. Because nixpkgs is a
-“just” Github repository, it is possible to use a specific commit hash to
-install the packages as they were at a specific point in time. For example, if
-you use this commit, 7c9cc5a6e, you’ll get the packages as of the 19th of
-October 2023, but if you used this one instead: 976fa3369, you’ll get packages
-from the 19th of August 2023. Using specific hashes is called "pinning" and you
-can read more about it [here](https://nixos.wiki/wiki/FAQ/Pinning_Nixpkgs). We
-will make extensive use of pinning.
-
-
-
-
-[R]{.proglang} provides a very flexible implementation of the general GLM framework in the function [glm]{.fct} @ChambersHastie1992 in the [stats]{.pkg} package. Its most important arguments are
-
-```r
-glm(formula, data, subset, na.action, weights, offset,
-  family = gaussian, start = NULL, control = glm.control(…),
-  model = TRUE, y = TRUE, x = FALSE, …)
-```
-
-where `formula` plus `data` is the now standard way of specifying regression relationships in [R]{.proglang}/[S]{.proglang} introduced in @ChambersHastie1992. The remaining arguments in the first line (`subset`, `na.action`, `weights`, and `offset`) are also standard for setting up formula-based regression models in [R]{.proglang}/[S]{.proglang}. The arguments in the second line control aspects specific to GLMs while the arguments in the last line specify which components are returned in the fitted model object (of class [glm]{.class} which inherits from [lm]{.class}). For further arguments to [glm]{.fct} (including alternative specifications of starting values) see `?glm`. For estimating a Poisson model `family = poisson` has to be specified.
-
-::: callout
-As the synopsis above is a code listing that is not meant to be executed, one can use either the dedicated `{Code}` environment or a simple `{verbatim}` environment for this. Again, spaces before and after should be avoided.
-
-Finally, there might be a reference to a `{table}` such as @tbl-overview. Usually, these are placed at the top of the page (`[t!]`), centered (`\centering`), with a caption below the table, column headers and captions in sentence style, and if possible avoiding vertical lines.
-:::
-
-| Type           | Distribution | Method   | Description                                                                                                                                                                                  |
-|---------|---------|---------|-----------------------------------------------|
-| GLM            | Poisson      | ML       | Poisson regression: classical GLM, estimated by maximum likelihood (ML)                                                                                                                      |
-|                |              | Quasi    | "Quasi-Poisson regression'': same mean function, estimated by quasi-ML (QML) or equivalently generalized estimating equations (GEE), inference adjustment via estimated dispersion parameter |
-|                |              | Adjusted | "Adjusted Poisson regression'': same mean function, estimated by QML/GEE, inference adjustment via sandwich covariances                                                                      |
-|                | NB           | ML       | NB regression: extended GLM, estimated by ML including additional shape parameter                                                                                                            |
-| Zero-augmented | Poisson      | ML       | Zero-inflated Poisson (ZIP), hurdle Poisson                                                                                                                                                  |
-|                | NB           | ML       | Zero-inflated NB (ZINB), hurdle NB                                                                                                                                                           |
-: Overview of various count regression models. The table is usually placed at the top of the page (`[t!]`), centered (`centering`), has a caption below the table, column headers and captions are in sentence style, and if possible vertical lines should be avoided. {#tbl-overview}
-
-## Illustrations {#sec-illustrations}
-
-For a simple illustration of basic Poisson and NB count regression the
-`quine` data from the [MASS]{.pkg} package is used. This provides the number
-of `Days` that children were absent from school in Australia in a
-particular year, along with several covariates that can be employed as regressors. The data can be loaded by
-
-```{R}
-#| prompt: true
-data(mtcars)
-```
-and a basic frequency distribution of the response variable is displayed in
-@fig-quine.
-
-:::{.callout}
-For code input and output, the style files provide dedicated environments.
-Either the "agnostic" `{CodeInput}` and `{CodeOutput}` can be used
-or, equivalently, the environments `{Sinput}` and `{Soutput}` as
-produced by [Sweave]{.fct} or [knitr]{.pkg} when using the `render_sweave()`
-hook. Please make sure that all code is properly spaced, e.g., using
-`y = a + b * x` and _not_ `y=a+b*x`. Moreover, code input should use "the usual" command prompt in the respective software system. For
-[R]{.proglang} code, the prompt `R> ` should be used with `+  ` as
-the continuation prompt. Generally, comments within the code chunks should be
-avoided -- and made in the regular {{< latex >}} text instead. Finally, empty lines before and after code input/output should be avoided (see above).
-:::
-
-
-## Summary and discussion {#sec-summary}
-
-:::{.callout}
-
-As usual…
-
-:::
-
-## Computational details {.unnumbered}
-
-:::{.callout}
-
-If necessary or useful, information about certain computational details
-such as version numbers, operating systems, or compilers could be included
-in an unnumbered section. Also, auxiliary packages (say, for visualizations,
-maps, tables, …) that are not cited in the main text can be credited here.
-
-:::
-
-The results in this paper were obtained using [R]{.proglang}~3.4.1 with the
-[MASS]{.pkg}~7.3.47 package. [R]{.proglang} itself and all packages used are available from the Comprehensive [R]{.proglang} Archive Network (CRAN) at
-[https://CRAN.R-project.org/].
 
 
 ## Acknowledgments {.unnumbered}
