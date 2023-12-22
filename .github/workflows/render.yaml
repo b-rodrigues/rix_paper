@@ -39,3 +39,4 @@ jobs:
         git add paper.pdf
         git commit -a -m "rendered file"
         git push origin master:rendered_pdf
+        rm paper.pdf
