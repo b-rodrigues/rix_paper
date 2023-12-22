@@ -38,4 +38,4 @@ jobs:
         git config --global user.email "github_actions@bot.noreply.com"
         git add .
         git commit -a -m "rendered file"
-        git push
+        git push origin master:rendered_pdf
