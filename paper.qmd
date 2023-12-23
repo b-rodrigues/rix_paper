@@ -305,31 +305,108 @@ Nix expressions are written in the [Nix]{.proglang} programming language,
 which is a purely functional programming language. Here is a simple expression
 that builds a shell environment containing version 4.3.1 of R:
 
-```{r, echo = F}
+```
+let
+  pkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/976fa3369d722e76f37c77493d99829540d43845.tar.gz") {};
+  system_packages = builtins.attrValues {
+    inherit (pkgs) R ;
+  };
+in
+  pkgs.mkShell {
+    buildInputs = [ system_packages ];
+    shellHook = "R --vanilla";
+  }
+```
+
+To define a variable in the [Nix]{.proglang}, the `let` keyword is used, so the
+first lines of this expression define a variable called `pkgs` and
+`system_pkgs`. `pkgs` is defined as the set of packages to be used in this
+derivation. In this example, the package expressions are going to be pulled from
+the official `nixpkgs` Github respository, and in particular the commit starting
+with `976fa336` is going to be used. It sould be noted that is thus possible to
+use a personal fork of `nixpkgs` instead of the official repository.
+`system_pkgs` lists the packages that we wish to install and use with this
+environment, in this example only the [R]{.proglang} programming language will
+be installed, alongside all the required dependecnies to actually install and
+run [R]{.proglang}. Finally, the `mkShell` function is used to build a shell
+containing the set of packages defined by the variable `system_packages` and its
+`shellHook` is set to `R --vanilla`: this means that when entering the shell
+[R]{.proglang} will be started with the `--vanilla` flag (thus ignore any
+startup options).
+
+This expression can be saved in a file called `default.nix`, and the shell can
+be built using the `nix-build` command. Once `nix-build` is done building the
+development environment according to the specifications declared in the
+`default.nix` file, the user can enter the development shell using `nix-shell`.
+The user will thus be dropped into an interactive shell with all the packages
+declared in the `default.nix` file and can now use this shell for work.
+
+Obviously, writing such an expression will be quite complicated for someone that
+is unfamiliar with the [Nix]{.proglang} programming language, but the prospect
+of being able to define a completely reproducible development environment in a
+single text file and then use that file to build and use that environment
+anywhere is quite interesting. Because we thought this, we wrote the [rix]{.pkg}
+which comes with the `rix()` function that helps generate such expressions quite
+easily. For example, here is how one could use [rix]{.pkg} to generate a
+`default.nix` file that installs version 4.3.1 of [R]{.proglang} and the
+[dplyr]{.pkg} and [chronicler]{.pkg} packages (we don't show the generated
+expression here because of space):
+
+
+```{r, eval = F}
 library(rix)
 
 rix(r_ver = "4.3.1",
-    project_path = tempdir(),
-    overwrite = TRUE,
-    print = TRUE)
-```
-
-To define a variable in the [Nix]{.proglang}, the `let` keyword is used, so
-the first lines of this expression define a variable called `pkgs` and
-`system_pkgs`. `pkgs` is defined as the set of packages to be used in
-this derivation. In this example, the package expressions are going to be pulled
-from the `nixpkgs`
-
-
-```{r}
-library(rix)
-
-rix(r_ver = "4.2.2",
     r_pkgs = c("dplyr", "chronicler"),
     project_path = tempdir(),
     overwrite = TRUE,
     print = TRUE)
 ```
+
+Here, users do not need to look for the right commit of `nixpkgs`: it is enough
+to specify the version of [R]{.proglang} they wish to use and the packages that
+were current at the time will get used. But [rix]{.pkg} is quite flexible and
+makes it easy to install specific versions of packages as well (which will get
+installed from the CRAN archives) as well as packages hosted on Github and
+\LaTeX packages as well:
+
+```{r, eval = F}
+rix(r_ver = "4.3.1",
+    r_pkgs = c("dplyr", "chronicler", "AER@1.2-8"),
+    system_pkgs = c("quarto", "git"),
+    tex_pkgs = c(
+          "amsmath",
+          "framed",
+          "fvextra",
+          "environ",
+          "fontawesome5",
+          "orcidlink",
+          "pdfcol",
+          "tcolorbox",
+          "tikzfill"
+    ),
+    git_pkgs = list(
+                 list(package_name = "rix",
+                   repo_url = "https://github.com/b-rodrigues/rix/",
+                   branch_name = "master",
+                   commit = "ea92a88ecdfc2d74bdf1dde3e441d008521b1756"),
+                 list(package_name = "fusen",
+                   repo_url = "https://github.com/ThinkR-open/fusen",
+                   branch_name = "main",
+                   commit = "d617172447d2947efb20ad6a4463742b8a5d79dc")
+    ),
+    ide = "rstudio",
+    project_path = tempfile(),
+    overwrite = TRUE)
+```
+
+The above call to `rix()` generates an expression that installs several
+[R]{.proglang} packages ([AER]{.pkg} version 1.2-8 gets installed, which is an
+older version of the package. If the user didn't not specify the version, the
+version available as of the `nixpkgs` commit would be used), but also install
+several TeXLive packages for authoring documents with \LaTeX, the development
+versions of [rix]{.pkg} and [fusen]{.pkg} (downloaded from Github), and finally
+the RStudio integrated development environment.
 
 
 ## Acknowledgments {.unnumbered}
