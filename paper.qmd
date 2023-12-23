@@ -345,12 +345,14 @@ Obviously, writing such an expression will be quite complicated for someone that
 is unfamiliar with the [Nix]{.proglang} programming language, but the prospect
 of being able to define a completely reproducible development environment in a
 single text file and then use that file to build and use that environment
-anywhere is quite interesting. Because we thought this, we wrote the [rix]{.pkg}
-which comes with the `rix()` function that helps generate such expressions quite
-easily. For example, here is how one could use [rix]{.pkg} to generate a
-`default.nix` file that installs version 4.3.1 of [R]{.proglang} and the
-[dplyr]{.pkg} and [chronicler]{.pkg} packages (we don't show the generated
-expression here because of space):
+anywhere is quite interesting. Because we believed that lowering the cost of
+writing Nix expressions would lead to a wider adoption of the Nix package
+manager for reproducibility, we wrote the [rix]{.pkg} which comes with the
+`rix()` function that helps generate such expressions quite easily. For example,
+here is how one could use [rix]{.pkg} to generate a `default.nix` file that
+installs version 4.3.1 of [R]{.proglang} and the [dplyr]{.pkg} and
+[chronicler]{.pkg} packages (we don't show the generated expression here because
+of space):
 
 
 ```{r, eval = F}
@@ -412,7 +414,18 @@ expression will only work on Windows and Linux distributions. To make the
 expression work on macOS, the "rstudio" string could be replaced by "code",
 which would install VS Code instead, or "other", to use any other editor
 such as Emacs or Vi.
- 
+
+[rix]{.pkg} also provides installation intructions for Nix, but [rix]{.pkg} can
+generate Nix expression even if Nix is not installed on one's system. This is
+quite useful if one wants to generate an expression and use that expression in a
+CI/CD environment such as Github Actions. For example, the repository that
+contains the source code this article^[https://github.com/b-rodrigues/rix_paper]
+uses Github Actions for compilation. Essentially, each time one of the authors
+pushed to the master branch, a Github Actions runner would be started, Nix would
+get installed on said runner, and an environment containing the right packages
+was generated from a `default.nix` file that is hosted on the same repository.
+The paper would then get compiled in this reproducible environment.
+
 
 ## Acknowledgments {.unnumbered}
 
@@ -440,6 +453,8 @@ Here is the Nix expression generated from the call to the `rix()`
 function of section #sec-repro-nix:
 
 ```{r}
+library(rix)
+
 rix(r_ver = "4.3.1",
     r_pkgs = c("dplyr", "chronicler", "AER@1.2-8"),
     system_pkgs = c("quarto", "git"),
