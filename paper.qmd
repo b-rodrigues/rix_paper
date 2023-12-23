@@ -360,7 +360,7 @@ library(rix)
 
 rix(r_ver = "4.3.1",
     r_pkgs = c("dplyr", "chronicler"),
-    project_path = tempdir(),
+    project_path = ".",
     overwrite = TRUE,
     print = TRUE)
 ```
@@ -398,7 +398,7 @@ rix(r_ver = "4.3.1",
                    commit = "d617172447d2947efb20ad6a4463742b8a5d79dc")
     ),
     ide = "rstudio",
-    project_path = tempfile(),
+    project_path = ".",
     overwrite = TRUE)
 ```
 
@@ -488,7 +488,8 @@ rix(r_ver = "4.3.1",
                    commit = "d617172447d2947efb20ad6a4463742b8a5d79dc")
     ),
     ide = "rstudio",
-    project_path = tempfile(),
+    project_path = tempdir(),
+    overwrite = TRUE,
     print = TRUE)
 ```
 
