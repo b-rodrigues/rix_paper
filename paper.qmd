@@ -247,7 +247,7 @@ also be noted that these requirements are not limited to the [R]{.proglang}
 programming language. A very similar approach should be taken if one uses 
 [Python]{.proglang} for statistical analysis instead.
 
-As an alternative to the above approach, I will present the [Nix]{.proglang}
+As an alternative to the above approach, we will present the [Nix]{.proglang}
 package manager, which available for all major operating system and focuses on
 installing and building software in a reproducible manner. To make
 [Nix]{.proglang} more accessible to [R]{.proglang} programmers, we developed the
@@ -300,6 +300,21 @@ LaTeX distribution, and even install one's favourite text editor to edit the
 project's source code.
 
 ## Reproducible development environments with Nix
+
+Nix expressions are written in the [Nix]{.proglang} programming language,
+which is a purely functional programming language. Here is a simple expression
+that builds a shell environment containing version 4.3.1 of R:
+
+```{r, echo = F}
+library(rix)
+
+rix(r_ver = "4.3.1",
+    project_path = tempdir(),
+    print = TRUE)
+```
+
+
+
 
 ```{r}
 library(rix)
