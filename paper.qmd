@@ -426,6 +426,14 @@ get installed on said runner, and an environment containing the right packages
 was generated from a `default.nix` file that is hosted on the same repository.
 The paper would then get compiled in this reproducible environment.
 
+If one wishes to run pipelines written using the [targets]{.pkg} [@landau2021]
+on Github Actions, [rix]{.pkg} featrues a function called `tar_nix_ga()`,
+inspired by the `tar_github_actions()` function from the [targets]{.pkg}
+package. This function writes a YAML file under `.github/workflows/` which then
+runs the [targets]{.pkg} pipeline using Github Actions at each push, in a
+completely reproducible environment. For such an example, consult the
+code in this repository^[https://github.com/b-rodrigues/rix_cicd].
+
 
 ## Acknowledgments {.unnumbered}
 
