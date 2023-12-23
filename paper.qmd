@@ -489,8 +489,7 @@ rix(r_ver = "4.3.1",
     ),
     ide = "rstudio",
     project_path = tempfile(),
-    print = TRUE,
-    overwrite = TRUE)
+    print = TRUE)
 ```
 
 
