@@ -310,10 +310,15 @@ library(rix)
 
 rix(r_ver = "4.3.1",
     project_path = tempdir(),
+    overwrite = TRUE,
     print = TRUE)
 ```
 
-
+To define a variable in the [Nix]{.proglang}, the `let` keyword is used, so
+the first lines of this expression define a variable called `pkgs` and
+`system_pkgs`. `pkgs` is defined as the set of packages to be used in
+this derivation. In this example, the package expressions are going to be pulled
+from the `nixpkgs`
 
 
 ```{r}
@@ -322,6 +327,7 @@ library(rix)
 rix(r_ver = "4.2.2",
     r_pkgs = c("dplyr", "chronicler"),
     project_path = tempdir(),
+    overwrite = TRUE,
     print = TRUE)
 ```
 
