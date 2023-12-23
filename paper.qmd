@@ -253,7 +253,7 @@ installing and building software in a reproducible manner. To make
 [Nix]{.proglang} more accessible to [R]{.proglang} programmers, we developed the
 [rix]{.pkg} which we will present in this article.
 
-## The Nix package manager 
+## The Nix package manager {#sec-nix}
 
 [Nix]{.proglang} is a package manager that can be used to install and build
 software in a completely reproducible manner. As of writing, it contains more
@@ -299,7 +299,7 @@ also possible to build multi-language environments, containing R and Python, a
 LaTeX distribution, and even install one's favourite text editor to edit the
 project's source code.
 
-## Reproducible development environments with Nix
+## Reproducible development environments with Nix {#sec-repro-nix}
 
 Nix expressions are written in the [Nix]{.proglang} programming language,
 which is a purely functional programming language. Here is a simple expression
@@ -402,12 +402,17 @@ rix(r_ver = "4.3.1",
 
 The above call to `rix()` generates an expression that installs several
 [R]{.proglang} packages ([AER]{.pkg} version 1.2-8 gets installed, which is an
-older version of the package. If the user didn't not specify the version, the
+older version of the package. Had the user not specified the version, the
 version available as of the `nixpkgs` commit would be used), but also install
 several TeXLive packages for authoring documents with \LaTeX, the development
 versions of [rix]{.pkg} and [fusen]{.pkg} (downloaded from Github), and finally
-the RStudio integrated development environment.
-
+the RStudio integrated development environment. It should be noted that as of
+writing, RStudio is not available on macOS through `nixpkgs`, so the above
+expression will only work on Windows and Linux distributions. To make the
+expression work on macOS, the "rstudio" string could be replaced by "code",
+which would install VS Code instead, or "other", to use any other editor
+such as Emacs or Vi.
+ 
 
 ## Acknowledgments {.unnumbered}
 
@@ -429,7 +434,41 @@ information such as relative contributions of the authors may be added here
 
 {{< pagebreak >}}
 
-## More technical details {#sec-techdetails .unnumbered}
+## Appendix {#sec-appendix .unnumbered}
+
+Here is the Nix expression generated from the call to the `rix()`
+function of section #sec-repro-nix:
+
+```{r}
+rix(r_ver = "4.3.1",
+    r_pkgs = c("dplyr", "chronicler", "AER@1.2-8"),
+    system_pkgs = c("quarto", "git"),
+    tex_pkgs = c(
+          "amsmath",
+          "framed",
+          "fvextra",
+          "environ",
+          "fontawesome5",
+          "orcidlink",
+          "pdfcol",
+          "tcolorbox",
+          "tikzfill"
+    ),
+    git_pkgs = list(
+                 list(package_name = "rix",
+                   repo_url = "https://github.com/b-rodrigues/rix/",
+                   branch_name = "master",
+                   commit = "ea92a88ecdfc2d74bdf1dde3e441d008521b1756"),
+                 list(package_name = "fusen",
+                   repo_url = "https://github.com/ThinkR-open/fusen",
+                   branch_name = "main",
+                   commit = "d617172447d2947efb20ad6a4463742b8a5d79dc")
+    ),
+    ide = "rstudio",
+    project_path = tempfile(),
+    overwrite = TRUE)
+```
+
 
 :::{.callout}
 
