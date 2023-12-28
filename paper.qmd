@@ -1,4 +1,4 @@
---
+---
 title: "Reproducible development environments with rix"
 format:
     jss-pdf:
