@@ -1,4 +1,4 @@
----
+--
 title: "Reproducible development environments with rix"
 format:
     jss-pdf:
@@ -23,13 +23,14 @@ author:
 abstract: |
   In order to create an analysis that is easily reproducible,
   it is not enough to write clean code and document it well. One
-  must also make sure to list all the dependencies of the analysis
-  clearly and ideally provide an easy way to install said dependencies.
+  must also make sure to clear list all the dependencies of the analysis
+  and ideally provide an easy way to install them.
   There are several tools that can be used to list dependencies and to
   make them easily installable by someone that wishes to reproduce a study,
-  such as [Docker]{.proglang}, a containerization solution. This paper will present
-  the Nix package manager, and an [R]{.proglang} package called [rix]{.pkg} that lowers
-  Nix's learning curve for users of the [R]{.proglang} programming language.
+  such as [Docker]{.proglang}, a containerization solution. This paper will
+  present another tool that can be used to make projects reproducible,
+  the Nix package manager, and an [R]{.proglang} package called [rix]{.pkg} that
+  makes using Nix much simpler for users of [R]{.proglang}.
 
 keywords: [reproducibility, R, Nix]
 keywords-formatted: [reproducibility, "[R]{.proglang}", "[Nix]{.proglang}"]
@@ -41,12 +42,12 @@ bibliography: bibliography.bib
 
 @peng2011 introduced the idea of reproducibility being on a continuum: on one of
 the ends of this continuum, we only have access to the paper describing the
-studies, which is not reproducible at all. Then, if in addition, to this paper
-we make the original source code of the analysis that was written to compute the
-results of the study available, reproducibility is improved, albeit only by a
-little. Adding the original data improves reproducibility yet again. Finally, if
-to all this we add what Roger Peng named the *linked and executable code and
-data*, we reach the gold standard of full replication.
+studies, which is not reproducible at all. If in addition, to this paper authors
+make the original source code of the analysis available, reproducibility is
+improved, albeit only by a little. Adding the original data improves
+reproducibility yet again. Finally, if to all this the authors add what Roger
+Peng named the *linked and executable code and data*, we reach the gold standard
+of reproducibility.
 
 What is this *linked and executable code and data*? Another way to name this
 crucial piece of the reproducibility puzzle is *computational environment*. The
@@ -57,15 +58,15 @@ Sometimes, authors have the courtesy to also state the version of [R]{.proglang}
 used. Some authors go further, and also list the packages used, and ideally with
 their versions as well. Authors rarely state the operating system on which the
 analysis was done, even though it has been shown that running the same analysis
-with the same software but on different operating systems could lead to different
-results, as described in @neupane2019. Authors also only very rarely provide
-instructions to install the required tools and software in order to reproduce
-their studies.
+with the same software but on different operating systems could lead to
+different results, as described in @neupane2019. Authors also only very rarely
+provide instructions to install the required tools and software in order to
+reproduce their studies.
 
-Tools can be used at each of these steps to reach the gold standard of full
-replication. Let's first consider the task of listing the software used.
-[R]{.proglang} provides the `sessionInfo()` function whose output can be saved
-into a file. Below is an example output of `sessionInfo()`:
+There are tools available that authors can use to reach the gold stardard of a
+fully reproducible study. Let us first consider the task of listing the software
+used. [R]{.proglang} provides the `sessionInfo()` function whose output can be
+saved into a file. Below is an example output of `sessionInfo()`:
 
 ```{r, eval = FALSE}
 sessionInfo()
@@ -104,12 +105,13 @@ loaded via a namespace (and not attached):
 ```
 
 If an author provides this information, other people trying to reproduce the
-study (or the author him- or herself in the future) can read this file
-and see which version of [R]{.proglang} was used, and which packages (and their
+study (or the author him- or herself in the future) can read this file and see
+which version of [R]{.proglang} was used, and which packages (and their
 versions) were used as well. However, others would still need to install the
-correct software themselves. An alternative to this is instead to use the [renv]{.pkg}
-package which generates a so-called `renv.lock` file which also lists
-[R]{.proglang} and package versions. Here is an example of such an `renv.lock` file:
+correct software themselves. An alternative to this is instead to use the
+[renv]{.pkg} package which generates a so-called `renv.lock` file which also
+lists [R]{.proglang} and package versions. Here is an example of such an
+`renv.lock` file:
 
 ```
 {
@@ -141,20 +143,20 @@ package which generates a so-called `renv.lock` file which also lists
       "lattice"
     ]
 
-    ***and many more packages***
+    ***lines below omitted***
 ```
 
 This file lists every package alongside their versions and the repository from
 which they were downloaded. Generating this file only requires one to run the
 `renv::init()` function. Someone else can then restore the same package library
 by running `renv::restore()`. The exact same packages get installed in an
-isolated, project-specific, library which doesn't interfere with the other,
-main, library of the user. [renv]{.pkg} does not restore the [R]{.proglang}
-itself though, so installing the right version of R needs to be handled
+isolated, project-specific, library which doesn't interfere with the main
+library of the user. [renv]{.pkg} does not restore the [R]{.proglang} version
+used though, so installing the right version of R needs to be handled
 separately. Before continuing, it should be noted that other packages exist
 which provide similar functionality to [renv]{.pkg}: there is [groundhog]{.pkg}
-by @simonsohn2023 which makes it rather easy to install packages as they were
-on CRAN at a given date. For example, the code snippet below install the
+by @simonsohn2023 which makes it rather easy to install packages as they were on
+CRAN at a given date. For example, the code snippet below installs the
 [purrr]{.pkg} and [ggplot2]{.pkg} packages as they were on April 4th, 2017:
 
 ```
@@ -166,16 +168,16 @@ groundhog.library("
 ```
 
 These packages also get installed in a project-specfic library so there is no
-interferences between these packages and other versions of the same packages
-that one might use for other projects. Because [groundhog]{.pkg} does not
-install [R]{.proglang} itself, users should either install the required version
+interference between these packages and other versions of the same packages that
+one might use for other projects. Because [groundhog]{.pkg} does not install
+[R]{.proglang} itself, users should either install the required version
 themselves, or they should use the `tolerate.R.version` argument as shown in the
 example above. Otherwise, [groundhog]{.pkg} would not continue with the
-installation of the packages. Another such package, developed by @chan2023 is
-[rang]{.pkg}, which also installs packages as they were on a given date.
-Yet another way to install packages as they were on a give date is to use
-the Posit Package Manager, which provides snapshots of CRAN. For example,
-to install the required packages for an analysis as they were on the 30th of June
+installation of the packages. Another alternative to [renv]{.pkg}, developed by
+@chan2023 is [rang]{.pkg}, which also installs packages as they were on a given
+date. Yet another way to install packages as they were on a give date is to use
+the Posit Package Manager, which provides snapshots of CRAN. For example, to
+install the required packages for an analysis as they were on the 30th of June
 2023, one could add the following line to the `.Rprofile` file:
 
 ```
@@ -185,46 +187,56 @@ options(repos = c(REPO_NAME = "https://packagemanager.posit.co/cran/
 
 The `.Rprofile` file gets read by R when starting a new session, which means
 that every call to the `install.packages()` function will now install the
-packages from this snapshotted mirror.
+packages from this snapshotted mirror. However, unless the user explicitely and
+manually manages the different projects' libraries, using the Posit Package
+Manager will install all the package for all the projects at the given date.
 
 The next step in reaching the gold standard of reproducibility would be to not
 only install the right packages used for the analysis, but also the right
 version of [R]{.proglang}. Of course, it would be possible to install the right
-version manually, but here too, there are tools that simplify the process such
-as [rig]{.proglang} by the R infrastructure team [-@rlib2023]. One could thus
-install the right version of [R]{.proglang} using [rig]{.proglang} allows to
-easily install different versions of [R]{.proglang}, one could use to install
-the right version to reproduce an analysis, and then use one of the listed
-packages above to install the right library of of [R]{.proglang} packages.
-However, this involves many manual steps and is thus error prone. It is also
-time-consuming to do so, especially if one wants to reproduce many studies.
+version manually, but here too, there are tools that simplify the process. One
+such tool is [rig]{.proglang} by the R infrastructure team [-@rlib2023].
+[rig]{.proglang} makes it easy to install different versions of [R]{.proglang},
+so one could use it to install the right version to reproduce an analysis, and
+then use one of the listed packages above to install the right library of of
+[R]{.proglang} packages. However, this involves many manual steps and is thus
+error prone. It is also time-consuming to do so, especially if one wants to
+reproduce many studies.
 
-The final step towards the gold standard of reproducibility is to package the
-right version of [R]{.proglang} and [R]{.proglang} packages inside a
+The final tool one could use to reach the gold standard of reproducibility is to
+package the right version of [R]{.proglang} and [R]{.proglang} packages inside a
 [Docker]{.proglang} image. [Docker]{.proglang} is a containerisation tool: using
 [Docker]{.proglang} it is possible to package some *data product* with its
-dependencies into an image. From this image, containers can be run to reproduce
-the data product with its exact dependencies. A statistical analysis, from the
-simplest to the most complex one, can be seen as such a data product that comes
-with many software dependencies. *Dockerizing* an analysis consists in first
-building an image: in the build step, the dependencies of the analysis have to
-be installed and this can be achieved using the tools mentioned above. The
-scripts to run the analysis and the data are also added to the image at build
-time. Instances of that image, called containers, can then be executed, which
-give access to the exact development environment originally used for the study.
-It is also possible to script the building of the analysis itself, such that in
-one single call to the `docker run` command, a complete analysis is reproduced.
+dependencies into an image. A statistical analysis, from the simplest to the
+most complex one, can be seen as such a data product that comes with many
+software dependencies. *Dockerizing* an analysis consists in first building an
+image: in the build step, the dependencies of the analysis have to be installed
+and this can be achieved using the tools mentioned above. The scripts to run the
+analysis and the data are also added to the image at build time. Instances of
+that image, called containers, can then be executed, which give access to the
+exact development environment originally used for the study. This execution step
+is called the "run step". During this run step, the analysis scripts can be
+executed to product the output.
+
+The advantage of using [Docker]{.proglang} is not only about having the right
+version of [R]{.proglang} and [R]{.proglang} packages bundled alongside the
+analysis scripts: [Docker]{.proglang} images are actually almost complete
+operating systems, which means that system-level dependecies also get bundled
+into the image. This is especially useful if packages that rely on external
+libraries get used for the analysis, as these external libraries are thus also
+made available to future reproducers of the study.
 
 The Rocker project initiated by @boettiger2017 provides many pre-built
-[Docker]{.proglang} to the [R]{.proglang} community of users. These images
-can be used as bases to build other images containing statistical analyses
-more easily than starting from a bare-bones image.
+[Docker]{.proglang} to the [R]{.proglang} community of users, already containing
+specific [R]{.proglang} versions and even packages. These images can be used as
+bases to build other images containing statistical analyses more easily than
+starting from a bare-bones image.
 
 An optional step towards the gold standard is to use a build automation tool
 such as [Make]{.proglang} to run the whole analysis when the container is
-executed. Build automation tools make it easier to run arbitrary code in a
-series of well-defined steps. [R]{.proglang} programmers can use the
-[targets]{.pkg} by @landau2021 as a build automation tool.
+executed, instead of executing scripts. Build automation tools make it easier to
+run arbitrary code in a series of well-defined steps. [R]{.proglang} programmers
+can use the [targets]{.pkg} by @landau2021 as a build automation tool.
 
 @mcdermott2021 is an example of a scientific study that reached the gold
 standard of reproducibility. The author of this paper set up an accompagnying
@@ -244,37 +256,42 @@ to deal with package versions, then [Docker]{.proglang} for all the other
 software, including the programming language that was used. Ideally, a build
 automation tool such as [make]{.proglang} should be added to the list. It should
 also be noted that these requirements are not limited to the [R]{.proglang}
-programming language. A very similar approach should be taken if one uses 
-[Python]{.proglang} for statistical analysis instead.
+programming language. A very similar approach should be taken if one uses
+[Python]{.proglang} for statistical analysis instead. Furthermore, the previous
+discussion also implies that for an analysis to actually be reproducible at all,
+it must be made using free and open source software, as proprietary software
+cannot be freely shared with others that wish to reproduce a study, and there's
+no guarantee that others will have access to the proprietary software used.
 
 As an alternative to the above approach, we will present the [Nix]{.proglang}
-package manager, which available for all major operating system and focuses on
-installing and building software in a reproducible manner. To make
-[Nix]{.proglang} more accessible to [R]{.proglang} programmers, we developed the
-[rix]{.pkg} which we will present in this article.
+package manager, which is available for all major operating systems and focuses
+on installing and building software in a reproducible manner. This means that
+this single tool can replace not only [Docker]{.proglang} but also [renv]{.pkg}
+and a build automation tool such as [Make]{.proglang}. To make [Nix]{.proglang}
+more accessible to [R]{.proglang} programmers, we developed the [rix]{.pkg}
+package which we will present in this article.
 
 ## The Nix package manager {#sec-nix}
 
 [Nix]{.proglang} is a package manager that can be used to install and build
 software in a completely reproducible manner. As of writing, it contains more
-than 80.000 packages, and the entirety of CRAN and Bioconductor is available
-through [Nix]{.proglang}’s repositories. This means that using [Nix]{.proglang},
-it is possible to install not only [R]{.proglang}, but also all the packages
-required for a project. The reason why one should use [Nix]{.proglang} to
-install [R]{.proglang} packages, and not use the usual, built-in,
-`install.packages()` [R]{.proglang} function instead, is that when installing a
-package with [Nix]{.proglang}, [Nix]{.proglang} makes sure to install every
-dependency of every package, whether this dependency is another [R]{.proglang}
-package or a system-level dependency.
+than 80.000 packages, including the entirety of CRAN and Bioconductor. This
+means that using [Nix]{.proglang}, it is possible to install not only
+[R]{.proglang}, but also all the packages required for a project. The reason why
+one should use [Nix]{.proglang} to install [R]{.proglang} packages, and not use
+the usual, built-in, `install.packages()` [R]{.proglang} function instead, is
+that when installing a package with [Nix]{.proglang}, [Nix]{.proglang} makes
+sure to install every dependency of every package, whether this dependency is
+another [R]{.proglang} package or a system-level dependency.
 
 For example, the [xlsx]{.pkg} [R]{.proglang} package requires the
 [Java]{.proglang} programming language to be installed to successfully install.
-Depending on the what system one tries to install [xlsx]{.pkg}, installing
-[Java]{.proglang} might not easy, nor even possible. But with [Nix]{.proglang},
-it suffices to declare that the [xlsx]{.pkg} package is needed for the project,
-and [Nix]{.proglang} figures out automatically that [Java]{.proglang} is
-required and installs and configures it. It all just happens without any
-required intervention from the user.
+Depending on what system one tries to install [xlsx]{.pkg}, installing
+[Java]{.proglang} might not be easy, nor even possible. But with
+[Nix]{.proglang}, it suffices to declare that the [xlsx]{.pkg} package is needed
+for the project, and [Nix]{.proglang} figures out automatically that
+[Java]{.proglang} is required and installs and configures it. It all just
+happens without any required intervention from the user.
 
 But where do these packages come from? When installing a package using
 [Nix]{.proglang}, an expression written in the [Nix]{.proglang} programming
@@ -284,26 +301,31 @@ its dependencies, commands to build and install the package in question, and
 then an output. Most of the time, a derivation downloads source code, builds the
 software from the source and then outputs a compiled binary. Derivations are
 extremely flexible, and by writing one's own, it is possible to define and build
-environment for a project in a reproducible manner.
+an environment for a project in a reproducible manner.
 
-Because the whole set of [Nix]{.proglang} expression is hosted on Github, it is
-possible to pin a specific revision of `nixpkgs` to ensure reproducibility of
-our project. Pinning a revision ensures that every package that Nix installs
-will always be at exactly the same versions, regardless of when in the future
-the packages get installed.
+But why is installing software with [Nix]{.proglang} reproducible? Because the
+whole set of [Nix]{.proglang} expressions is hosted on Github, it is possible to
+use a specific commit of `nixpkgs` to ensure reproducibility of our project.
+Using a specific commit of `nixpkgs` is called *pinning a revision (or commit)*.
+Pinning a revision ensures that every package that Nix installs will always be
+at exactly the same versions, regardless of when in the future the packages get
+built. This is because the [Nix]{.proglang} expressions that get downloaded when
+pinning are the expressions as they were at that commit of `nixpkgs`.
 
-With Nix, it is essentially possible to replace [renv]{.pkg} and Docker
-combined, or in the case of [Python]{.proglang}, replace `requirements.txt`
-files which list package dependencies for [Python]{.proglang} projects. It is
-also possible to build multi-language environments, containing R and Python, a
-LaTeX distribution, and even install one's favourite text editor to edit the
-project's source code.
+With Nix, it is essentially possible to replace [renv]{.pkg} and
+[Docker]{.proglang} combined, or in the case of [Python]{.proglang}, replace
+`requirements.txt` files which list package dependencies for [Python]{.proglang}
+projects. It is also possible to build multi-language environments, containing R
+and Python, a LaTeX distribution, and even install one's favorite text editor to
+edit the project's source code. Essentially, one can define a complete
+reproducible environment and use it to work on a project interactively, or use
+that environment non-interactively to run an analysis sometime in the future.
 
 ## Reproducible development environments with Nix {#sec-repro-nix}
 
-Nix expressions are written in the [Nix]{.proglang} programming language,
+[Nix]{.proglang} expressions are written in the [Nix]{.proglang} programming language,
 which is a purely functional programming language. Here is a simple expression
-that builds a shell environment containing version 4.3.1 of R:
+that builds a shell environment containing version 4.3.1 of [R]{.proglang}:
 
 ```
 let
@@ -322,37 +344,42 @@ To define a variable in the [Nix]{.proglang}, the `let` keyword is used, so the
 first lines of this expression define a variable called `pkgs` and
 `system_pkgs`. `pkgs` is defined as the set of packages to be used in this
 derivation. In this example, the package expressions are going to be pulled from
-the official `nixpkgs` Github respository, and in particular the commit starting
-with `976fa336` is going to be used. It sould be noted that is thus possible to
+the official `nixpkgs` Github repository, and in particular the commit starting
+with `976fa336` is going to be used. It should be noted that is also possible to
 use a personal fork of `nixpkgs` instead of the official repository.
 `system_pkgs` lists the packages that we wish to install and use with this
 environment, in this example only the [R]{.proglang} programming language will
-be installed, alongside all the required dependecnies to actually install and
+be installed, alongside all the required dependencies to actually install and
 run [R]{.proglang}. Finally, the `mkShell` function is used to build a shell
 containing the set of packages defined by the variable `system_packages` and its
-`shellHook` is set to `R --vanilla`: this means that when entering the shell
-[R]{.proglang} will be started with the `--vanilla` flag (thus ignore any
+`shellHook` is set to `R --vanilla`: this means that when entering the shell,
+[R]{.proglang} will be started with the `--vanilla` flag (thus ignoring any
 startup options).
 
 This expression can be saved in a file called `default.nix`, and the shell can
-be built using the `nix-build` command. Once `nix-build` is done building the
-development environment according to the specifications declared in the
-`default.nix` file, the user can enter the development shell using `nix-shell`.
-The user will thus be dropped into an interactive shell with all the packages
-declared in the `default.nix` file and can now use this shell for work.
+be built using the `nix-build` command on a system where [Nix]{.proglang} is
+available.^[To install [Nix]{.proglang} we recommend the installer from
+Determinate systems which can be found on the following link:
+\url{https://determinate.systems/posts/determinate-nix-installer}.] Once
+`nix-build` is done building the development environment according to the
+specifications declared in the `default.nix` file, the user can enter the
+development shell using `nix-shell`. The user will thus be dropped into an
+interactive shell with all the packages declared in the `default.nix` file and
+can now use this shell for work. This is similar to activating environments in
+the [Python]{.proglang} ecosystem.
 
 Obviously, writing such an expression will be quite complicated for someone that
 is unfamiliar with the [Nix]{.proglang} programming language, but the prospect
 of being able to define a completely reproducible development environment in a
 single text file and then use that file to build and use that environment
-anywhere is quite interesting. Because we believed that lowering the cost of
-writing Nix expressions would lead to a wider adoption of the Nix package
-manager for reproducibility, we wrote the [rix]{.pkg} which comes with the
-`rix()` function that helps generate such expressions quite easily. For example,
-here is how one could use [rix]{.pkg} to generate a `default.nix` file that
-installs version 4.3.1 of [R]{.proglang} and the [dplyr]{.pkg} and
-[chronicler]{.pkg} packages (we don't show the generated expression here because
-of space):
+anywhere is quite appealing. Because we believe that lowering the cost of
+writing [Nix]{.proglang} expressions would lead to a wider adoption of the
+[Nix]{.proglang} package manager for reproducibility, we wrote [rix]{.pkg}
+which comes with the `rix()` function that helps generate such expressions quite
+easily. For example, here is how one could use [rix]{.pkg} to generate a
+`default.nix` file that installs version 4.3.1 of [R]{.proglang} and the
+[dplyr]{.pkg} and [chronicler]{.pkg} packages (we don't show the generated
+expression here because of space):
 
 
 ```{r, eval = F}
@@ -412,28 +439,34 @@ the RStudio integrated development environment. It should be noted that as of
 writing, RStudio is not available on macOS through `nixpkgs`, so the above
 expression will only work on Windows and Linux distributions. To make the
 expression work on macOS, the "rstudio" string could be replaced by "code",
-which would install VS Code instead, or "other", to use any other editor
-such as Emacs or Vi.
+which would install VS Code instead, or "other", to use any other editor such as
+Emacs or Vi. You can see the resulting `default.nix` file in the @sec-appendix.
 
-[rix]{.pkg} also provides installation intructions for Nix, but [rix]{.pkg} can
-generate Nix expression even if Nix is not installed on one's system. This is
-quite useful if one wants to generate an expression and use that expression in a
-CI/CD environment such as Github Actions. For example, the repository that
-contains the source code this article^[https://github.com/b-rodrigues/rix_paper]
-uses Github Actions for compilation. Essentially, each time one of the authors
-pushed to the master branch, a Github Actions runner would be started, Nix would
-get installed on said runner, and an environment containing the right packages
-was generated from a `default.nix` file that is hosted on the same repository.
-The paper would then get compiled in this reproducible environment.
+[rix]{.pkg}'s documentation also provides installation instructions for Nix, but
+[rix]{.pkg} can generate Nix expression even if Nix is not installed on one's
+system. This is quite useful if one wants to generate an expression and use that
+expression in a CI/CD environment such as Github Actions. For example, the
+repository that contains the source code to this
+article^[https://github.com/b-rodrigues/rix_paper] uses Github Actions for
+compilation. Essentially, each time one of the authors pushed to the master
+branch, a Github Actions runner would be started, [Nix]{.proglang} would get
+installed on said runner, and an environment containing the right packages was
+generated from a `default.nix` file that is hosted on the same repository. The
+paper would then get compiled in this reproducible environment.
 
-If one wishes to run pipelines written using the [targets]{.pkg} [@landau2021]
-on Github Actions, [rix]{.pkg} featrues a function called `tar_nix_ga()`,
-inspired by the `tar_github_actions()` function from the [targets]{.pkg}
-package. This function writes a YAML file under `.github/workflows/` which then
-runs the [targets]{.pkg} pipeline using Github Actions at each push, in a
-completely reproducible environment. For such an example, consult the
-code in this repository^[https://github.com/b-rodrigues/rix_cicd].
+We also provide a way to start a temporary shell with [R]{.proglang} and
+[rix]{.proglang} available, which makes it possible to start building
+reproducible environments on a system that does provide [Nix]{.proglang} but not
+[R]{.proglang}.
 
+If one wishes to run pipelines written using the [targets]{.pkg} package
+[@landau2021] on Github Actions, [rix]{.pkg} features a function called
+`tar_nix_ga()`, inspired by the `tar_github_actions()` function from the
+[targets]{.pkg} package. This function writes a YAML file under
+`.github/workflows/` which then runs the [targets]{.pkg} pipeline using Github
+Actions at each push, in a completely reproducible environment. For such an
+example, consult the code in this
+repository^[https://github.com/b-rodrigues/rix_cicd].
 
 ## Acknowledgments {.unnumbered}
 
