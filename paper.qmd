@@ -493,7 +493,7 @@ information such as relative contributions of the authors may be added here
 Here is the Nix expression generated from the call to the `rix()`
 function of section #sec-repro-nix:
 
-```{r}
+```{r, echo = FALSE}
 library(rix)
 
 rix(r_ver = "4.3.1",
