@@ -491,6 +491,8 @@ the original results can be replicated even from the latest version of R.
 The first step is to create an environment with the old release of R:
 
 ```{r}
+library(rix)
+
 path_subshell <- tempdir()
 
 rix(
