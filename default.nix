@@ -17,7 +17,7 @@ let
   inherit (pkgs.texlive) scheme-small amsmath booktabs setspace lineno cochineal tex-gyre framed multirow wrapfig fontawesome5 tcolorbox orcidlink environ tikzfill pdfcol;
 });
  system_packages = builtins.attrValues {
-  inherit (pkgs) R glibcLocalesUtf8 quarto;
+  inherit (pkgs) R glibcLocalesUtf8 quarto nix;
 };
   in
   pkgs.mkShell {
