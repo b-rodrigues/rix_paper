@@ -9,7 +9,7 @@ let
               sha256 = "sha256-8Svbdu2qySZRfcXmf6PcqdtSJoHI2t9nC2XUUS9KuRo=";
             };
             propagatedBuildInputs = builtins.attrValues {
-              inherit (pkgs.rPackages) httr jsonlite sys;
+              inherit (pkgs.rPackages) codetools httr jsonlite sys;
             };
          })
   ];
