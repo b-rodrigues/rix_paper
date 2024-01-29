@@ -454,10 +454,7 @@ installed on said runner, and an environment containing the right packages was
 generated from a `default.nix` file that is hosted on the same repository. The
 paper would then get compiled in this reproducible environment.
 
-We also provide a way to start a temporary shell with [R]{.proglang} and
-[rix]{.proglang} available, which makes it possible to start building
-reproducible environments on a system that does provide [Nix]{.proglang} but not
-[R]{.proglang}.
+## Additional features of the rix package
 
 If one wishes to run pipelines written using the [targets]{.pkg} package
 [@landau2021] on Github Actions, [rix]{.pkg} features a function called
@@ -467,6 +464,80 @@ If one wishes to run pipelines written using the [targets]{.pkg} package
 Actions at each push, in a completely reproducible environment. For such an
 example, consult the code in this
 repository^[https://github.com/b-rodrigues/rix_cicd].
+
+The final feature that we provide is the ability to run one arbitrary function
+from what we call a *subshell*. Suppose that you are running the latest version
+of R, and that you wish or need to run one particular function from an older
+release of R, or from an older package. Using the `with_nix()` function, it is
+possible to run this single function inside the right envirnoment, and recover
+its output in the main session. To illustrate, consider the following two lines
+of code:
+
+```{r, eval = FALSE}
+set.seed(1234)
+sample(seq(1, 10), 5)
+```
+
+On versions of R released after version 3.6, these two lines return the
+following vector, `r set.seed(1234);sample(seq(1, 10), 5);set.seed(NULL)`, in
+versions prior to 3.6, the result will be different. This is a documented change
+as shown in the R version 3.6 release
+notes.^[https://stat.ethz.ch/pipermail/r-announce/2019/000641.html]
+
+When trying to reproduce a study made on versions prior to 3.6, a replicator
+will need to take this into account. Using the `with_nix()` function,
+the original results can be replicated even from the latest version of R.
+
+The first step is to create an environment with the old release of R:
+
+```{r}
+path_subshell <- tempdir()
+
+rix(
+  r_ver = "3.5.3",
+  overwrite = TRUE,
+  project_path = path_subshell
+)
+```
+
+We recommend `path_subshell` to be a subfolder of the project. Using `rix()`
+we generate a `default.nix` file that will provide a shell with R version 3.5.3
+when built. We then use `rix_init()`, which generates an `.Rprofile` file in
+the same subfolder as where the subshell's `default.nix` is located. This `.Rprofile`
+file ensures that the R session that will be spawned from this subshell does not
+get any interference from the main session it gets called from:
+
+```{r}
+rix_init(
+   project_path = path_subshell,
+   rprofile_action = "overwrite",
+   message_type = "simple"
+ )
+```
+
+We can now use this shell to generate our vector of random numbers using `with_nix()`:
+
+```{r}
+out_subshell <- with_nix(
+    expr = function(){
+      set.seed(1234)
+      a <- sample(seq(1, 10), 5)
+      set.seed(NULL)
+      return(a)
+    },
+    program = "R",
+    exec_mode = "non-blocking",
+    project_path = path_subshell,
+    message_type = "simple"
+  )
+
+```
+
+The `expr` argument of `with_nix()` can be arbitrarly complex, but must
+be wrapped inside a `function()` call. The value of `out_subshell` is
+`r out_subshell`, as is indeed different than the one generated from a
+recent version of R.
+
 
 ## Acknowledgments {.unnumbered}
 
