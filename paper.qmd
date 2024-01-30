@@ -35,7 +35,7 @@ abstract: |
 keywords: [reproducibility, R, Nix]
 keywords-formatted: [reproducibility, "[R]{.proglang}", "[Nix]{.proglang}"]
 
-bibliography: bibliography.bib  
+bibliography: bibliography.bib
 ---
 
 ## Introduction: Reproducibility is also about software {#sec-intro}
@@ -93,14 +93,14 @@ time zone: Etc/UTC
 tzcode source: system (glibc)
 
 attached base packages:
-[1] stats     graphics  grDevices utils     datasets  methods  
-[7] base     
+[1] stats     graphics  grDevices utils     datasets  methods
+[7] base
 
 other attached packages:
 [1] nnet_7.3-19  mgcv_1.9-0   nlme_3.1-163
 
 loaded via a namespace (and not attached):
-[1] compiler_4.3.2 Matrix_1.6-1.1 tools_4.3.2    splines_4.3.2 
+[1] compiler_4.3.2 Matrix_1.6-1.1 tools_4.3.2    splines_4.3.2
 [5] grid_4.3.2     lattice_0.21-9
 ```
 
@@ -108,10 +108,10 @@ If an author provides this information, other people trying to reproduce the
 study (or the author him- or herself in the future) can read this file and see
 which version of [R]{.proglang} was used, and which packages (and their
 versions) were used as well. However, others would still need to install the
-correct software themselves. An alternative to this is instead to use the
-[renv]{.pkg} package which generates a so-called `renv.lock` file which also
-lists [R]{.proglang} and package versions. Here is an example of such an
-`renv.lock` file:
+correct versions of each package themselves. An alternative to this is instead
+to use the [renv]{.pkg} package which generates a so-called `renv.lock` file
+which also lists [R]{.proglang} and package versions. Here is an example of such
+an `renv.lock` file:
 
 ```
 {
@@ -150,7 +150,7 @@ This file lists every package alongside their versions and the repository from
 which they were downloaded. Generating this file only requires one to run the
 `renv::init()` function. Someone else can then restore the same package library
 by running `renv::restore()`. The exact same packages get installed in an
-isolated, project-specific, library which doesn't interfere with the main
+isolated, project-specific library which doesn't interfere with the main
 library of the user. [renv]{.pkg} does not restore the [R]{.proglang} version
 used though, so installing the right version of R needs to be handled
 separately. Before continuing, it should be noted that other packages exist
@@ -181,8 +181,11 @@ install the required packages for an analysis as they were on the 30th of June
 2023, one could add the following line to the `.Rprofile` file:
 
 ```
-options(repos = c(REPO_NAME = "https://packagemanager.posit.co/cran/
-                               __linux__/jammy/2023-06-30"))
+options(repos =
+  c(REPO_NAME =
+    "https://packagemanager.posit.co/cran/__linux__/jammy/2023-06-30"
+  )
+)
 ```
 
 The `.Rprofile` file gets read by R when starting a new session, which means
@@ -198,7 +201,7 @@ version manually, but here too, there are tools that simplify the process. One
 such tool is [rig]{.proglang} by the R infrastructure team [-@rlib2023].
 [rig]{.proglang} makes it easy to install different versions of [R]{.proglang},
 so one could use it to install the right version to reproduce an analysis, and
-then use one of the listed packages above to install the right library of of
+then use one of the listed packages above to install the right library of
 [R]{.proglang} packages. However, this involves many manual steps and is thus
 error prone. It is also time-consuming to do so, especially if one wants to
 reproduce many studies.
@@ -208,23 +211,24 @@ package the right version of [R]{.proglang} and [R]{.proglang} packages inside a
 [Docker]{.proglang} image. [Docker]{.proglang} is a containerisation tool: using
 [Docker]{.proglang} it is possible to package some *data product* with its
 dependencies into an image. A statistical analysis, from the simplest to the
-most complex one, can be seen as such a data product that comes with many
-software dependencies. *Dockerizing* an analysis consists in first building an
-image: in the build step, the dependencies of the analysis have to be installed
-and this can be achieved using the tools mentioned above. The scripts to run the
-analysis and the data are also added to the image at build time. Instances of
-that image, called containers, can then be executed, which give access to the
-exact development environment originally used for the study. This execution step
-is called the "run step". During this run step, the analysis scripts can be
-executed to product the output.
+most complex one, can be seen as such a data product that requires many software
+dependencies. *Dockerizing* an analysis consists in first building an image: in
+the build step, the dependencies of the analysis have to be installed and this
+can be achieved using the tools mentioned above. The scripts to run the analysis
+and the data are also added to the image at build time. It is possible to then
+execute the code of a study inside a so-called container, which is an instance
+of an image. Executing, or running, these containers is done non-interactively,
+and so it is possible to instantiate the correct environment to run a study in a
+single command.
 
 The advantage of using [Docker]{.proglang} is not only about having the right
 version of [R]{.proglang} and [R]{.proglang} packages bundled alongside the
 analysis scripts: [Docker]{.proglang} images are actually almost complete
 operating systems, which means that system-level dependecies also get bundled
-into the image. This is especially useful if packages that rely on external
-libraries get used for the analysis, as these external libraries are thus also
-made available to future reproducers of the study.
+into the image. This is especially useful for packages that rely on external
+libraries to run, as these external libraries are thus also made available to
+future reproducers of the study within the [Docker]{.proglang} image. The image
+can also be shared.
 
 The Rocker project initiated by @boettiger2017 provides many pre-built
 [Docker]{.proglang} to the [R]{.proglang} community of users, already containing
@@ -249,12 +253,14 @@ make it available to other researchers:
 
 - Packages and their versions were listed and saved into an `renv.lock` file;
 - A `Makefile` was used to run the whole analysis and compile the paper;
-- A `Dockerfile` was used to provide the complete computational environment, including the right version of [R]{.proglang} and run the whole analysis easily.
+- A `Dockerfile` was used to provide the complete computational environment,
+  including the right version of [R]{.proglang} and run the whole analysis
+  easily.
 
 However, reaching this gold standard is quite costly: one needs to learn a tool
 to deal with package versions, then [Docker]{.proglang} for all the other
 software, including the programming language that was used. Ideally, a build
-automation tool such as [make]{.proglang} should be added to the list. It should
+automation tool such as [Make]{.proglang} should be added to the list. It should
 also be noted that these requirements are not limited to the [R]{.proglang}
 programming language. A very similar approach should be taken if one uses
 [Python]{.proglang} for statistical analysis instead. Furthermore, the previous
@@ -267,9 +273,9 @@ As an alternative to the above approach, we will present the [Nix]{.proglang}
 package manager, which is available for all major operating systems and focuses
 on installing and building software in a reproducible manner. This means that
 this single tool can replace not only [Docker]{.proglang} but also [renv]{.pkg}
-and a build automation tool such as [Make]{.proglang}. To make [Nix]{.proglang}
-more accessible to [R]{.proglang} programmers, we developed the [rix]{.pkg}
-package which we will present in this article.
+and even a build automation tool such as [Make]{.proglang}. To make
+[Nix]{.proglang} more accessible to [R]{.proglang} programmers, we developed the
+[rix]{.pkg} package which we will present in this article.
 
 ## The Nix package manager {#sec-nix}
 
@@ -310,7 +316,14 @@ Using a specific commit of `nixpkgs` is called *pinning a revision (or commit)*.
 Pinning a revision ensures that every package that Nix installs will always be
 at exactly the same versions, regardless of when in the future the packages get
 built. This is because the [Nix]{.proglang} expressions that get downloaded when
-pinning are the expressions as they were at that commit of `nixpkgs`.
+pinning are the expressions as they were at that commit of `nixpkgs`. This is
+not the only reason [Nix]{.proglang} is very useful for reproducibility, but the
+[Nix]{.proglang} package manager itself was designed with reproducibility in
+mind. [Nix]{.proglang} is functional package manager, meaning that it uses
+concepts from functional programming to build software: no-side effects or
+global variables are allowed, and the output is always the same if given the
+same inputs, regardless of where or when a package gets built.
+We refer to @dolstra2004nix for a more technical discussion on [Nix]{.proglang}.
 
 With Nix, it is essentially possible to replace [renv]{.pkg} and
 [Docker]{.proglang} combined, or in the case of [Python]{.proglang}, replace
@@ -583,9 +596,11 @@ We should say that `rix_init()` and `with_nix()` print many status messages to
 the console while running, which we don't show here for space reasons.
 
 The `expr` argument of `with_nix()` can be arbitrarly complex, but must be
-wrapped inside a `function()` call. The value of `out_subshell` is `r
-out_subshell`, as is indeed different than the one generated from a recent
-version of R.
+wrapped inside a `function()` call. The value of `out_subshell` is `r out_subshell`,
+as is indeed different than the one generated from a recent version of R.
+
+It is possible to use `with_nix()` from an R session that was installed itself
+via Nix, or from a regular R installation.
 
 
 ## Acknowledgments {.unnumbered}
