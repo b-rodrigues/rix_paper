@@ -6,7 +6,7 @@ let
               url = "https://github.com/b-rodrigues/rix";
               branchName = "master";
               rev = "65b3580fa07997fe0b532a5eefadf0366065be55";
-              sha256 = "";
+              sha256 = "sha256-2RxXaIg68S5MTnhTuozK+DSYwYL0RUTf/8xr0FQbtBA=";
             };
             propagatedBuildInputs = builtins.attrValues {
               inherit (pkgs.rPackages) codetools httr jsonlite sys;
