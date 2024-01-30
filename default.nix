@@ -5,8 +5,8 @@ let
             src = pkgs.fetchgit {
               url = "https://github.com/b-rodrigues/rix";
               branchName = "master";
-              rev = "11f6898fde38a4793a7f53900c88d2fd930e882f";
-              sha256 = "sha256-8Svbdu2qySZRfcXmf6PcqdtSJoHI2t9nC2XUUS9KuRo=";
+              rev = "65b3580fa07997fe0b532a5eefadf0366065be55";
+              sha256 = "";
             };
             propagatedBuildInputs = builtins.attrValues {
               inherit (pkgs.rPackages) codetools httr jsonlite sys;
