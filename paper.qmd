@@ -478,10 +478,16 @@ set.seed(1234)
 sample(seq(1, 10), 5)
 ```
 
+
+```{r, include = FALSE}
+set.seed(1234)
+out_r <- sample(seq(1, 10), 5)
+set.seedt(NULL)
+```
+
 On versions of R released after version 3.6, these two lines return the
-following vector, `r set.seed(1234);sample(seq(1, 10), 5);set.seed(NULL)`, in
-versions prior to 3.6, the result will be different. This is a documented change
-as shown in the R version 3.6 release
+following vector: `r out_r`, but in versions prior to 3.6, the result will be
+different. This is a documented change as shown in the R version 3.6 release
 notes.^[https://stat.ethz.ch/pipermail/r-announce/2019/000641.html]
 
 When trying to reproduce a study made on versions prior to 3.6, a replicator
@@ -490,7 +496,7 @@ the original results can be replicated even from the latest version of R.
 
 The first step is to create an environment with the old release of R:
 
-```{r}
+```{r, include = FALSE}
 library(rix)
 
 path_subshell <- tempdir()
@@ -502,14 +508,27 @@ rix(
 )
 ```
 
-We recommend `path_subshell` to be a subfolder of the project. Using `rix()`
-we generate a `default.nix` file that will provide a shell with R version 3.5.3
-when built. We then use `rix_init()`, which generates an `.Rprofile` file in
-the same subfolder as where the subshell's `default.nix` is located. This `.Rprofile`
-file ensures that the R session that will be spawned from this subshell does not
-get any interference from the main session it gets called from:
+```{r, eval = F}
+library(rix)
 
-```{r}
+path_subshell <- tempdir()
+
+rix(
+  r_ver = "3.5.3",
+  overwrite = TRUE,
+  project_path = path_subshell
+)
+```
+
+We recommend `path_subshell` to be a subfolder of the project. Using `rix()` we
+generate a `default.nix` file that will provide a shell with R version 3.5.3
+when built. We then use `rix_init()`, which generates an `.Rprofile` file in the
+same subfolder as where the subshell's `default.nix` is located. This
+`.Rprofile` file ensures that the R session that will be spawned from this
+subshell does not get any interference from the main session it gets called
+from:
+
+```{r, eval = F}
 rix_init(
    project_path = path_subshell,
    rprofile_action = "overwrite",
@@ -517,9 +536,18 @@ rix_init(
  )
 ```
 
-We can now use this shell to generate our vector of random numbers using `with_nix()`:
+```{r, include = F}
+rix_init(
+   project_path = path_subshell,
+   rprofile_action = "overwrite",
+   message_type = "simple"
+ )
+```
 
-```{r}
+We can now use this shell to generate our vector of random numbers using
+`with_nix()`:
+
+```{r, eval = F}
 out_subshell <- with_nix(
     expr = function(){
       set.seed(1234)
@@ -535,10 +563,29 @@ out_subshell <- with_nix(
 
 ```
 
-The `expr` argument of `with_nix()` can be arbitrarly complex, but must
-be wrapped inside a `function()` call. The value of `out_subshell` is
-`r out_subshell`, as is indeed different than the one generated from a
-recent version of R.
+```{r, include = FALSE}
+out_subshell <- with_nix(
+    expr = function(){
+      set.seed(1234)
+      a <- sample(seq(1, 10), 5)
+      set.seed(NULL)
+      return(a)
+    },
+    program = "R",
+    exec_mode = "non-blocking",
+    project_path = path_subshell,
+    message_type = "simple"
+  )
+
+```
+
+We should say that `rix_init()` and `with_nix()` print many status messages to
+the console while running, which we don't show here for space reasons.
+
+The `expr` argument of `with_nix()` can be arbitrarly complex, but must be
+wrapped inside a `function()` call. The value of `out_subshell` is `r
+out_subshell`, as is indeed different than the one generated from a recent
+version of R.
 
 
 ## Acknowledgments {.unnumbered}
