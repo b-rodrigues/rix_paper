@@ -482,7 +482,7 @@ sample(seq(1, 10), 5)
 ```{r, include = FALSE}
 set.seed(1234)
 out_r <- sample(seq(1, 10), 5)
-set.seedt(NULL)
+set.seed(NULL)
 ```
 
 On versions of R released after version 3.6, these two lines return the
