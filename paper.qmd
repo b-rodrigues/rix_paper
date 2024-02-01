@@ -63,10 +63,19 @@ different results, as described in @neupane2019. Authors also only very rarely
 provide instructions to install the required tools and software in order to
 reproduce their studies.
 
+But even assuming that authors provided clear instructions to install the exact
+requirements of a study, it might happen that these instructions do not even
+work on different platforms, or on different versions of the same platform. And
+reproducibility is not the only activity that might get impacted by a lack of
+clear instructions: if an author works on several machines, the exact same
+computational environment should be used on all the machines, and the same is
+true when a team of authors collaborate.
+
 There are tools available that authors can use to reach the gold stardard of a
-fully reproducible study. Let us first consider the task of listing the software
-used. [R]{.proglang} provides the `sessionInfo()` function whose output can be
-saved into a file. Below is an example output of `sessionInfo()`:
+fully reproducible study, or to successfully deploy the same development
+environment on several machines. Let us first consider the task of listing the
+software used. [R]{.proglang} provides the `sessionInfo()` function whose output
+can be saved into a file. Below is an example output of `sessionInfo()`:
 
 ```{r, eval = FALSE}
 sessionInfo()
@@ -105,13 +114,19 @@ loaded via a namespace (and not attached):
 ```
 
 If an author provides this information, other people trying to reproduce the
-study (or the author him- or herself in the future) can read this file and see
-which version of [R]{.proglang} was used, and which packages (and their
-versions) were used as well. However, others would still need to install the
-correct versions of each package themselves. An alternative to this is instead
-to use the [renv]{.pkg} package which generates a so-called `renv.lock` file
-which also lists [R]{.proglang} and package versions. Here is an example of such
-an `renv.lock` file:
+study (or the author him- or herself in the future), or co-authors, can read
+this file and see which version of [R]{.proglang} was used, and which packages
+(and their versions) were used as well. However, others would still need to
+install the correct versions of each package manually. This can be in certain
+cases challenging, especially if packages that depend on system-level
+dependencies are required. For example, the [nloptr]{.pkg} package requires
+either [cmake]{.proglang} on Linux or macOS, or a binary of [nlopt]{.proglang},
+but this is not the case of Windows.
+
+A better alternative to simply listing packages and their versions is to use the
+[renv]{.pkg} package which generates a so-called `renv.lock` file which also
+lists [R]{.proglang} and package versions. Here is an example of such an
+`renv.lock` file:
 
 ```
 {
@@ -153,9 +168,14 @@ by running `renv::restore()`. The exact same packages get installed in an
 isolated, project-specific library which doesn't interfere with the main
 library of the user. [renv]{.pkg} does not restore the [R]{.proglang} version
 used though, so installing the right version of R needs to be handled
-separately. Before continuing, it should be noted that other packages exist
-which provide similar functionality to [renv]{.pkg}: there is [groundhog]{.pkg}
-by @simonsohn2023 which makes it rather easy to install packages as they were on
+separately. [renv]{.pkg} will also not install system-level dependencies such
+as [cmake]{.pkg} for [nloptr]{.pkg} on Linux or macOS, so these still need to
+be handled separately, as described in [renv]{.pkg}’s Readme: 
+\url{https://rstudio.github.io/renv/articles/renv.html#caveats}.
+
+Before continuing, it should be noted that other packages exist which provide
+similar functionality to [renv]{.pkg}: there is [groundhog]{.pkg} by
+@simonsohn2023 which makes it rather easy to install packages as they were on
 CRAN at a given date. For example, the code snippet below installs the
 [purrr]{.pkg} and [ggplot2]{.pkg} packages as they were on April 4th, 2017:
 
@@ -215,20 +235,23 @@ most complex one, can be seen as such a data product that requires many software
 dependencies. *Dockerizing* an analysis consists in first building an image: in
 the build step, the dependencies of the analysis have to be installed and this
 can be achieved using the tools mentioned above. The scripts to run the analysis
-and the data are also added to the image at build time. It is possible to then
-execute the code of a study inside a so-called container, which is an instance
-of an image. Executing, or running, these containers is done non-interactively,
-and so it is possible to instantiate the correct environment to run a study in a
-single command.
+and the data are also added to the image at build time. These steps are written
+down in a simple text file called a `Dockerfile`. This `Dockerfile` is the
+definition of the [Docker]{.prolgang} image.
+
+It is possible to then execute the code of a study inside a so-called container,
+which is an instance of an image. Executing, or running, these containers is
+done non-interactively, and so it is possible to instantiate the correct
+environment to run a study in a single command.
 
 The advantage of using [Docker]{.proglang} is not only about having the right
 version of [R]{.proglang} and [R]{.proglang} packages bundled alongside the
-analysis scripts: [Docker]{.proglang} images are actually almost complete
+analysis scripts: [Docker]{.proglang} images are actually almost complete Linux
 operating systems, which means that system-level dependecies also get bundled
 into the image. This is especially useful for packages that rely on external
-libraries to run, as these external libraries are thus also made available to
-future reproducers of the study within the [Docker]{.proglang} image. The image
-can also be shared.
+libraries to run, such as for [nloptr]{.pkg}, as these external libraries are
+thus also made available to future reproducers of the study within the
+[Docker]{.proglang} image. The image can also be shared.
 
 The Rocker project initiated by @boettiger2017 provides many pre-built
 [Docker]{.proglang} to the [R]{.proglang} community of users, already containing
@@ -236,11 +259,33 @@ specific [R]{.proglang} versions and even packages. These images can be used as
 bases to build other images containing statistical analyses more easily than
 starting from a bare-bones image.
 
-An optional step towards the gold standard is to use a build automation tool
-such as [Make]{.proglang} to run the whole analysis when the container is
-executed, instead of executing scripts. Build automation tools make it easier to
-run arbitrary code in a series of well-defined steps. [R]{.proglang} programmers
-can use the [targets]{.pkg} by @landau2021 as a build automation tool.
+While [Docker]{.proglang} offers a great solution to the reproducibility
+problem, it can be awkward to work interactively from a running container:
+containers can be changed at run-time, but any change will be lost once the
+container is stopped. Also, while it is possible to launch graphical programs
+from a container, this is generally not easy to set up and only works, as far as
+we know, only on Linux operating systems. In most cases, users of
+[Docker]{.proglang} will instead use the container to run a web server and the
+web based application of a popular integrated development environment (IDE). So
+for instance, it would be possible to launch the web interface of the RStudio
+IDE, but not the operating system client of RStudio, which is usually what an R
+programmer would use (or VS Code or Emacs...). A common approach seems to be to
+work on a study interactively using a standard installation of R and R packages,
+and after the study is done, take some time to write the required `Dockerfile`
+to provide an easy way for future replicators to reproduce the results of the
+study. But this approach does not solve the problem of deploying the same
+environment on several machines, and so ideally authors would develop using
+[Docker]{.proglang}. Another challenge of using [Docker]{.proglang} is that,
+as stated already, [Docker]{.proglang} images are actually almost complete
+Linux operating systems, so experience with Linux is highly recommended if
+one wishes to properly write a `Dockerfile`.
+
+A final, and optional, step towards the gold standard is to use a build
+automation tool such as [Make]{.proglang} to run the whole analysis when the
+container is executed, instead of executing scripts. Build automation tools make
+it easier to run arbitrary code in a series of well-defined steps.
+[R]{.proglang} programmers can use the [targets]{.pkg} by @landau2021 as a build
+automation tool.
 
 @mcdermott2021 is an example of a scientific study that reached the gold
 standard of reproducibility. The author of this paper set up an accompagnying
