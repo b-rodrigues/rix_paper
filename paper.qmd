@@ -23,7 +23,7 @@ author:
 abstract: |
   In order to create an analysis that is easily reproducible,
   it is not enough to write clean code and document it well. One
-  must also make sure to clear list all the dependencies of the analysis
+  must also make sure to clearly list all the dependencies of the analysis
   and ideally provide an easy way to install them.
   There are several tools that can be used to list dependencies and to
   make them easily installable by someone that wishes to reproduce a study,
@@ -218,18 +218,17 @@ The next step in reaching the gold standard of reproducibility would be to not
 only install the right packages used for the analysis, but also the right
 version of [R]{.proglang}. Of course, it would be possible to install the right
 version manually, but here too, there are tools that simplify the process. One
-such tool is [rig]{.proglang} by the R infrastructure team [-@rlib2023].
-[rig]{.proglang} makes it easy to install different versions of [R]{.proglang},
+such tool is [rig]{.pkg} by the R infrastructure team [-@rlib2023].
+[rig]{.pkg} makes it easy to install different versions of [R]{.proglang},
 so one could use it to install the right version to reproduce an analysis, and
 then use one of the listed packages above to install the right library of
 [R]{.proglang} packages. However, this involves many manual steps and is thus
-error prone. It is also time-consuming to do so, especially if one wants to
-reproduce many studies.
+error prone and time-consuming. 
 
 The final tool one could use to reach the gold standard of reproducibility is to
 package the right version of [R]{.proglang} and [R]{.proglang} packages inside a
-[Docker]{.proglang} image. [Docker]{.proglang} is a containerisation tool: using
-[Docker]{.proglang} it is possible to package some *data product* with its
+[Docker]{.pkg} image. [Docker]{.pkg} is a containerisation tool: using
+[Docker]{.pkg} it is possible to package some *data product* with its
 dependencies into an image. A statistical analysis, from the simplest to the
 most complex one, can be seen as such a data product that requires many software
 dependencies. *Dockerizing* an analysis consists in first building an image: in
@@ -237,51 +236,52 @@ the build step, the dependencies of the analysis have to be installed and this
 can be achieved using the tools mentioned above. The scripts to run the analysis
 and the data are also added to the image at build time. These steps are written
 down in a simple text file called a `Dockerfile`. This `Dockerfile` is the
-definition of the [Docker]{.prolgang} image.
+definition of the [Docker]{.pkg} image.
 
 It is possible to then execute the code of a study inside a so-called container,
-which is an instance of an image. Executing, or running, these containers is
+which is a running instance of an image. Executing, or running, these containers is
 done non-interactively, and so it is possible to instantiate the correct
 environment to run a study in a single command.
 
-The advantage of using [Docker]{.proglang} is not only about having the right
+The advantage of using [Docker]{.pkg} is not only about having the right
 version of [R]{.proglang} and [R]{.proglang} packages bundled alongside the
-analysis scripts: [Docker]{.proglang} images are actually almost complete Linux
-operating systems, which means that system-level dependecies also get bundled
+analysis scripts: [Docker]{.pkg} images are actually almost complete Linux
+operating systems, which means that system-level dependencies also get bundled
 into the image. This is especially useful for packages that rely on external
 libraries to run, such as for [nloptr]{.pkg}, as these external libraries are
 thus also made available to future reproducers of the study within the
-[Docker]{.proglang} image. The image can also be shared.
+[Docker]{.pkg} image. The image can also be shared.
 
 The Rocker project initiated by @boettiger2017 provides many pre-built
-[Docker]{.proglang} to the [R]{.proglang} community of users, already containing
+[Docker]{.pkg} to the [R]{.proglang} community of users, already containing
 specific [R]{.proglang} versions and even packages. These images can be used as
 bases to build other images containing statistical analyses more easily than
 starting from a bare-bones image.
 
-While [Docker]{.proglang} offers a great solution to the reproducibility
+While [Docker]{.pkgs} offers a great solution to the reproducibility
 problem, it can be awkward to work interactively from a running container:
 containers can be changed at run-time, but any change will be lost once the
 container is stopped. Also, while it is possible to launch graphical programs
 from a container, this is generally not easy to set up and only works, as far as
 we know, only on Linux operating systems. In most cases, users of
-[Docker]{.proglang} will instead use the container to run a web server and the
-web based application of a popular integrated development environment (IDE). So
-for instance, it would be possible to launch the web interface of the RStudio
-IDE, but not the operating system client of RStudio, which is usually what an R
-programmer would use (or VS Code or Emacs...). A common approach seems to be to
+[Docker]{.pkg} will instead use the container to run a web server and the
+web based application of a popular integrated development environment (IDE).
+A common approach seems to be to
 work on a study interactively using a standard installation of R and R packages,
 and after the study is done, take some time to write the required `Dockerfile`
 to provide an easy way for future replicators to reproduce the results of the
 study. But this approach does not solve the problem of deploying the same
 environment on several machines, and so ideally authors would develop using
-[Docker]{.proglang}. Another challenge of using [Docker]{.proglang} is that,
-as stated already, [Docker]{.proglang} images are actually almost complete
+a containerized development environment. Another challenge of using [Docker]{.pkg} is that,
+as stated already, [Docker]{.pkg} images are actually almost complete
 Linux operating systems, so experience with Linux is highly recommended if
-one wishes to properly write a `Dockerfile`.
+one wishes to properly write a `Dockerfile`. Finally, one also needs to be careful
+and write the `Dockerfile` in such a way that the build process will always result
+in the same image. This is only possible if a specific digest of a base
+image is used instead of a tagged version, but in practice, this is rarely done.
 
 A final, and optional, step towards the gold standard is to use a build
-automation tool such as [Make]{.proglang} to run the whole analysis when the
+automation tool such as [Make]{.pkg} to run the whole analysis when the
 container is executed, instead of executing scripts. Build automation tools make
 it easier to run arbitrary code in a series of well-defined steps.
 [R]{.proglang} programmers can use the [targets]{.pkg} by @landau2021 as a build
@@ -303,7 +303,7 @@ make it available to other researchers:
   easily.
 
 However, reaching this gold standard is quite costly: one needs to learn a tool
-to deal with package versions, then [Docker]{.proglang} for all the other
+to deal with package versions, then [Docker]{.pkg} for all the other
 software, including the programming language that was used. Ideally, a build
 automation tool such as [Make]{.proglang} should be added to the list. It should
 also be noted that these requirements are not limited to the [R]{.proglang}
@@ -317,21 +317,21 @@ no guarantee that others will have access to the proprietary software used.
 As an alternative to the above approach, we will present the [Nix]{.proglang}
 package manager, which is available for all major operating systems and focuses
 on installing and building software in a reproducible manner. This means that
-this single tool can replace not only [Docker]{.proglang} but also [renv]{.pkg}
-and even a build automation tool such as [Make]{.proglang}. To make
+this single tool can replace not only [Docker]{.pkg} but also [renv]{.pkg}
+and even a build automation tool such as [Make]{.pkg}. To make
 [Nix]{.proglang} more accessible to [R]{.proglang} programmers, we developed the
 [rix]{.pkg} package which we will present in this article.
 
 ## The Nix package manager {#sec-nix}
 
-[Nix]{.proglang} is a package manager that can be used to install and build
+[Nix]{.pkg} is a package manager that can be used to install and build
 software in a completely reproducible manner. As of writing, it contains more
-than 80.000 packages, including the entirety of CRAN and Bioconductor. This
+than 80.000 packages, including almost the entirety of CRAN and Bioconductor. This
 means that using [Nix]{.proglang}, it is possible to install not only
 [R]{.proglang}, but also all the packages required for a project. The reason why
 one should use [Nix]{.proglang} to install [R]{.proglang} packages, and not use
 the usual, built-in, `install.packages()` [R]{.proglang} function instead, is
-that when installing a package with [Nix]{.proglang}, [Nix]{.proglang} makes
+that when installing a package with [Nix]{.pkg}, [Nix]{.pkg} makes
 sure to install every dependency of every package, whether this dependency is
 another [R]{.proglang} package or a system-level dependency.
 
@@ -339,36 +339,51 @@ For example, the [xlsx]{.pkg} [R]{.proglang} package requires the
 [Java]{.proglang} programming language to be installed to successfully install.
 Depending on what system one tries to install [xlsx]{.pkg}, installing
 [Java]{.proglang} might not be easy, nor even possible. But with
-[Nix]{.proglang}, it suffices to declare that the [xlsx]{.pkg} package is needed
+[Nix]{.pkg}, it suffices to declare that the [xlsx]{.pkg} package is needed
 for the project, and [Nix]{.proglang} figures out automatically that
 [Java]{.proglang} is required and installs and configures it. It all just
-happens without any required intervention from the user.
+happens without any required intervention from the user. In this context, 
+[xlsx]{.pkg} can be refered to as a component closure, and quoting @dolstra2004nix:
 
-But where do these packages come from? When installing a package using
-[Nix]{.proglang}, an expression written in the [Nix]{.proglang} programming
+> The idea is to always deploy component closures: if we deploy a
+> component, then we must also deploy its dependencies, their dependencies, and so on. That is, we must
+> always deploy a set of components that is closed under
+> the ‘‘depends on’’ relation. Since closures are selfcontained, they are the units of complete software
+> deployment. After all, if a set of components is not
+> closed, it is not safe to deploy, since using them might
+> cause other components to be referenced that are missing on the target system.
+
+But how does [Nix]{.pkg} achieve this? Where do these packages, or closures, come from? When installing a package using
+[Nix]{.pkg}, an expression written in the [Nix]{.proglang} programming
 language gets downloaded from the `nixpkgs` Github repository and evaluated.
 This expression contains a so-called *derivation*. A derivation defines a build:
 its dependencies, commands to build and install the package in question, and
 then an output. Most of the time, a derivation downloads source code, builds the
 software from the source and then outputs a compiled binary. Derivations are
 extremely flexible, and by writing one's own, it is possible to define and build
-an environment for a project in a reproducible manner.
+an environment for a project in a reproducible manner. The dependencies of these
+derivations are also defined in other expressions, which will also get installed
+if needed.
 
 But why is installing software with [Nix]{.proglang} reproducible? Because the
-whole set of [Nix]{.proglang} expressions is hosted on Github, it is possible to
+whole set of [Nix]{.pkg} expressions is hosted on Github, it is possible to
 use a specific commit of `nixpkgs` to ensure reproducibility of our project.
 Using a specific commit of `nixpkgs` is called *pinning a revision (or commit)*.
 Pinning a revision ensures that every package that Nix installs will always be
 at exactly the same versions, regardless of when in the future the packages get
-built. This is because the [Nix]{.proglang} expressions that get downloaded when
+built. This is because the [Nix]{.pkgs} expressions that get downloaded when
 pinning are the expressions as they were at that commit of `nixpkgs`. This is
-not the only reason [Nix]{.proglang} is very useful for reproducibility, but the
-[Nix]{.proglang} package manager itself was designed with reproducibility in
-mind. [Nix]{.proglang} is functional package manager, meaning that it uses
+not the only reason [Nix]{.pkg} is very useful for reproducibility, but the
+[Nix]{.pkg} package manager itself was designed with reproducibility in
+mind. [Nix]{.pkg} is functional package manager, meaning that it uses
 concepts from functional programming to build software: no-side effects or
 global variables are allowed, and the output is always the same if given the
-same inputs, regardless of where or when a package gets built.
-We refer to @dolstra2004nix for a more technical discussion on [Nix]{.proglang}.
+same inputs, regardless of where or when a package gets built. [Nix]{.pkg} 
+also allows for multiple versions (or variants in the [Nix]{.pkg} jargon)
+to be installed at the same time on the same system. Each variant of a package
+has a unique identifier, so that it is possible to have two versions of [R]{.proglang}
+installed and use the correct one where adequate.
+We refer to @dolstra2004nix for a more technical discussion on [Nix]{.pkg}.
 
 With Nix, it is essentially possible to replace [renv]{.pkg} and
 [Docker]{.proglang} combined, or in the case of [Python]{.proglang}, replace
@@ -379,9 +394,16 @@ edit the project's source code. Essentially, one can define a complete
 reproducible environment and use it to work on a project interactively, or use
 that environment non-interactively to run an analysis sometime in the future.
 
+[Nix]{.pkg} has a fairly high entry cost though. [Nix]{.pkg} is a complex piece of software that
+comes with its own programming language, which is also called [Nix]{.proglang}. Its purpose is 
+to solve a complex problem: defining instructions on how to build software packages 
+and manage configurations in a declarative way. This makes sure that software gets 
+installed in fully reproducible manner, on any operating system or hardware. To increase
+[Nix]{.pkg}’s adoption, we wrote the [rix]{.pkg} package.
+
 ## Reproducible development environments with Nix {#sec-repro-nix}
 
-[Nix]{.proglang} expressions are written in the [Nix]{.proglang} programming language,
+[Nix]{.pkg} expressions are written in the [Nix]{.proglang} programming language,
 which is a purely functional programming language. Here is a simple expression
 that builds a shell environment containing version 4.3.1 of [R]{.proglang}:
 
@@ -398,7 +420,7 @@ in
   }
 ```
 
-To define a variable in the [Nix]{.proglang}, the `let` keyword is used, so the
+To define a variable in the [Nix]{.proglang} language, the `let` keyword is used, so the
 first lines of this expression define a variable called `pkgs` and
 `system_pkgs`. `pkgs` is defined as the set of packages to be used in this
 derivation. In this example, the package expressions are going to be pulled from
