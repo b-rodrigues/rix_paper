@@ -319,7 +319,7 @@ package manager, which is available for all major operating systems and focuses
 on installing and building software in a reproducible manner. This means that
 this single tool can replace not only [Docker]{.pkg} but also [renv]{.pkg}
 and even a build automation tool such as [Make]{.pkg}. To make
-[Nix]{.proglang} more accessible to [R]{.proglang} programmers, we developed the
+[Nix]{.pkg} more accessible to [R]{.proglang} programmers, we developed the
 [rix]{.pkg} package which we will present in this article.
 
 ## The Nix package manager {#sec-nix}
@@ -327,9 +327,9 @@ and even a build automation tool such as [Make]{.pkg}. To make
 [Nix]{.pkg} is a package manager that can be used to install and build
 software in a completely reproducible manner. As of writing, it contains more
 than 80.000 packages, including almost the entirety of CRAN and Bioconductor. This
-means that using [Nix]{.proglang}, it is possible to install not only
+means that using [Nix]{.pkg}, it is possible to install not only
 [R]{.proglang}, but also all the packages required for a project. The reason why
-one should use [Nix]{.proglang} to install [R]{.proglang} packages, and not use
+one should use [Nix]{.pkg} to install [R]{.proglang} packages, and not use
 the usual, built-in, `install.packages()` [R]{.proglang} function instead, is
 that when installing a package with [Nix]{.pkg}, [Nix]{.pkg} makes
 sure to install every dependency of every package, whether this dependency is
@@ -381,7 +381,7 @@ global variables are allowed, and the output is always the same if given the
 same inputs, regardless of where or when a package gets built (an important
 side-note is in order here: while the functional aspect of [Nix]{.pkg} is quite
 useful to ensure reproducibility, it can lead to situations where writing the
-required [Nix]{.proglang} expression to build it a can be much more difficult than usual: this is especially true for
+required [Nix]{.proglang} expression to build it can be much more difficult than usual: this is especially true for
 packages that must download assets off the internet during installation, such as 
 several BioConductor packages like [musData]{.pkg} for example. But this is only
 a concern for the packagers, not users of the package that simply wish to install
@@ -396,9 +396,10 @@ With Nix, it is essentially possible to replace [renv]{.pkg} and
 `requirements.txt` files which list package dependencies for [Python]{.proglang}
 projects. It is also possible to build multi-language environments, containing R
 and Python, a LaTeX distribution, and even install one's favorite text editor to
-edit the project's source code. Essentially, one can define a complete
-reproducible environment and use it to work on a project interactively, or use
-that environment non-interactively to run an analysis sometime in the future.
+edit the project's source code. Essentially, one can define a complete, project-specific,
+and reproducible environment and use it interactively, or non-interactively. It will
+always be possible to rebuild this environmen in the future (as long as the `nixpkgs`
+GitHub repository is online) to run an analysis sometime in the future.
 
 [Nix]{.pkg} has a fairly high entry cost though. [Nix]{.pkg} is a complex piece of software that
 comes with its own programming language, which is also called [Nix]{.proglang}. Its purpose is 
@@ -409,7 +410,7 @@ installed in fully reproducible manner, on any operating system or hardware. To 
 
 ## Reproducible development environments with Nix {#sec-repro-nix}
 
-[Nix]{.pkg} expressions are written in the [Nix]{.proglang} programming language,
+As already stated, [Nix]{.pkg} expressions are written in the [Nix]{.proglang} programming language,
 which is a purely functional programming language. Here is a simple expression
 that builds a shell environment containing version 4.3.1 of [R]{.proglang}:
 
@@ -431,12 +432,12 @@ first lines of this expression define a variable called `pkgs` and
 `system_pkgs`. `pkgs` is defined as the set of packages to be used in this
 derivation. In this example, the package expressions are going to be pulled from
 the official `nixpkgs` Github repository, and in particular the commit starting
-with `976fa336` is going to be used. It should be noted that is also possible to
-use a personal fork of `nixpkgs` instead of the official repository.
+with `976fa336` is going to be used (it should be noted that is also possible to
+use a personal fork of `nixpkgs` instead of the official repository).
 `system_pkgs` lists the packages that we wish to install and use with this
-environment, in this example only the [R]{.proglang} programming language will
-be installed, alongside all the required dependencies to actually install and
-run [R]{.proglang}. Finally, the `mkShell` function is used to build a shell
+environment; in this example only the [R]{.proglang} programming language will
+be installed, alongside all of its dependencies, and all of the dependencies’
+dependencies. Finally, the `mkShell` function is used to build a shell
 containing the set of packages defined by the variable `system_packages` and its
 `shellHook` is set to `R --vanilla`: this means that when entering the shell,
 [R]{.proglang} will be started with the `--vanilla` flag (thus ignoring any
@@ -451,7 +452,7 @@ Determinate systems which can be found on the following link:
 specifications declared in the `default.nix` file, the user can enter the
 development shell using `nix-shell`. The user will thus be dropped into an
 interactive shell with all the packages declared in the `default.nix` file and
-can now use this shell for work. This is similar to activating environments in
+can now use this shell for work. This is similar to activating virtual environments in
 the [Python]{.proglang} ecosystem.
 
 Obviously, writing such an expression will be quite complicated for someone that
@@ -460,8 +461,8 @@ of being able to define a completely reproducible development environment in a
 single text file and then use that file to build and use that environment
 anywhere is quite appealing. Because we believe that lowering the cost of
 writing [Nix]{.proglang} expressions would lead to a wider adoption of the
-[Nix]{.proglang} package manager for reproducibility, we wrote [rix]{.pkg}
-which comes with the `rix()` function that helps generate such expressions quite
+[Nix]{.pkg} package manager for reproducibility, we wrote [rix]{.pkg}. [rix]{.pkg}
+comes with the `rix()` function that helps generate such expressions quite
 easily. For example, here is how one could use [rix]{.pkg} to generate a
 `default.nix` file that installs version 4.3.1 of [R]{.proglang} and the
 [dplyr]{.pkg} and [chronicler]{.pkg} packages (we don't show the generated
@@ -474,15 +475,16 @@ library(rix)
 rix(r_ver = "4.3.1",
     r_pkgs = c("dplyr", "chronicler"),
     project_path = ".",
-    overwrite = TRUE,
-    print = TRUE)
+    overwrite = TRUE)
 ```
 
 Here, users do not need to look for the right commit of `nixpkgs`: it is enough
-to specify the version of [R]{.proglang} they wish to use and the packages that
-were current at the time will get used. But [rix]{.pkg} is quite flexible and
+to specify the version of [R]{.proglang} they wish to use and the right
+commit will be selected (a lookup table linking versions of R and `nixpkgs` commits
+is included in the package). The versions of [R]{.proglang} packages that
+were current at the time will get installed in that environment. But [rix]{.pkg} is quite flexible and
 makes it easy to install specific versions of packages as well (which will get
-installed from the CRAN archives) as well as packages hosted on Github and
+installed from CRAN) as well as packages hosted on Github and
 \LaTeX packages as well:
 
 ```{r, eval = F}
@@ -538,7 +540,17 @@ compilation. Essentially, each time one of the authors pushed to the master
 branch, a Github Actions runner would be started, [Nix]{.proglang} would get
 installed on said runner, and an environment containing the right packages was
 generated from a `default.nix` file that is hosted on the same repository. The
-paper would then get compiled in this reproducible environment.
+paper would then get compiled using [Quarto]{.pkg} in this reproducible environment.
+
+Instead of first dropping into a [Nix]{.pkg} shell it is also possible to directly
+run a program from the environment:
+
+```
+cd /absolute/path/to/project/ && nix-shell default.nix --run "Rscript analysis.R"
+```
+
+This will run `Rscript` and execute the `analysis.R` script (which in this example
+should be in the same directory as `default.nix`).
 
 ## Additional features of the rix package
 
@@ -606,7 +618,7 @@ rix(
 )
 ```
 
-We recommend `path_subshell` to be a subfolder of the project. Using `rix()` we
+We recommend `path_subshell` to be a subfolder of the main project. Using `rix()` we
 generate a `default.nix` file that will provide a shell with R version 3.5.3
 when built. We then use `rix_init()`, which generates an `.Rprofile` file in the
 same subfolder as where the subshell's `default.nix` is located. This
@@ -670,11 +682,12 @@ the console while running, which we don't show here for space reasons.
 
 The `expr` argument of `with_nix()` can be arbitrarly complex, but must be
 wrapped inside a `function()` call. The value of `out_subshell` is `r out_subshell`,
-as is indeed different than the one generated from a recent version of R.
+and is indeed different than the one generated from a recent version of R.
 
 It is possible to use `with_nix()` from an R session that was installed itself
 via Nix, or from a regular R installation.
 
+## Conclusion
 
 ## Acknowledgments {.unnumbered}
 
