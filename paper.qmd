@@ -348,7 +348,7 @@ happens without any required intervention from the user. In this context,
 > The idea is to always deploy component closures: if we deploy a
 > component, then we must also deploy its dependencies, their dependencies, and so on. That is, we must
 > always deploy a set of components that is closed under
-> the ‘‘depends on’’ relation. Since closures are selfcontained, they are the units of complete software
+> the ''depends on'' relation. Since closures are selfcontained, they are the units of complete software
 > deployment. After all, if a set of components is not
 > closed, it is not safe to deploy, since using them might
 > cause other components to be referenced that are missing on the target system.
@@ -378,8 +378,14 @@ not the only reason [Nix]{.pkg} is very useful for reproducibility, but the
 mind. [Nix]{.pkg} is functional package manager, meaning that it uses
 concepts from functional programming to build software: no-side effects or
 global variables are allowed, and the output is always the same if given the
-same inputs, regardless of where or when a package gets built. [Nix]{.pkg} 
-also allows for multiple versions (or variants in the [Nix]{.pkg} jargon)
+same inputs, regardless of where or when a package gets built (an important
+side-note is in order here: while the functional aspect of [Nix]{.pkg} is quite
+useful to ensure reproducibility, it can lead to situations where writing the
+required [Nix]{.proglang} expression to build it a can be much more difficult than usual: this is especially true for
+packages that must download assets off the internet during installation, such as 
+several BioConductor packages like [musData]{.pkg} for example. But this is only
+a concern for the packagers, not users of the package that simply wish to install
+and use the package). [Nix]{.pkg} also allows for multiple versions (or variants in the [Nix]{.pkg} jargon)
 to be installed at the same time on the same system. Each variant of a package
 has a unique identifier, so that it is possible to have two versions of [R]{.proglang}
 installed and use the correct one where adequate.
