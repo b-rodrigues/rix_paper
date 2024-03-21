@@ -1,5 +1,5 @@
 let
- pkgs = import (fetchTarball "https://github.com/b-rodrigues/nixpkgs/archive/06b93631a20bc9c1e73d7b5c706af12ee01922aa.tar.gz") {};
+ pkgs = import (fetchTarball "https://github.com/b-rodrigues/nixpkgs/archive/r-daily.tar.gz") {};
   rix = [(pkgs.rPackages.buildRPackage {
             name = "rix";
             src = pkgs.fetchgit {
