@@ -689,6 +689,16 @@ via Nix, or from a regular R installation.
 
 ## Conclusion
 
+There are many tools to make one’s analyses reproducible, but Nix distinguishes
+itself from these in that its main concern is in deploying
+the complete set of packages that are *closed under the ''depends on''
+relation*: Nix does not simply install one piece of software,
+but its dependencies, and their dependencies. This makes Nix extremely
+useful for reproducible research, but because it solves a complex problem,
+it is a complex tool. With [rix]{.pkg}, we wish to make using Nix more
+accessible by providing a familiar interface and 
+user experience to [R]{.proglang} users.
+
 ## Acknowledgments {.unnumbered}
 
 :::{.callout}
