@@ -689,8 +689,8 @@ via Nix, or from a regular R installation.
 
 ## Conclusion
 
-There are many tools to make one’s analyses reproducible, but Nix distinguishes
-itself from these in that its main concern is in deploying
+There are many tools to make one’s analyses reproducible, but Nix distinguishes itself from 
+these in that its main concern is in deploying
 the complete set of packages that are *closed under the ''depends on''
 relation*: Nix does not simply install one piece of software,
 but its dependencies, and their dependencies. This makes Nix extremely
