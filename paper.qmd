@@ -22,6 +22,7 @@ author:
       - Plus Affiliation
 abstract: |
   In order create an analysis that is easily reproducible,
+coucou
   it is not enough to write clean code and document it well. One
   must also make sure to clearly list all the dependencies of the analysis
   and ideally provide an easy way to install them.
