@@ -1,5 +1,5 @@
 ---
-title: "Reproducible development environments with rix"
+title: "Reproducible development environments with rix hello"
 format:
     jss-pdf:
         keep-tex: true
