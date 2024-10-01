@@ -29,8 +29,9 @@ abstract: |
   make them easily installable by someone that wishes to reproduce a study,
   such as [Docker]{.proglang}, a containerization solution. This paper will
   present another tool that can be used to make projects reproducible,
-  the Nix package manager, and an [R]{.proglang} package called [rix]{.pkg} that
-  makes using Nix much simpler for users of [R]{.proglang}.
+  the [Nix]{.proglang} package manager, and an [R]{.proglang} package 
+  called [rix]{.pkg} that makes using [Nix]{.proglang} much simpler 
+  for users of [R]{.proglang}.
 
 keywords: [reproducibility, R, Nix]
 keywords-formatted: [reproducibility, "[R]{.proglang}", "[Nix]{.proglang}"]
@@ -49,7 +50,7 @@ if to all this the authors add what Roger Peng referred to as the *linked and
 executable code and data*, we reach the gold standard of reproducibility.
 
 *Linked and executable code and data* refer to the compiled source code scripts,
-but for an interpreted language such as [R]{}{.proglang}, this would rather
+but for an interpreted language such as [R]{.proglang}, this would rather
 refer to the *computational environment*. The computational environment is all
 the software required to run the analysis. Here too, we can speak of a
 continuum. One could simply name and list the software used: for example, the
@@ -473,10 +474,21 @@ anywhere is quite appealing. Because we believe that lowering the cost of
 writing [Nix]{.proglang} expressions would lead to a wider adoption of the
 [Nix]{.pkg} package manager for reproducibility, we developed [rix]{.pkg}.
 [rix]{.pkg} comes with the `rix()` function that helps generate such expressions
-quite easily. For example, here is how one could use [rix]{.pkg} to generate a
-`default.nix` file that installs version 4.3.1 of [R]{.proglang} and the
-[dplyr]{.pkg} and [chronicler]{.pkg} packages (we don't show the generated
-expression here because of space):
+quite easily. [rix]{.pkg} is available on CRAN and can be installed as any other
+package, but it is also possible to use it to bootstrap an [R]{.proglang}
+development environment on a system where [R]{.proglang} is not available (but
+[Nix]{.proglang} is). One simply needs to run this line inside a terminal:
+
+```
+nix-shell --expr "$(curl -sl https://raw.githubusercontent.com/ropensci/rix/main/inst/extdata/default.nix)"
+```
+
+to be dropped in a temporary [R]{.proglang} session where [rix]{.pkg} is
+available. From there, it is possible to generate new [Nix]{.proglang}
+expressions to build new environments. For example, here is how one could use
+[rix]{.pkg} to generate a `default.nix` file that installs version 4.3.1 of
+[R]{.proglang} and the [dplyr]{.pkg} and [chronicler]{.pkg} packages (we don't
+show the generated expression here because of space):
 
 
 ```{r, eval = F}
@@ -636,22 +648,6 @@ the subshell's `default.nix` is located. This `.Rprofile` file ensures that the
 R session that will be spawned from this subshell does not get any interference
 from the main session it gets called from.
 
-```{r, eval = F}
-rix_init(
-   project_path = path_subshell,
-   rprofile_action = "overwrite",
-   message_type = "simple"
- )
-```
-
-```{r, eval = F}
-rix_init(
-   project_path = path_subshell,
-   rprofile_action = "overwrite",
-   message_type = "simple"
- )
-```
-
 We can now use this shell to generate our vector of random numbers using
 `with_nix()`:
 
@@ -685,27 +681,30 @@ out_subshell <- with_nix(
 
 ```
 
-We should say that `rix_init()` and `with_nix()` print many status messages to
-the console while running, which we don't show here for space reasons.
+We should say that `with_nix()` prints many status messages to the console while
+running, which we don't show here for space reasons.
 
-The `expr` argument of `with_nix()` can be arbitrarly complex, but must be
-wrapped inside a `function()` call. The value of `out_subshell` is `r out_subshell`,
-and is indeed different than the one generated from a recent version of R.
+The `expr` argument of `with_nix()` can be arbitrarily complex, but must be
+wrapped inside a `function()` call. The value of `out_subshell` is `r
+out_subshell`, and is indeed different than the one generated from a recent
+version of R.
 
 It is possible to use `with_nix()` from an R session that was installed itself
 via Nix, or from a regular R installation.
 
 ## Conclusion
 
-There are many tools to make one’s analyses reproducible, but Nix distinguishes itself from 
-these in that its main concern is in deploying
-the complete set of packages that are *closed under the ''depends on''
-relation*: Nix does not simply install one piece of software,
-but its dependencies, and their dependencies. This makes Nix extremely
-useful for reproducible research, but because it solves a complex problem,
-it is a complex tool. With [rix]{.pkg}, we wish to make using Nix more
-accessible by providing a familiar interface and 
-user experience to [R]{.proglang} users.
+There are many tools to make one’s analyses reproducible, but Nix distinguishes
+itself from these in that its main concern is in deploying the complete set of
+packages that are *closed under the ''depends on'' relation*: Nix does not
+simply install one piece of software, but its dependencies, and their
+dependencies. This makes Nix extremely useful for reproducible research, but
+because it solves a complex problem, it is a complex tool. With [rix]{.pkg}, we
+wish to make using Nix more accessible by providing a familiar interface and
+user experience to [R]{.proglang} users. Because it is possible to build
+reproducible development shells using [Nix]{.proglang}, it can accomodate any
+use case: running scripts, pipelines, interactive [shiny]{.pkg} applications,
+and serve [plumber]{.pkg} application programming interfaces.
 
 ## Acknowledgments {.unnumbered}
 
