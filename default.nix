@@ -1,12 +1,12 @@
 let
- pkgs = import (fetchTarball "https://github.com/b-rodrigues/nixpkgs/archive/06b93631a20bc9c1e73d7b5c706af12ee01922aa.tar.gz") {};
+ pkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/1c9c0eabb80d35c24eb4e7968c9ee15641a3e0fd.tar.gz") {};
   rix = [(pkgs.rPackages.buildRPackage {
             name = "rix";
             src = pkgs.fetchgit {
-              url = "https://github.com/b-rodrigues/rix";
-              branchName = "master";
-              rev = "65b3580fa07997fe0b532a5eefadf0366065be55";
-              sha256 = "sha256-2RxXaIg68S5MTnhTuozK+DSYwYL0RUTf/8xr0FQbtBA=";
+              url = "https://github.com/ropensci/rix";
+              branchName = "main";
+              rev = "7c3b48e5c2c70d2990f89fd57c5395ac635e4734";
+              sha256 = "";
             };
             propagatedBuildInputs = builtins.attrValues {
               inherit (pkgs.rPackages) codetools httr jsonlite sys;
