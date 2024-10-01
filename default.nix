@@ -6,7 +6,7 @@ let
               url = "https://github.com/ropensci/rix";
               branchName = "main";
               rev = "7c3b48e5c2c70d2990f89fd57c5395ac635e4734";
-              sha256 = "";
+              sha256 = "sha256-EE9uzoXQjP1p9fEKzN8qU6t8tUYfLsOYeTmUY2k1mqI=";
             };
             propagatedBuildInputs = builtins.attrValues {
               inherit (pkgs.rPackages) codetools httr jsonlite sys;
