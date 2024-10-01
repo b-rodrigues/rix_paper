@@ -654,7 +654,6 @@ out_subshell <- with_nix(
       return(a)
     },
     program = "R",
-    exec_mode = "non-blocking",
     project_path = path_subshell,
     message_type = "simple"
   )
@@ -670,7 +669,6 @@ out_subshell <- with_nix(
       return(a)
     },
     program = "R",
-    exec_mode = "non-blocking",
     project_path = path_subshell,
     message_type = "simple"
   )
