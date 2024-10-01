@@ -44,10 +44,9 @@ bibliography: bibliography.bib
 the ends of this continuum, we only have access to the paper describing the
 studies, which is not reproducible at all. If in addition to this paper authors
 make the original source code of the analysis available, reproducibility is
-improved. Adding the original data improves reproducibility yet again. 
-Finally, if to all this the authors add what Roger
-Peng named the *linked and executable code and data*, we reach the gold standard
-of reproducibility.
+improved. Adding the original data improves reproducibility yet again. Finally,
+if to all this the authors add what Roger Peng named the *linked and executable
+code and data*, we reach the gold standard of reproducibility.
 
 What is this *linked and executable code and data*? Another way to name this
 crucial piece of the reproducibility puzzle is *computational environment*. The
