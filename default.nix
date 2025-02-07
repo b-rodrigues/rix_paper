@@ -1,18 +1,20 @@
 let
- pkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/1c9c0eabb80d35c24eb4e7968c9ee15641a3e0fd.tar.gz") {};
-  rix = [(pkgs.rPackages.buildRPackage {
-            name = "rix";
-            src = pkgs.fetchgit {
-              url = "https://github.com/ropensci/rix";
-              branchName = "main";
-              rev = "7c3b48e5c2c70d2990f89fd57c5395ac635e4734";
-              sha256 = "sha256-EE9uzoXQjP1p9fEKzN8qU6t8tUYfLsOYeTmUY2k1mqI=";
-            };
-            propagatedBuildInputs = builtins.attrValues {
-              inherit (pkgs.rPackages) codetools httr jsonlite sys;
-            };
-         })
-  ];
+ pkgs = import (fetchTarball "https://github.com/rstats-on-nix/nixpkgs/archive/2025-02-03.tar.gz") {};
+    rix = (pkgs.rPackages.buildRPackage {
+      name = "rix";
+      src = pkgs.fetchgit {
+        url = "https://github.com/ropensci/rix/";
+        rev = "fe3c4f8bdbe4c6789f888709aa64cc048ee9b509";
+        sha256 = "sha256-VgpKH/H45SmRxXI3TKdaWlMjrC5wC7uG1vzvNOGcEA4=";
+      };
+      propagatedBuildInputs = builtins.attrValues {
+        inherit (pkgs.rPackages) 
+          codetools
+          curl
+          jsonlite
+          sys;
+      };
+    });
   tex = (pkgs.texlive.combine {
   inherit (pkgs.texlive) scheme-small amsmath booktabs setspace lineno cochineal tex-gyre framed multirow wrapfig fontawesome5 tcolorbox orcidlink environ tikzfill pdfcol;
 });
