@@ -413,7 +413,7 @@ With Nix, it is essentially possible to replace [renv]{.pkg} and
 [Docker]{.proglang} combined, or in the case of [Python]{.proglang}, replace
 `requirements.txt` files which list package dependencies for [Python]{.proglang}
 projects and virtual environments. It is also possible to build multi-language
-environments, containing [R]{.proglang}and Python, a LaTeX distribution, and even install
+environments, containing [R]{.proglang} and Python, a LaTeX distribution, and even install
 one's favorite text editor to edit the project's source code. Essentially, one
 can define a complete, project-specific, and reproducible environment and use it
 interactively, or non-interactively. It will always be possible to rebuild this
@@ -428,7 +428,7 @@ declarative way. This makes sure that software gets installed in fully
 reproducible manner, on any operating system or hardware. To increase
 [Nix]{.pkg}’s adoption, we wrote the [rix]{.pkg} package.
 
-## Reproducible development environments with [Nix]{.pkg} {#sec-repro-nix}
+## Reproducible development environments with Nix{#sec-repro-nix}
 
 As already stated,  [Nix]{.pkg} expressions are written in the  [Nix]{.proglang}
 programming language, which is a purely functional programming language. Here is
@@ -490,7 +490,7 @@ development environment on a system where [R]{.proglang} is not available (but
 [Nix]{.pkg} is). One simply needs to run this line inside a terminal:
 
 ```
-nix-shell -p [R]{.proglang}rPackages.rix"
+nix-shell -p R rPackages.rix
 ```
 
 to be dropped in a temporary [R]{.proglang} session where [rix]{.pkg} is
