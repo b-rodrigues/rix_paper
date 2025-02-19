@@ -51,17 +51,17 @@ executable code and data*, we reach the gold standard of reproducibility.
 
 *Linked and executable code and data* refer to the compiled source code scripts,
 but for the purposes of this article, we will assume this meas the
-*computational environment*. The computational environment is all
-the software required to run the analysis. Here too, we can speak of a
-continuum. One could simply name and list the software used: for example, the
-[R]{.proglang} programming language. Sometimes, authors have the courtesy to
-also state the version of [R]{.proglang} used. Some authors go further, and also
-list the packages used, and ideally with their versions as well. Authors rarely
-state the operating system on which the analysis was done, even though it has
-been shown that running the same analysis with the same software but on
-different operating systems could lead to different results, as described in
-@neupane2019. Authors also only very rarely provide instructions to install the
-required tools and software in order to reproduce their studies.
+*computational environment*. The computational environment is all the software
+required to run the analysis. Here too, we can speak of a continuum. One could
+simply name and list the software used: for example, the [R]{.proglang}
+programming language. Sometimes, authors have the courtesy to also state the
+version of [R]{.proglang} used. Some authors go further, and also list the
+packages used, and ideally with their versions as well. Authors rarely state the
+operating system on which the analysis was done, even though it has been shown
+that running the same analysis with the same software but on different operating
+systems could lead to different results, as described in @neupane2019. Authors
+also only very rarely provide instructions to install the required tools and
+software in order to reproduce their studies.
 
 But even assuming that authors provided clear instructions to install the exact
 requirements of a study, it might happen that these instructions do not even
@@ -167,7 +167,7 @@ which they were downloaded. Generating this file only requires one to run the
 by running `renv::restore()`. The exact same packages get installed in an
 isolated, project-specific library which doesn't interfere with the main
 library of the user. [renv]{.pkg} does not restore the [R]{.proglang} version
-used though, so installing the right version of R needs to be handled
+used though, so installing the right version of [R]{.proglang}needs to be handled
 separately. [renv]{.pkg} will also not install system-level dependencies such
 as [cmake]{.pkg} for [nloptr]{.pkg} on Linux or macOS, so these still need to
 be handled separately, as described in [renv]{.pkg}’s Readme: 
@@ -208,7 +208,7 @@ options(repos =
 )
 ```
 
-The `.Rprofile` file gets read by R when starting a new session, which means
+The `.Rprofile` file gets read by [R]{.proglang}when starting a new session, which means
 that every call to the `install.packages()` function will now install the
 packages from this snapshotted mirror. However, unless the user explicitly and
 manually manages the different projects' libraries, using the Posit Package
@@ -218,12 +218,12 @@ The next step in reaching the gold standard of reproducibility would be to not
 only install the right packages used for the analysis, but also the right
 version of [R]{.proglang}. Of course, it would be possible to install the right
 version manually, but here too, there are tools that simplify the process. One
-such tool is [rig]{.pkg} by the R infrastructure team [-@rlib2023].
-[rig]{.pkg} makes it easy to install different versions of [R]{.proglang},
-so one could use it to install the right version to reproduce an analysis, and
-then use one of the listed packages above to install the right library of
-[R]{.proglang} packages. However, this involves many manual steps and is thus
-error prone and time-consuming. 
+such tool is [rig]{.pkg} by the [R]{.proglang}infrastructure team [-@rlib2023]. [rig]{.pkg}
+makes it easy to install different versions of [R]{.proglang}, so one could use
+it to install the right version to reproduce an analysis, and then use one of
+the listed packages above to install the right library of [R]{.proglang}
+packages. However, this involves many manual steps and is thus error prone and
+time-consuming.
 
 The final tool one could use to reach the gold standard of reproducibility is to
 package the right version of [R]{.proglang} and [R]{.proglang} packages inside a
@@ -239,8 +239,8 @@ down in a simple text file called a `Dockerfile`. This `Dockerfile` is the
 definition of the [Docker]{.pkg} image.
 
 It is possible to then execute the code of a study inside a so-called container,
-which is a running instance of an image. Executing, or running, these containers is
-done non-interactively, and so it is possible to instantiate the correct
+which is a running instance of an image. Executing, or running, these containers
+is done non-interactively, and so it is possible to instantiate the correct
 environment to run a study in a single command.
 
 The advantage of using [Docker]{.pkg} is not only about having the right version
@@ -268,7 +268,7 @@ container to run a web server and the web based application of a popular
 integrated development environment (IDE).
 
 A common approach seems to be to work on a study interactively using a standard
-installation of R and R packages, and after the study is done, take some time to
+installation of [R]{.proglang}and [R]{.proglang}packages, and after the study is done, take some time to
 write the required `Dockerfile` to provide an easy way for future replicators to
 reproduce the results of the study. But this approach does not solve the problem
 of deploying the same environment on several machines, and so ideally authors
@@ -306,50 +306,55 @@ make it available to other researchers:
 However, reaching this gold standard is quite costly: one needs to learn a tool
 to deal with package versions, then [Docker]{.pkg} for all the other software,
 including the programming language that was used. Ideally, a build automation
-tool such as [Make]{.pkg} should be added to the list. It should also be
-noted that these requirements are not limited to the [R]{.proglang} programming
+tool such as [Make]{.pkg} should be added to the list. It should also be noted
+that these requirements are not limited to the [R]{.proglang} programming
 language. A very similar approach should be taken if one uses
-[Python]{.proglang}, or any other programming language. 
-Furthermore, the previous discussion also implies that for an analysis
-to actually be reproducible at all, it must be made using free and open source
-software, as proprietary software cannot be freely shared with others that wish
-to reproduce a study, and there's no guarantee that others will have access to
-the proprietary software used.
+[Python]{.proglang}, or any other programming language. Furthermore, the
+previous discussion also implies that for an analysis to actually be
+reproducible at all, it must be made using free and open source software, as
+proprietary software cannot be freely shared with others that wish to reproduce
+a study, and there's no guarantee that others will have access to the
+proprietary software used.
 
-As an alternative to the above approach, we will present the  [Nix]{.pkg}
-package manager, which is available for all major operating systems and focuses
-on installing and building software in a reproducible manner. This means that
-this single tool can replace not only [Docker]{.pkg} but also [renv]{.pkg}
-and even a build automation tool such as [Make]{.pkg}. To make
-[Nix]{.pkg} more accessible to [R]{.proglang} programmers, we developed the
-[rix]{.pkg} package which we will present in this article.
+As an alternative to the above approach, we will present the [Nix]{.pkg} package
+manager, which is available for all major operating systems and focuses on
+installing and building software in a reproducible manner. This means that this
+single tool can replace not only [Docker]{.pkg} but also [renv]{.pkg} and even a
+build automation tool such as [Make]{.pkg}. To make [Nix]{.pkg} more accessible
+to [R]{.proglang} programmers, we developed the [rix]{.pkg} package which we
+will present in this article.
 
-## The Nix package manager {#sec-nix}
+## The [Nix]{.pkg} package manager {#sec-nix}
 
 [Nix]{.pkg} is a package manager that can be used to install and build software
 in a completely reproducible manner. As of writing, it contains more than
 100.000 packages, including almost the entirety of CRAN and Bioconductor. This
-means that using  [Nix]{.pkg}, it is possible to install not only [R]{.proglang},
-but also all the packages required for a project. The reason why one should use
-[Nix]{.pkg} to install [R]{.proglang} packages, and not use the usual, built-in,
-`install.packages()` [R]{.proglang} function instead, is that when installing a
-package with  [Nix]{.pkg},  [Nix]{.pkg} makes sure to install every dependency of
-every package, whether this dependency is another [R]{.proglang} package or a
-system-level dependency.
+means that using [Nix]{.pkg}, it is possible to install not only [R]{.proglang},
+but also all the packages required for a project. [Nix]{.pkg} is actually the
+package manager of a Linux distribution called NixOS, but can be installed as a
+stand-alone tool for other Linux distributions, macOS, and on the Windows
+Subsystem for Linux on Windows^[Which means that in practical terms, non-Nixos
+Linux distributions and Windows can be considered as the same platform.]. 
+
+The reason why one should use [Nix]{.pkg} to install [R]{.proglang} packages,
+and not use the usual, built-in, `install.packages()` [R]{.proglang} function
+instead, is that when installing a package with [Nix]{.pkg}, [Nix]{.pkg} makes
+sure to install every dependency of every package, whether this dependency is
+another [R]{.proglang} package or a system-level dependency.
 
 For example, the [xlsx]{.pkg} [R]{.proglang} package requires the
 [Java]{.proglang} programming language to be installed to successfully install.
 Depending on what system one tries to install [xlsx]{.pkg}, installing
-[Java]{.proglang} might not be easy, nor even possible. But with  [Nix]{.pkg}, it
+[Java]{.proglang} might not be easy, nor even possible. But with [Nix]{.pkg}, it
 suffices to declare that the [xlsx]{.pkg} package is needed for the project, and
- [Nix]{.pkg} will install [Java]{.proglang} and configure it. This is possible
-because the maintainers of the [R]{.proglang} language for  [Nix]{.pkg}
-declared [Java]{.proglang} as a dependency of [xlsx]{.pkg}. 
-From the perspective of the end-users, this all happens automatically, thanks
-to the efforts of the maintainers. 
+[Nix]{.pkg} will install [Java]{.proglang} and configure it. This is possible
+because the maintainers of the [R]{.proglang} language for [Nix]{.pkg} declared
+[Java]{.proglang} as a dependency of [xlsx]{.pkg}. From the perspective of the
+end-users, this all happens automatically, thanks to the efforts of the
+maintainers.
 
-[xlsx]{.pkg} can thus be referred to as a component closure, 
-and quoting @dolstra2004nix:
+[xlsx]{.pkg} can thus be referred to as a component closure, and quoting
+@dolstra2004nix:
 
 > The idea is to always deploy component closures: if we deploy a component,
 > then we must also deploy its dependencies, their dependencies, and so on. That
@@ -359,72 +364,71 @@ and quoting @dolstra2004nix:
 > closed, it is not safe to deploy, since using them might cause other
 > components to be referenced that are missing on the target system.
 
-But how does  [Nix]{.pkg} achieve this? Where do these packages, or closures,
-come from? When installing a package using  [Nix]{.pkg}, an expression written in
-the  [Nix]{.pkg} programming language gets downloaded from the `nixpkgs`
-Github repository and evaluated. `nixpkgs` is the name of the repository that 
-contains the more than 100'000 pieces of software that can be installed with the 
-[Nix]{.pkg} manager. Expressions contain so-called *derivations*. 
-A derivation defines a build: its dependencies, commands to build
-and install the package in question, and then an output. Most of the time, a
-derivation downloads source code, builds the software from the source and then
-outputs a compiled binary. Derivations are extremely flexible, and by writing
-one's own, it is possible to define and build an environment for a project in a
-reproducible manner. The dependencies of these derivations are also defined in
-other expressions, which will also get installed if needed. As explained
-above, the maintainers of [R]{.proglang} for  [Nix]{.pkg} declare the right
-dependencies for the packages to turn them into component closures. 
+But how does [Nix]{.pkg} achieve this? Where do these packages, or closures,
+come from? When installing a package using [Nix]{.pkg}, an expression written in
+the [Nix]{.pkg} programming language gets downloaded from the `nixpkgs` Github
+repository and evaluated. `nixpkgs` is the name of the repository that contains
+the more than 100'000 pieces of software that can be installed with the
+[Nix]{.pkg} manager. Expressions contain so-called *derivations*. A derivation
+defines a build: its dependencies, commands to build and install the package in
+question, and then an output. Most of the time, a derivation downloads source
+code, builds the software from the source and then outputs a compiled binary.
+Derivations are extremely flexible, and by writing one's own, it is possible to
+define and build an environment for a project in a reproducible manner. The
+dependencies of these derivations are also defined in other expressions, which
+will also get installed if needed. As explained above, the maintainers of
+[R]{.proglang} for [Nix]{.pkg} declare the right dependencies for the packages
+to turn them into component closures.
 
-But why is installing software with  [Nix]{.pkg} reproducible? Because the
-whole set of  [Nix]{.pkg} expressions is hosted on GitHhub, it is possible to use
-a specific commit of `nixpkgs` to ensure reproducibility of our project. Using a
+But why is installing software with [Nix]{.pkg} reproducible? Because the whole
+set of [Nix]{.pkg} expressions is hosted on GitHhub, it is possible to use a
+specific commit of `nixpkgs` to ensure reproducibility of our project. Using a
 specific commit of `nixpkgs` is called *pinning a revision (or commit)*. Pinning
-a revision ensures that every package that Nix installs will always be at
+a revision ensures that every package that [Nix]{.pkg} installs will always be at
 exactly the same versions, regardless of when in the future the packages get
 built. This is because the [Nix]{.pkgs} expressions that get downloaded when
-pinning are the expressions as they were at that commit of `nixpkgs`. 
+pinning are the expressions as they were at that commit of `nixpkgs`.
 
 While pinning revisions is essential for reproducibility, this is not the only
-reason  [Nix]{.pkg} is very useful for reproducibility, but the  [Nix]{.pkg}
-package manager itself was designed with reproducibility in mind.  [Nix]{.pkg} is
+reason [Nix]{.pkg} is very useful for reproducibility, but the [Nix]{.pkg}
+package manager itself was designed with reproducibility in mind. [Nix]{.pkg} is
 a functional package manager, meaning that it uses concepts from functional
 programming to build software: no-side effects or global variables are allowed,
 and the output is always the same if given the same inputs, regardless of where
 or when a package gets built (an important side-note is in order here: while the
-functional aspect of  [Nix]{.pkg} is quite useful to ensure reproducibility, it
-can lead to situations where writing the required  [Nix]{.pkg} expression to
+functional aspect of [Nix]{.pkg} is quite useful to ensure reproducibility, it
+can lead to situations where writing the required [Nix]{.pkg} expression to
 build it can be much more difficult than usual: this is especially true for
-packages that must download assets from the internet during installation, such as
-several BioConductor packages like [musData]{.pkg} for example. But this is only
-a concern for the packagers, not users of the package that simply wish to
-install and use the package).  [Nix]{.pkg} also allows for multiple versions (or
-variants in the  [Nix]{.pkg} jargon) to be installed at the same time on the same
+packages that must download assets from the internet during installation, such
+as several BioConductor packages like [musData]{.pkg} for example. But this is
+only a concern for the packagers, not users of the package that simply wish to
+install and use the package). [Nix]{.pkg} also allows for multiple versions (or
+variants in the [Nix]{.pkg} jargon) to be installed at the same time on the same
 system. Each variant of a package has a unique identifier, so that it is
 possible to have two versions of [R]{.proglang} installed and use the correct
 one where adequate. We refer to @dolstra2004nix for a more technical discussion
-on  [Nix]{.pkg}.
+on [Nix]{.pkg}.
 
 With Nix, it is essentially possible to replace [renv]{.pkg} and
 [Docker]{.proglang} combined, or in the case of [Python]{.proglang}, replace
 `requirements.txt` files which list package dependencies for [Python]{.proglang}
-projects and virtual environments. 
-It is also possible to build multi-language environments, containing R
-and Python, a LaTeX distribution, and even install one's favorite text editor to
-edit the project's source code. Essentially, one can define a complete,
-project-specific, and reproducible environment and use it interactively, or
-non-interactively. It will always be possible to rebuild this environment in the
-future (as long as the `nixpkgs` GitHub repository is online) to run an analysis
-sometime in the future.
+projects and virtual environments. It is also possible to build multi-language
+environments, containing [R]{.proglang}and Python, a LaTeX distribution, and even install
+one's favorite text editor to edit the project's source code. Essentially, one
+can define a complete, project-specific, and reproducible environment and use it
+interactively, or non-interactively. It will always be possible to rebuild this
+environment in the future (as long as the `nixpkgs` GitHub repository is online)
+to run an analysis sometime in the future.
 
-[Nix]{.pkg} has a fairly high entry cost though.  [Nix]{.pkg} is a complex piece
+[Nix]{.pkg} has a fairly high entry cost though. [Nix]{.pkg} is a complex piece
 of software that comes with its own programming language, which is also called
- [Nix]{.proglang}. Its purpose is to solve a complex problem: defining
+[Nix]{.proglang}. Its purpose is to solve a complex problem: defining
 instructions on how to build software packages and manage configurations in a
 declarative way. This makes sure that software gets installed in fully
 reproducible manner, on any operating system or hardware. To increase
 [Nix]{.pkg}’s adoption, we wrote the [rix]{.pkg} package.
 
-## Reproducible development environments with Nix {#sec-repro-nix}
+## Reproducible development environments with [Nix]{.pkg} {#sec-repro-nix}
 
 As already stated,  [Nix]{.pkg} expressions are written in the  [Nix]{.proglang}
 programming language, which is a purely functional programming language. Here is
@@ -437,7 +441,7 @@ let
     "https://github.com/NixOS/nixpkgs/archive/976fa336....tar.gz"
   ) {};
   system_packages = builtins.attrValues {
-    inherit (pkgs) R ;
+    inherit (pkgs) [R]{.proglang};
   };
 in
   pkgs.mkShell {
@@ -446,20 +450,19 @@ in
   }
 ```
 
-To define a variable in the  [Nix]{.proglang} language, the `let` keyword is
+To define a variable in the [Nix]{.proglang} language, the `let` keyword is
 used, so the first lines of this expression define the variables called `pkgs`
 and `system_pkgs`. `pkgs` is defined as the set of packages to be used in this
 derivation. In this example, the package expressions are going to be pulled from
 the official `nixpkgs` GitHub repository, and in particular the commit starting
-with `976fa336` is going to be used.
-`system_pkgs` lists the packages that we wish to install and use with this
-environment; in this example only the [R]{.proglang} programming language will
-be installed, alongside all of its dependencies, and all of the dependencies’
-dependencies. Finally, the `mkShell` function is used to build a development
-shell containing the set of packages defined by the variable `system_packages`
-and its `shellHook` is set to `R --vanilla`: this means that when entering the
-shell, [R]{.proglang} will be started with the `--vanilla` flag (thus ignoring
-any startup options).
+with `976fa336` is going to be used. `system_pkgs` lists the packages that we
+wish to install and use with this environment; in this example only the
+[R]{.proglang} programming language will be installed, alongside all of its
+dependencies, and all of the dependencies’ dependencies. Finally, the `mkShell`
+function is used to build a development shell containing the set of packages
+defined by the variable `system_packages` and its `shellHook` is set to `R
+--vanilla`: this means that when entering the shell, [R]{.proglang} will be
+started with the `--vanilla` flag (thus ignoring any startup options).
 
 This expression can be saved in a file called `default.nix`, and the shell can
 be built using the `nix-build` command on a system where  [Nix]{.pkg} is
@@ -487,16 +490,17 @@ development environment on a system where [R]{.proglang} is not available (but
 [Nix]{.pkg} is). One simply needs to run this line inside a terminal:
 
 ```
-nix-shell -p R rPackages.rix"
+nix-shell -p [R]{.proglang}rPackages.rix"
 ```
 
 to be dropped in a temporary [R]{.proglang} session where [rix]{.pkg} is
-available. From there, it is possible to generate new  [Nix]{.pkg}
-expressions to build new environments. For example, here is how one could use
-[rix]{.pkg} to generate a `default.nix` file that installs version 4.3.1 of
-[R]{.proglang} and the [dplyr]{.pkg} and [chronicler]{.pkg} packages (we don't
-show the generated expression here because of space):
-
+available.^[`nix-shell -p` starts an interactive shell where the package
+specified with the `-p` flag are present.] From there, it is possible to
+generate new [Nix]{.pkg} expressions to build new environments. For example,
+here is how one could use [rix]{.pkg} to generate a `default.nix` file that
+installs version 4.3.1 of [R]{.proglang} and the [dplyr]{.pkg} and
+[chronicler]{.pkg} packages (we don't show the generated expression here because
+of space):
 
 ```{r, eval = F}
 library(rix)
@@ -547,7 +551,7 @@ versions of [rix]{.pkg} and [fusen]{.pkg} (downloaded from Github), and finally
 the Positron integrated development environment. You can see the resulting `default.nix` file in the @sec-appendix.
 
 [rix]{.pkg}'s documentation also provides installation instructions for Nix, but
-[rix]{.pkg} can generate Nix expression even if Nix is not installed on one's
+[rix]{.pkg} can generate [Nix]{.pkg} expression even if [Nix]{.pkg} is not installed on one's
 system. This is quite useful if one wants to generate an expression and use that
 expression in a CI/CD environment such as Github Actions. For example, the
 repository that contains the source code to this
@@ -558,8 +562,8 @@ runner, and an environment containing the right packages was generated from a
 `default.nix` file that is hosted on the same repository. The paper would then
 get compiled using [Quarto]{.pkg} in this reproducible environment.
 
-Instead of first dropping into a  [Nix]{.pkg} shell it is also possible to directly
-run a program from the environment:
+Instead of first dropping into a [Nix]{.pkg} shell it is also possible to
+directly run a program from the environment:
 
 ```
 cd /absolute/path/to/project/ && nix-shell default.nix --run "Rscript analysis.R"
@@ -570,8 +574,130 @@ example should be in the same directory as `default.nix`).
 
 ## rix uses a fork of Nixpkgs
 
-Expressions generated with [rix]{.pkg} will point to a fork of `nixpkgs` instead
-of the official, upstream repository.
+As previously explained, when invoked, the [Nix]{.pkg} package manager will use
+expressions hosted on the `nixpkgs` GitHub repository to build software.
+However, when generating expressions with [rix]{.pkg} our fork
+`rstats-on-nix/nixpkgs` is used instead.
+
+Using a fork instead of the official upstream `nixpkgs` repository has several
+advantages.
+
+The first thing we need to stress, is that it is important to keep in mind that
+the [Nix]{.pkg} package manager is first and foremost the package manager of a
+Linux distribution called NixOS, and as such, several technical and governance
+choice have to be made that limit what we, the authors of [rix]{.pkg} want to offer
+to the users of `{rix}`. For our needs, having a fork gives us more flexibility.
+
+For example, while it is technically possible for [Nix]{.pkg} to provide many versions
+(or variants, in [Nix]{.pkg} jargon) of the same package (for example, you can
+install the latest [Emacs]{.pkg} by installing the `emacs` package, or
+[Emacs]{.pkg} 28 by installing `emacs28`) this ultimately depends on whether the
+maintainer wishes to package several variants, or whether it is practical. In
+the case of the [R]{.proglang} ecosystem, with more than 20'000 CRAN and
+Bioconductor packages, that is not possible for the maintainers to provide
+several variants of the same packages. So for a given `nixpkgs` commit, it is
+not possible to easily install a specific version of an [R]{.proglang} package
+that is not included in that particular `nixpkgs` commit. Instead, [rix]{.pkg}
+can install it from source with this syntax:
+
+```{r, eval = FALSE}
+rix(..., r_pkgs = "dplyr@1.0.7", ...)
+```
+
+However, some packages might need specific fixes to be successfully installed
+by [Nix]{.pkg} (as explained in the case of [xlsx]{.pkg} previously) and thus
+trying to install packages like this might fail.
+
+Furthermore, it isn't practical to update the whole of the [R]{.proglang}
+packages set on [Nix]{.pkg} every day: so while CRAN and Bioconductor get
+updates daily, the [R]{.proglang} packages set on [Nix]{.pkg} gets updated only
+around new releases of R. Again, this is a consequence of [Nix]{.pkg} being
+first and foremost the package manager of a Linux distribution with its own
+governance; daily updates of more than 20'000 package is simply not feasible.
+
+Because of these reasons, we decided to fork `nixpkgs`: because it is a fork, we
+can afford to do things in a way that could not be possible or practical for
+upstream.
+
+The first thing this fork allows us to do is offer a daily snapshot of CRAN.
+Every day, thanks to Github Actions, the [R]{.proglang} packages set gets
+updated, and the result commited to a dated branch. This has been going on since
+the 14th of December 2024 (see
+[here](https://github.com/rstats-on-nix/nixpkgs/tree/2024-12-14)). So when users
+set a date as in `rix(date = "2024-12-14", ...)` the specified dated branch from
+the fork is going to get used. 
+
+
+But this doesn’t mean that we recommend you
+use any date from the `rstats-on-nix/nixpkgs` fork: instead, each Monday,
+another action uses this fork and tries to build a set of popular packages on
+Linux and macOS, and only if this succeeds is the date added through a PR to the
+list of available dates on `{rix}`!
+
+The reason this is done like this is to manage another *risk* of the upstream
+`nixpkgs`. As you know, `nixpkgs` is huge, and though the utmost care is taken
+by contributors and the PR review process is very strict, it can happen that
+updating packages breaks other packages. For example recently RStudio was in a
+broken state due to an issue in one its dependencies, `boost`. This is not the
+fault of anyone in particular: it's just that packages get updated and packages
+that depend on them should get updated as well: but if that doesn't happen
+quickly enough, the `nixpkgs` maintainer faces a conundrum. Either he or she
+doesn't update the package because it breaks others, but not updating a package
+could be a security vulnerability, or he or she updates the package, but now
+others, perhaps less critical packages are broken and need to be fixed, either
+by their upstream developers, or by the `nixpkgs` maintainer of said packages.
+In the case of RStudio a fix was proposed and promptly merged, but if you wanted
+to install RStudio during the time it took to fix it, you would have faced
+an error message, which isn't great if all you want is use [Nix]{.pkg} shells as
+development environments.
+
+So for us, having a fork allows us to backport these fixes and so if you try to
+install RStudio using the latest available date, which is `"2025-02-10"`, it’s
+going to work, whereas if you tried to build it on that date using upstream
+`nixpkgs` you'd be facing an error!
+
+We spent quite some time backporting fixes: we went back all the way to
+2019. The way this works, is that we start by checking out a `nixpkgs` commit on
+selected dates, then we "update" the [R]{.proglang}packages set by using the Posit CRAN and
+Bioconductor daily snapshots. Then, we backport as many fixes as possible, and
+ensure that a selection of popular packages work on both x86-linux (which
+includes Windows, through WSL) and aarch64-darwin (the M-series of Macs). Then
+we commit everything to a dated branch of the `rstats-on-nix/nixpkgs` fork. You
+can check out all the available dates by running: `rix::available_dates()`.
+We're pretty confindent that you should not face any issues when using [Nix]{.pkg} to
+build reproducible environments for R. However, should you face a problem, don't
+hesitate to open an issue!
+
+We have now packages and [R]{.proglang}versions working on Linux and macOS from March 2019
+to now. See [this
+repository](https://github.com/rstats-on-nix/daily_cran/blob/master/readme.md)
+that contains the scripts that allowed us to do it. Backporting fixes was
+especially important for Apple Silicon computers, as it took some time for this
+platform to work correctly on Nix. By backporting fixes, we can now provide
+olders versions of these packages for Apple Silicon as well!
+
+Using this approach, our fork now contains many more versions of working R
+packages than upstream. [rix]{.pkg} will thus likely keep pointing towards our fork
+in the future, and not upstream anymore. This should provide a much better user
+experience. An issue with our fork though, is that by backporting fixes, we
+essentially create new [Nix]{.pkg} packages that are not included in upstream, and thus,
+these are not built by Hydra, Nix's CI platform which builds binary packages. In
+practice this means that anyone using our fork will have to compile many
+packages from source. Now this is pretty bad, as building packages from source
+takes quite some time. But fear not, because thanks to
+[Cachix](https://www.cachix.org/) we now also have a dedicated binary cache of
+packages that complements the default, public [Nix]{.pkg} cache! We provide instructions
+on how to use Cachix, it's very easy, it's just running 2 additional commands
+after installing Nix. Using Cachix speeds up the installation process of
+packages tremendously. I want to give my heartfelt thanks to
+[Domen Kožar](https://www.cachix.org/about) for sponsoring the cache!
+
+Another thing we do with our fork is run an action every day at midnight, that
+monitors the *health* of the [R]{.proglang}packages set. Of course, we don't build every
+CRAN package, merely a handful, but these are among the most popular or the most
+*at-risk* of being in a broken state. See
+[here](https://github.com/rstats-on-nix/monitor_health/actions).
+
 
 ## Additional features of the rix package
 
@@ -604,9 +730,9 @@ out_r <- sample(seq(1, 10), 5)
 set.seed(NULL)
 ```
 
-On versions of R released after version 3.6, these two lines return the
+On versions of [R]{.proglang}released after version 3.6, these two lines return the
 following vector: `r out_r`, but in versions prior to 3.6, the result will be
-different. This is a documented change as shown in the R version 3.6 release
+different. This is a documented change as shown in the [R]{.proglang}version 3.6 release
 notes.^[https://stat.ethz.ch/pipermail/r-announce/2019/000641.html]
 
 When trying to reproduce a study made on versions prior to 3.6, a replicator
@@ -688,18 +814,18 @@ wrapped inside a `function()` call. The value of `out_subshell` is `r
 out_subshell`, and is indeed different than the one generated from a recent
 version of R.
 
-It is possible to use `with_nix()` from an R session that was installed itself
-via Nix, or from a regular R installation.
+It is possible to use `with_nix()` from an [R]{.proglang}session that was installed itself
+via Nix, or from a regular [R]{.proglang}installation.
 
 ## Conclusion
 
-There are many tools to make one’s analyses reproducible, but Nix distinguishes
+There are many tools to make one’s analyses reproducible, but [Nix]{.pkg} distinguishes
 itself from these in that its main concern is in deploying the complete set of
-packages that are *closed under the ''depends on'' relation*: Nix does not
+packages that are *closed under the ''depends on'' relation*: [Nix]{.pkg} does not
 simply install one piece of software, but its dependencies, and their
-dependencies. This makes Nix extremely useful for reproducible research, but
+dependencies. This makes [Nix]{.pkg} extremely useful for reproducible research, but
 because it solves a complex problem, it is a complex tool. With [rix]{.pkg}, we
-wish to make using Nix more accessible by providing a familiar interface and
+wish to make using [Nix]{.pkg} more accessible by providing a familiar interface and
 user experience to [R]{.proglang} users. Because it is possible to build
 reproducible development shells using  [Nix]{.pkg}, it can accomodate any
 use case: running scripts, pipelines, interactive [shiny]{.pkg} applications,
@@ -727,7 +853,7 @@ information such as relative contributions of the authors may be added here
 
 ## Appendix {#sec-appendix .unnumbered}
 
-Here is the Nix expression generated from the call to the `rix()`
+Here is the [Nix]{.pkg} expression generated from the call to the `rix()`
 function of section #sec-repro-nix:
 
 ```{r, echo = FALSE}
