@@ -324,7 +324,7 @@ build automation tool such as [Make]{.pkg}. To make [Nix]{.pkg} more accessible
 to [R]{.proglang} programmers, we developed the [rix]{.pkg} package which we
 will present in this article.
 
-## The [Nix]{.pkg} package manager {#sec-nix}
+## The Nix package manager {#sec-nix}
 
 [Nix]{.pkg} is a package manager that can be used to install and build software
 in a completely reproducible manner. As of writing, it contains more than
