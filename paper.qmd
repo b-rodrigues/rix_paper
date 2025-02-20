@@ -400,7 +400,7 @@ functional aspect of [Nix]{.pkg} is quite useful to ensure reproducibility, it
 can lead to situations where writing the required [Nix]{.pkg} expression to
 build it can be much more difficult than usual: this is especially true for
 packages that must download assets from the internet during installation, such
-as several BioConductor packages like [musData]{.pkg} for example. But this is
+as several Bioconductor packages like [musData]{.pkg} for example. But this is
 only a concern for the packagers, not users of the package that simply wish to
 install and use the package). [Nix]{.pkg} also allows for multiple versions (or
 variants in the [Nix]{.pkg} jargon) to be installed at the same time on the same
@@ -620,84 +620,58 @@ can afford to do things in a way that could not be possible or practical for
 upstream.
 
 The first thing this fork allows us to do is offer a daily snapshot of CRAN.
-Every day, thanks to Github Actions, the [R]{.proglang} packages set gets
-updated, and the result commited to a dated branch. This has been going on since
-the 14th of December 2024 (see
+Every day, the [R]{.proglang} packages set gets updated, and the result commited
+to a dated branch using scripts running on GitHub Actions (a continuous
+integration and deployment platform). This has been going on since the 14th of
+December 2024 (see
 [here](https://github.com/rstats-on-nix/nixpkgs/tree/2024-12-14)). So when users
 set a date as in `rix(date = "2024-12-14", ...)` the specified dated branch from
-the fork is going to get used. 
+the fork is going to get used.
 
+But this doesn’t mean that we recommend users use any date from the
+`rstats-on-nix/nixpkgs` fork: instead, each Monday, another action uses this
+fork and tries to build a set of popular packages on Linux and macOS, and only
+if this succeeds is the date added through a PR to the list of available dates
+on `{rix}`. This means that we also monitor the health of popular [R]{.proglang}
+packages and can propose a fix upstream if a package stops building
+successfully, which is something that can sometimes happen. For example,
+recently RStudio was in a broken state due to an issue in one of its
+dependencies, `boost`. This is not the fault of anyone in particular: it's just
+that packages get updated and packages that depend on them should get updated as
+well: but if that doesn't happen quickly enough, the `nixpkgs` maintainer faces
+a conundrum. Either he or she doesn't update the package because it breaks
+others, but not updating a package could be a security vulnerability, or he or
+she updates the package, but now other, perhaps less critical packages are
+broken and need to be fixed, either by their upstream developers, or by the
+`nixpkgs` maintainer of said packages. In the case of RStudio a fix was proposed
+and promptly merged, but if users wanted to install RStudio during the time it
+took to fix it, they would have faced an error message.
 
-But this doesn’t mean that we recommend you
-use any date from the `rstats-on-nix/nixpkgs` fork: instead, each Monday,
-another action uses this fork and tries to build a set of popular packages on
-Linux and macOS, and only if this succeeds is the date added through a PR to the
-list of available dates on `{rix}`!
+However, thanks to our fork, we can back-port fixes and so if users try to
+install RStudio using the date `"2025-02-10"` (which is when it was broken
+on upstream `nixpkgs`), it'll work.
 
-The reason this is done like this is to manage another *risk* of the upstream
-`nixpkgs`. As you know, `nixpkgs` is huge, and though the utmost care is taken
-by contributors and the PR review process is very strict, it can happen that
-updating packages breaks other packages. For example recently RStudio was in a
-broken state due to an issue in one its dependencies, `boost`. This is not the
-fault of anyone in particular: it's just that packages get updated and packages
-that depend on them should get updated as well: but if that doesn't happen
-quickly enough, the `nixpkgs` maintainer faces a conundrum. Either he or she
-doesn't update the package because it breaks others, but not updating a package
-could be a security vulnerability, or he or she updates the package, but now
-others, perhaps less critical packages are broken and need to be fixed, either
-by their upstream developers, or by the `nixpkgs` maintainer of said packages.
-In the case of RStudio a fix was proposed and promptly merged, but if you wanted
-to install RStudio during the time it took to fix it, you would have faced
-an error message, which isn't great if all you want is use [Nix]{.pkg} shells as
-development environments.
+We spent quite some time backporting fixes: we went back all the way back to
+March 2019. To do so, we start by checking out a `nixpkgs` commit on selected
+dates, then we "update" the [R]{.proglang} packages set by using the Posit CRAN
+and Bioconductor daily snapshots at that date. Then, we backport as many fixes
+as possible, and ensure that a selection of popular packages work on both
+x86-linux (which includes Windows, through WSL2) and aarch64-darwin (which is
+how Apple Silicon Apple computers are designated as). Then we commit everything
+to a dated branch of the `rstats-on-nix/nixpkgs` fork. Users can consult all the
+available dates by running: `rix::available_dates()`.
 
-So for us, having a fork allows us to backport these fixes and so if you try to
-install RStudio using the latest available date, which is `"2025-02-10"`, it’s
-going to work, whereas if you tried to build it on that date using upstream
-`nixpkgs` you'd be facing an error!
-
-We spent quite some time backporting fixes: we went back all the way to
-2019. The way this works, is that we start by checking out a `nixpkgs` commit on
-selected dates, then we "update" the [R]{.proglang}packages set by using the Posit CRAN and
-Bioconductor daily snapshots. Then, we backport as many fixes as possible, and
-ensure that a selection of popular packages work on both x86-linux (which
-includes Windows, through WSL) and aarch64-darwin (the M-series of Macs). Then
-we commit everything to a dated branch of the `rstats-on-nix/nixpkgs` fork. You
-can check out all the available dates by running: `rix::available_dates()`.
-We're pretty confindent that you should not face any issues when using [Nix]{.pkg} to
-build reproducible environments for R. However, should you face a problem, don't
-hesitate to open an issue!
-
-We have now packages and [R]{.proglang}versions working on Linux and macOS from March 2019
-to now. See [this
-repository](https://github.com/rstats-on-nix/daily_cran/blob/master/readme.md)
-that contains the scripts that allowed us to do it. Backporting fixes was
-especially important for Apple Silicon computers, as it took some time for this
-platform to work correctly on Nix. By backporting fixes, we can now provide
-olders versions of these packages for Apple Silicon as well!
-
-Using this approach, our fork now contains many more versions of working R
-packages than upstream. [rix]{.pkg} will thus likely keep pointing towards our fork
-in the future, and not upstream anymore. This should provide a much better user
-experience. An issue with our fork though, is that by backporting fixes, we
-essentially create new [Nix]{.pkg} packages that are not included in upstream, and thus,
-these are not built by Hydra, Nix's CI platform which builds binary packages. In
-practice this means that anyone using our fork will have to compile many
-packages from source. Now this is pretty bad, as building packages from source
-takes quite some time. But fear not, because thanks to
-[Cachix](https://www.cachix.org/) we now also have a dedicated binary cache of
-packages that complements the default, public [Nix]{.pkg} cache! We provide instructions
-on how to use Cachix, it's very easy, it's just running 2 additional commands
-after installing Nix. Using Cachix speeds up the installation process of
-packages tremendously. I want to give my heartfelt thanks to
-[Domen Kožar](https://www.cachix.org/about) for sponsoring the cache!
-
-Another thing we do with our fork is run an action every day at midnight, that
-monitors the *health* of the [R]{.proglang}packages set. Of course, we don't build every
-CRAN package, merely a handful, but these are among the most popular or the most
-*at-risk* of being in a broken state. See
-[here](https://github.com/rstats-on-nix/monitor_health/actions).
-
+An issue with forking `nixpkgs` though, is that by backporting fixes, we
+essentially create new [Nix]{.pkg} packages that are not included in upstream,
+and thus, these are not built by Hydra, Nix's CI platform which builds binary
+packages. In practice this means that anyone using our fork will have to compile
+many packages from source, which can be very time consuming. However, we also
+provide a binary cache of packages sponsored by
+[Cachix](https://www.cachix.org/) which complements the default, public
+[Nix]{.pkg} cache. We provide instructions on how to use Cachix in the package's
+Readme file. Using Cachix speeds up the installation process of packages
+tremendously, as they simply get downloaded instead of being built (we build
+a selection of packages only however, not the whole of CRAN and Bioconductor).
 
 ## Additional features of the rix package
 
@@ -706,12 +680,12 @@ If one wishes to run pipelines written using the [targets]{.pkg} package
 `tar_nix_ga()`, inspired by the `tar_github_actions()` function from the
 [targets]{.pkg} package. This function writes a YAML file under
 `.github/workflows/` which then runs the [targets]{.pkg} pipeline using Github
-Actions at each push, in a completely reproducible environment. For such an
+Actions on each push, in a completely reproducible environment. For such an
 example, consult the code in this
 repository^[https://github.com/b-rodrigues/rix_cicd].
 
 The final feature that we provide is the ability to run one arbitrary function
-from what we call a *subshell*. Suppose that you are running the latest version
+in what we call a *subshell*. Suppose that you are running the latest version
 of R, and that you wish or need to run one particular function from an older
 release of R, or from an older package. Using the `with_nix()` function, it is
 possible to run this single function inside the right environment, and recover
@@ -730,10 +704,10 @@ out_r <- sample(seq(1, 10), 5)
 set.seed(NULL)
 ```
 
-On versions of [R]{.proglang}released after version 3.6, these two lines return the
-following vector: `r out_r`, but in versions prior to 3.6, the result will be
-different. This is a documented change as shown in the [R]{.proglang}version 3.6 release
-notes.^[https://stat.ethz.ch/pipermail/r-announce/2019/000641.html]
+On versions of [R]{.proglang} released after version 3.6, these two lines return
+the following vector: `r out_r`, but in versions prior to 3.6, the result will
+be different. This is a documented change as shown in the [R]{.proglang} version
+3.6 release notes.^[https://stat.ethz.ch/pipermail/r-announce/2019/000641.html]
 
 When trying to reproduce a study made on versions prior to 3.6, a replicator
 will need to take this into account. Using the `with_nix()` function, the
@@ -814,22 +788,22 @@ wrapped inside a `function()` call. The value of `out_subshell` is `r
 out_subshell`, and is indeed different than the one generated from a recent
 version of R.
 
-It is possible to use `with_nix()` from an [R]{.proglang}session that was installed itself
-via Nix, or from a regular [R]{.proglang}installation.
+It is possible to use `with_nix()` from an [R]{.proglang} session that was
+installed itself via Nix, or from a regular [R]{.proglang} installation.
 
 ## Conclusion
 
-There are many tools to make one’s analyses reproducible, but [Nix]{.pkg} distinguishes
-itself from these in that its main concern is in deploying the complete set of
-packages that are *closed under the ''depends on'' relation*: [Nix]{.pkg} does not
-simply install one piece of software, but its dependencies, and their
-dependencies. This makes [Nix]{.pkg} extremely useful for reproducible research, but
-because it solves a complex problem, it is a complex tool. With [rix]{.pkg}, we
-wish to make using [Nix]{.pkg} more accessible by providing a familiar interface and
-user experience to [R]{.proglang} users. Because it is possible to build
-reproducible development shells using  [Nix]{.pkg}, it can accomodate any
-use case: running scripts, pipelines, interactive [shiny]{.pkg} applications,
-and serve [plumber]{.pkg} application programming interfaces.
+There are many tools to make one’s analyses reproducible, but [Nix]{.pkg}
+distinguishes itself from these in that its main concern is in deploying the
+complete set of packages that are *closed under the ''depends on'' relation*:
+[Nix]{.pkg} does not simply install one piece of software, but its dependencies,
+and their dependencies. This makes [Nix]{.pkg} extremely useful for reproducible
+research, but because it solves a complex problem, it is a complex tool. With
+[rix]{.pkg}, we wish to make using [Nix]{.pkg} more accessible to users of
+[R]{.proglang} by providing a familiar interface and user experience. Because it
+is possible to build reproducible development shells using [Nix]{.pkg}, it can
+accomodate any use case: running scripts, pipelines, interactive [shiny]{.pkg}
+applications, and serve [plumber]{.pkg} application programming interfaces.
 
 ## Acknowledgments {.unnumbered}
 
