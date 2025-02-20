@@ -21,20 +21,19 @@ author:
     affiliations:
       - Plus Affiliation
 abstract: |
-  In order create an analysis that is reproducible,
-  it is not enough to write clean code and document it well. One
-  must also make sure to clearly list all the dependencies of the analysis
-  and ideally provide an easy way to install them.
-  There are several tools that can be used to list dependencies and to
-  make them easily installable by someone that wishes to reproduce a study,
-  such as [Docker]{.proglang}, a containerization solution. This paper will
-  present another tool that can be used to make projects reproducible,
-  the  [Nix]{.pkg} package manager, and an [R]{.proglang} package 
-  called [rix]{.pkg} that makes using  [Nix]{.pkg} much simpler 
-  for users of [R]{.proglang}.
+  In order create an analysis that is reproducible, it is not enough to write
+  clean code and document it well. One must also make sure to clearly list all
+  the dependencies of the analysis and ideally provide an easy way to install
+  them. There are several tools that can be used to list dependencies and to
+  make them easily installable by someone that wishes to reproduce a study, such
+  as [Docker]{.proglang}, a containerization solution. This paper will present
+  another tool that can be used to make projects reproducible, the [Nix]{.pkg}
+  package manager, and an [R]{.proglang} package called [rix]{.pkg} that makes
+  using [Nix]{.pkg} much simpler for users of [R]{.proglang}.
 
 keywords: [reproducibility, R, Nix]
-keywords-formatted: [reproducibility, "[R]{.proglang}", " [Nix]{.pkg}"]
+keywords-formatted: [reproducibility, "[R]{.proglang}", "[Nix]{.pkg}"]
+number-sections: true
 
 bibliography: bibliography.bib
 ---
@@ -437,11 +436,11 @@ a simple expression that builds a shell environment containing version 4.3.1 of
 
 ```
 let
-  pkgs = import (fetchTarball 
+  pkgs = import (fetchTarball
     "https://github.com/NixOS/nixpkgs/archive/976fa336....tar.gz"
   ) {};
   system_packages = builtins.attrValues {
-    inherit (pkgs) [R]{.proglang};
+    inherit (pkgs) R;
   };
 in
   pkgs.mkShell {
@@ -545,10 +544,11 @@ rix(r_ver = "4.3.1",
 
 The above call to `rix()` generates an expression that installs several
 [R]{.proglang} packages ([AER]{.pkg} version 1.2-8 gets installed, which is an
-older version of the package and also installs
-several TeXLive packages for authoring documents with \LaTeX, the development
-versions of [rix]{.pkg} and [fusen]{.pkg} (downloaded from Github), and finally
-the Positron integrated development environment. You can see the resulting `default.nix` file in the @sec-appendix.
+older version of the package and also installs several TeXLive packages for
+authoring documents with \LaTeX, the development versions of [rix]{.pkg} and
+[fusen]{.pkg} (downloaded from Github), and finally the Positron integrated
+development environment. You can see the resulting `default.nix` file in the
+@sec-appendix.
 
 [rix]{.pkg}'s documentation also provides installation instructions for Nix, but
 [rix]{.pkg} can generate [Nix]{.pkg} expression even if [Nix]{.pkg} is not installed on one's
@@ -904,5 +904,3 @@ style to avoid confusions. JSS requires the following format.
 - item Software should be properly cited as well. For [R]{.proglang} packages `citation("pkgname")` typically provides a good starting point.
 
 :::
-
-
