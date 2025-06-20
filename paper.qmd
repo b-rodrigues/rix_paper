@@ -40,6 +40,7 @@ bibliography: bibliography.bib
 
 ## Introduction: Reproducibility is also about software {#sec-intro}
 
+
 @peng2011 introduced the idea of reproducibility being on a continuum: on one of
 the ends of this continuum, we only have access to the paper describing the
 studies, which is not reproducible at all. If in addition to this paper authors
