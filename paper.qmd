@@ -676,7 +676,7 @@ Readme file. Using Cachix speeds up the installation process of packages
 tremendously, as they simply get downloaded instead of being built (we build
 a selection of packages only however, not the whole of CRAN and Bioconductor).
 
-## Orchestrating the Workflow with `rixpress` {#sec-rixpress}
+## Orchestrating the Workflow with rixpress {#sec-rixpress}
 
 Defining a reproducible environment with [rix]{.pkg} solves the first major challenge of reproducibility. The second is to reliably and efficiently execute the analysis workflow within that environment. This is the role of the [rixpress]{.pkg} package.
 
