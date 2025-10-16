@@ -1,5 +1,5 @@
 ---
-title: "Reproducible development environments with rix"
+title: "A Framework for Reproducible Data Science: Managing Environments and Pipelines with Nix, rix, and rixpress"
 format:
     jss-pdf:
         keep-tex: true
@@ -21,15 +21,17 @@ author:
     affiliations:
       - Plus Affiliation
 abstract: |
-  In order create an analysis that is reproducible, it is not enough to write
-  clean code and document it well. One must also make sure to clearly list all
-  the dependencies of the analysis and ideally provide an easy way to install
-  them. There are several tools that can be used to list dependencies and to
-  make them easily installable by someone that wishes to reproduce a study, such
-  as [Docker]{.proglang}, a containerization solution. This paper will present
-  another tool that can be used to make projects reproducible, the [Nix]{.pkg}
-  package manager, and an [R]{.proglang} package called [rix]{.pkg} that makes
-  using [Nix]{.pkg} much simpler for users of [R]{.proglang}.
+  To create a reproducible analysis, it is not enough to write clean, well-documented code. 
+  One must also ensure that all software dependencies are clearly declared and, ideally, 
+  provide a simple way to install them. Several tools exist for this purpose, such as the 
+  containerization solution [Docker]{.proglang}. A complete solution, however, requires not only 
+  managing the computational environment but also orchestrating the execution of the analysis itself
+  in a robust and automated way. This paper presents a comprehensive framework based on the [Nix]{.pkg} 
+  package manager to solve both problems. We first introduce the [R]{.proglang} package [rix]{.pkg}, 
+  which simplifies the creation of reproducible environments with [Nix]{.pkg}. We then introduce 
+  [rixpress]{.pkg}, a second [R]{.proglang} package that leverages these environments to define and 
+  execute complex, multi-language analytical pipelines. Together, these tools provide a powerful, 
+  unified approach to achieving high standards of computational reproducibility.
 
 keywords: [reproducibility, R, Nix]
 keywords-formatted: [reproducibility, "[R]{.proglang}", "[Nix]{.pkg}"]
@@ -281,7 +283,7 @@ process will always result in the same image. This is only possible if a
 specific digest of a base image is used instead of a tagged version, but in
 practice, this is rarely done.
 
-A final, and optional, step towards the gold standard is to use a build
+A final step towards the gold standard is to use a build
 automation tool such as [Make]{.pkg} to run the whole analysis when the
 container is executed, instead of executing scripts. Build automation tools make
 it easier to run arbitrary code in a series of well-defined steps.
@@ -305,8 +307,8 @@ make it available to other researchers:
 
 However, reaching this gold standard is quite costly: one needs to learn a tool
 to deal with package versions, then [Docker]{.pkg} for all the other software,
-including the programming language that was used. Ideally, a build automation
-tool such as [Make]{.pkg} should be added to the list. It should also be noted
+including the programming language that was used, as well as a build automation
+tool. It should also be noted
 that these requirements are not limited to the [R]{.proglang} programming
 language. A very similar approach should be taken if one uses
 [Python]{.proglang}, or any other programming language. Furthermore, the
@@ -321,7 +323,7 @@ manager, which is available for all major operating systems and focuses on
 installing and building software in a reproducible manner. This means that this
 single tool can replace not only [Docker]{.pkg} but also [renv]{.pkg} and even a
 build automation tool such as [Make]{.pkg}. To make [Nix]{.pkg} more accessible
-to [R]{.proglang} programmers, we developed the [rix]{.pkg} package which we
+to [R]{.proglang} programmers, we developed the [rix]{.pkg} and [rixpress]{.pkgs} packages which we
 will present in this article.
 
 ## The Nix package manager {#sec-nix}
@@ -673,6 +675,74 @@ provide a binary cache of packages sponsored by
 Readme file. Using Cachix speeds up the installation process of packages
 tremendously, as they simply get downloaded instead of being built (we build
 a selection of packages only however, not the whole of CRAN and Bioconductor).
+
+## Orchestrating the Workflow with `rixpress` {#sec-rixpress}
+
+Defining a reproducible environment with [rix]{.pkg} solves the first major challenge of reproducibility. The second is to reliably and efficiently execute the analysis workflow within that environment. This is the role of the [rixpress]{.pkg} package.
+
+As mentioned in the introduction, a build automation tool like [targets]{.pkg} is invaluable for managing complex analyses. It automatically tracks dependencies between code and data objects, caching results and only re-computing steps that have changed. One can run a [targets]{.pkg} pipeline inside a Nix environment to make it reproducible. However, this approach has limitations: the entire pipeline must run in a single environment, and orchestrating steps across different languages (e.g., [R]{.proglang} and [Python]{.proglang}) requires manual handling via packages like [reticulate]{.pkg}.
+
+[rixpress]{.pkg} overcomes these limitations by using Nix not just as a package manager, but as the build automation engine itself. In a [rixpress]{.pkg} pipeline, each step is defined as a Nix derivation. This powerful abstraction provides two key benefits:
+
+1.  True Polyglot Pipelines: Each step can be assigned its own, distinct Nix environment. A Python step can run in a pure Python environment, an [R]{.proglang} step in an [R]{.proglang} environment, and a Quarto rendering step in yet another, all within the same pipeline.
+
+2.  Deep Reproducibility: Because each step is a Nix derivation, its execution is hermetically sealed and its output is cached in the Nix store based on the hash of all its inputs. This provides caching and reproducibility at a level deeper than most other tools. On top of this, all artifacts built by the pipeline are direct children of the computational environment: should the environment change in any way, all the artifacts would get rebuilt, ensuring that the environment and the artifacts are never out of sync.
+
+The user defines the pipeline in a simple [R]{.proglang} script, using functions heavily inspired by [targets]{.pkg}. Let's consider a simple pipeline that reads data with Python (`polars`), filters it, passes it to [R]{.proglang} (`dplyr`) for further analysis, and then compiles a Quarto document.
+
+First, the pipeline is defined in an [R]{.proglang} script as a list of `rxp_*` function calls:
+
+```{r, eval=FALSE}
+# In a file like 'pipeline.R'
+library(rixpress)
+
+# Define the sequence of steps
+pipeline_steps <- list(
+  # Step 1: Read data using Python in its own environment
+  rxp_py_file(
+    name = mtcars_pl,
+    path = "data/mtcars.csv",
+    read_function = "lambda x: polars.read_csv(x, separator='|')",
+    nix_env = "python-env.nix" # A Nix file defining the Python env
+  ),
+
+  # Step 2: Filter the data in Python
+  rxp_py(
+    name = mtcars_filtered,
+    expr = "mtcars_pl.filter(polars.col('am') == 1).to_pandas()",
+    nix_env = "python-env.nix"
+  ),
+
+  # Step 3: Convert the Python pandas DataFrame to an R data.frame
+  # This uses the main project environment ('default.nix')
+  rxp_py2r(
+    name = mtcars_r,
+    expr = mtcars_filtered
+  ),
+
+  # Step 4: Process the data in R
+  rxp_r(
+    name = mtcars_summary,
+    expr = dplyr::summarise(mtcars_r, avg_mpg = mean(mpg))
+  )
+)
+
+# Generate the 'pipeline.nix' file from the R list
+rixpress(pipeline_steps, project_path = ".")
+```
+
+The user first creates the necessary environment files (e.g., `default.nix`, `python-env.nix`) using `rix`. 
+Then, running the script above does not execute the pipeline but instead generates a `pipeline.nix` file, which is the complete, declarative definition of the workflow.
+
+To build the pipeline, the user runs:
+
+```{r, eval=FALSE}
+rxp_make()
+```
+
+[Nix]{.pkg} then executes each step in the correct order, building any dependencies as needed. Because the output of each step is cached, subsequent runs of `rxp_make()` will only re-execute steps whose code or inputs have changed. This provides the same efficiency as [targets]{.pkg} but with the added benefits of multi-language support and the bit-for-bit reproducibility of Nix. Artifacts from any step can be loaded into an interactive [R]{.proglang} session for inspection using `rxp_read("artifact_name")` or `rxp_load("artifact_name")`.
+
+For Python users, there is also a port of [rixpress]{.pkg}, called [ryxpress]{.pkg} that uses the same definition of the pipeline as an R script, but allows building the pipeline and viewing the outputs from a Python session.
 
 ## Additional features of the rix package
 
