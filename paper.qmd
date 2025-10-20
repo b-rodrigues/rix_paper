@@ -849,49 +849,50 @@ example discussed in Section 5. The pipeline simulates a Real Business Cycle
 (RBC) model in [Julia]{.proglang}, trains an [XGBoost]{.pkg} model in
 [Python]{.proglang}, and visualizes the results in [R]{.proglang}.
 
-### The Environment Definition (`gen-env.R`)
+### The Environment Definition
 
-This script uses [rix]{.pkg} to define a `default.nix` file that contains all
+This code snippet uses [rix]{.pkg} to generate a `default.nix` file that contains all
 necessary dependencies for [R]{.proglang}, [Julia]{.proglang}, and
-[Python]{.proglang}.
+[Python]{.proglang}. It is typically saved in a file called `gen-env.R`:
 
 ```{=tex}
 \begin{CodeInput}
-R> # This script defines the polyglot environment our pipeline will run in.
-R> library(rix)
-R>
-R> # Define the complete execution environment
-R> rix(
-+   # Pin the environment to a specific date for reproducibility.
-+   date = "2025-10-14",
-+
-+   # R Packages
-+   r_pkgs = c(
-+     "ggplot2", "dplyr", "arrow", "rix", "rixpress", "quarto"
-+   ),
-+ 
-+   # Julia Configuration
-+   jl_conf = list(
-+     jl_version = "lts",
-+     jl_pkgs = c("Distributions", "DataFrames", "Arrow", "Random")
-+   ),
-+ 
-+   # Python Configuration
-+   py_conf = list(
-+     py_version = "3.13",
-+     py_pkgs = c("pandas", "scikit-learn", "xgboost", "pyarrow")
-+   ),
-+ 
-+   project_path = ".",
-+   overwrite = TRUE
-+ )
+# This script defines the polyglot environment our pipeline will run in.
+library(rix)
+
+# Define the complete execution environment
+rix(
+ # Pin the environment to a specific date for reproducibility.
+ date = "2025-10-14",
+
+ # R Packages
+ r_pkgs = c(
+   "ggplot2", "dplyr", "arrow", "rix", "rixpress", "quarto"
+ ),
+
+ # Julia Configuration
+ jl_conf = list(
+   jl_version = "lts",
+   jl_pkgs = c("Distributions", "DataFrames", "Arrow", "Random")
+ ),
+
+ # Python Configuration
+ py_conf = list(
+   py_version = "3.13",
+   py_pkgs = c("pandas", "scikit-learn", "xgboost", "pyarrow")
+ ),
+
+ project_path = ".",
+ overwrite = TRUE
+)
 \end{CodeInput}
 ```
 
-### The RBC Model Simulation (`functions/functions.jl`)
+### The RBC Model Simulation
 
 This Julia script implements the state-space solution to the RBC model as a pure
-function. The economic theory is based on @depaoli2009rbc.
+function, and is saved in a subfolder of the project named `functions` and in a script
+`functions.jl`. The economic theory is based on @depaoli2009rbc.
 
 ```{=tex}
 \begin{Code}
@@ -1003,10 +1004,11 @@ end
 \end{Code}
 ```
 
-### The XGBoost Forecasting Model (`functions/functions.py`)
+### The XGBoost Forecasting Model
 
 This Python script contains a series of modular functions to handle feature
-engineering, data splitting, model training, and prediction.
+engineering, data splitting, model training, and prediction, and is saved in
+`functions/functions.py`.
 
 ```{=tex}
 \begin{Code}
@@ -1104,10 +1106,10 @@ def save_arrow(df: pd.DataFrame, path: str):
 \end{Code}
 ```
 
-### The Visualization (`functions/functions.R`)
+### The Visualization
 
-This R script uses [ggplot2]{.pkg} to create a plot comparing the model's output
-against the XGBoost predictions.
+This R snippet uses [ggplot2]{.pkg} to create a plot comparing the model's output
+against the XGBoost predictions and is saved in `functions/functions.R`.
 
 ```{=tex}
 \begin{CodeInput}
@@ -1177,3 +1179,34 @@ plot_predictions <- function(predictions_df) {
 }
 \end{CodeInput}
 ```
+
+### Running the project
+
+The structure of the project should look like this:
+
+```bash
+.
+├── functions
+│   ├── functions.jl
+│   ├── functions.py
+│   └── functions.R
+├── gen-env.R
+└── gen-pipeline.R
+
+
+2 directories, 5 files
+```
+
+Assuming we are working on a system that has Nix installed, we can "drop" into
+a temporary Nix shell with R and `{rix}` available:
+
+```r
+nix-shell --expr "$(curl -sl https://raw.githubusercontent.com/ropensci/rix/main/inst/extdata/default.nix)"
+```
+
+Once the shell is ready, start R (by simply typing `R`) and run `source("gen-env.R")`
+to generate the adequate `default.nix` file. This is the environment that we can use
+to work interactively with the code while developing, and in which the pipeline will
+be executed. We can then leave the R session and the shell entirely (by typing `exit`)
+and type `nix-shell` to drop into the environment as defined by the `default.nix`.
+The pipeline can now be built using `source("gen-pipeline.R")`.
