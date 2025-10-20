@@ -193,7 +193,8 @@ Before continuing, it should be noted that other packages exist which provide
 similar functionality to [renv]{.pkg}: there is [groundhog]{.pkg} by
 @simonsohn2023 which makes it rather easy to install packages as they were on
 CRAN at a given date. For example, the code snippet below installs the
-[purrr]{.pkg} and [ggplot2]{.pkg} packages as they were on April 4th, 2017:
+[purrr]{.pkg} [@purrr] and [ggplot2]{.pkg} [@ggplot2] packages as they were on
+April 4th, 2017:
 
 ```{=tex}
 \begin{CodeInput}
@@ -698,9 +699,9 @@ pipeline, each step is defined as a Nix derivation, providing two key benefits:
 
 To illustrate these capabilities with a realistic research task, we present a
 polyglot pipeline that simulates a Real Business Cycle (RBC) model in
-[Julia]{.proglang}, uses the resulting data to train an [XGBoost]{.pkg}
-forecasting model in [Python]{.proglang}, visualizes the results in
-[R]{.proglang} with [ggplot2]{.pkg}, and finally compiles a [Quarto]{.pkg}
+[Julia]{.proglang} [@bezanson2017julia], uses the resulting data to train an
+[XGBoost]{.pkg} forecasting model in [Python]{.proglang}, visualizes the results
+in [R]{.proglang} with [ggplot2]{.pkg}, and finally compiles a [Quarto]{.pkg}
 report.
 
 The user defines the pipeline in an [R]{.proglang} script (`gen-pipeline.R`)
@@ -781,9 +782,9 @@ The `rxp_populate()` function translates this [R]{.proglang} list into a
 package can then generate a visual representation of the pipeline's directed
 acyclic graph (DAG), as shown in Figure 1.
 
-![Graphical representation of the polyglot pipeline. Green nodes are
-[Julia]{.proglang}, yellow nodes are [Python]{.pkg}, and blue nodes are
-[R]{.proglang} derivations.](dag-polyglot.png){#fig-dag}
+![Graphical representation of the polyglot pipeline. Purple nodes are
+[Julia]{.proglang}, yellow nodes are [Python]{.pkg}, light blue nodes are
+[R]{.proglang}, and dark blue nodes are Quarto derivations.](dag.png){#fig-dag}
 
 To execute the pipeline, one can either set `build = TRUE` in `rxp_populate()`
 or call `rxp_make()` separately. [Nix]{.pkg} executes each step in order,
@@ -888,7 +889,7 @@ R> rix(
 ### The RBC Model Simulation (`functions/functions.jl`)
 
 This Julia script implements the state-space solution to the RBC model as a pure
-function. The economic theory is based on @depaoli2009.
+function. The economic theory is based on @depaoli2009rbc.
 
 ```{=tex}
 \begin{Code}
