@@ -79,7 +79,7 @@ echo -e "${GREEN}✓${NC}"
 printf "Creating Julia helper script (functions.jl)... "
 cat > functions/functions.jl << 'EOF'
 # This script contains the helper functions for the Julia portion of the pipeline.
-using LinearAlgebra, Distributions, DataFrames, Arrow, Random
+#using LinearAlgebra, Distributions, DataFrames, Arrow, Random
 
 function simulate_rbc_model(α, β, δ, ρ, σ, σ_z)
 
@@ -145,10 +145,10 @@ echo -e "${GREEN}✓${NC}"
 printf "Creating Python helper script (functions.py)... "
 cat > functions/functions.py << 'EOF'
 # This script contains modular helper functions for the Python portion of the pipeline.
-import pandas as pd
-import pyarrow.feather as feather
-from sklearn.model_selection import train_test_split
-import xgboost as xgb
+#import pandas as pd
+#import pyarrow.feather as feather
+#from sklearn.model_selection import train_test_split
+#import xgboost as xgb
 
 def prepare_features(simulated_df: pd.DataFrame) -> pd.DataFrame:
     df = simulated_df.copy()
@@ -210,8 +210,8 @@ printf "Creating R helper script (functions.R)... "
 cat > functions/functions.R << 'EOF'
 # This script contains the helper functions for the R portion of the pipeline.
 # It defines the visualization logic using ggplot2.
-library(ggplot2)
-library(dplyr)
+#library(ggplot2)
+#library(dplyr)
 
 plot_predictions <- function(predictions_df) {
   p <- ggplot(predictions_df, aes(x = period)) +
