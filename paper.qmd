@@ -72,13 +72,11 @@ another barrier to reproducibility.
 
 This paper focuses specifically on two critical but often overlooked aspects of
 reproducibility: *computational environment management* and *workflow
-orchestration*. We present a comprehensive framework that addresses both
+orchestration*. I present a comprehensive framework that addresses both
 challenges using the [Nix]{.pkg} package manager, making it accessible to
 researchers through two [R]{.proglang} packages: [rix]{.pkg} and
-[rixpress]{.pkg}. Before introducing our approach, we survey existing tools and
+[rixpress]{.pkg}. Before introducing our approach, I survey existing tools and
 their limitations to contextualize our contribution.
-
-### Existing approaches to environment management {#sec-existing}
 
 A range of tools now exist to help researchers approach the gold standard of
 full reproducibility, or to consistently deploy the same development environment
@@ -128,8 +126,6 @@ particularly difficult when packages depend on system-level libraries. For
 example, the [sf]{.pkg} package requires [GDAL]{.pkg}, [GEOS]{.pkg}, and [PROJ]{.pkg} system libraries.
 Installing and configuring these dependencies varies substantially across
 operating systems and can be prohibitively difficult on some platforms.
-
-#### Package-level solutions: renv and alternatives
 
 A more robust approach than simply listing package versions is to use the
 [renv]{.pkg} package. [renv]{.pkg} captures the project's software state and
@@ -232,8 +228,6 @@ coordinating multiple package managers ([renv]{.pkg} for R, virtual environments
 for Python, manual installation for system tools), each with its own
 configuration and potential for conflicts.
 
-#### System-level solutions: Docker
-
 The most comprehensive approach to reproducibility is containerization with
 [Docker]{.pkg}. [Docker]{.pkg} packages a *data product* together with all its
 dependencies—including the operating system, system libraries, programming
@@ -290,8 +284,6 @@ environments, orchestrating them requires manual coordination. There is no
 standard way to specify that one step should run in a Python environment while
 another runs in R.
 
-### The workflow orchestration gap
-
 Even with a perfectly reproducible environment, researchers face another
 challenge: reliably executing the analysis workflow. Which scripts run first?
 What are the dependencies between steps? Manual execution is error-prone and
@@ -327,8 +319,6 @@ for package management, [Docker]{.pkg} for environment containerization, and
 and failure modes. The complexity compounds for multi-language projects—a Python
 project would require learning virtual environments or conda, and coordinating R
 and Python in a single analysis requires additional tooling.
-
-### A unified approach with Nix
 
 What researchers need is a tool that:
 
@@ -477,8 +467,9 @@ the environment can be rebuilt reliably in the future.
 reproducibility is less reliable due to dependencies on impure system frameworks and Xcode toolchains outside
 the Nix store. As a result, macOS users may need to update project pins after system or Xcode upgrades to 
 restore builds. On Windows, [Nix]{.pkg} works well through the Windows Subsystem for Linux (WSL2), though graphical
-applications may need extra setup. Nix environments on WSL can be used interactively via VS Code or Positron 
-for a smooth development experience.
+applications may need extra setup. [Nix]{.pkg} environments on WSL can be used interactively via VS Code or Positron 
+for a smooth development experience. It is also important to note that [Nix]{.pkg} can be installed
+within a [Docker]{.pkg} image to deploy and reproduce environments reliably in containerized workflows.
 
 While [Nix]{.pkg} is a powerful system, it comes with notable challenges. The steepest is its learning curve:
 [Nix]{.pkg} uses its own declarative language (also called [Nix]{.proglang}), which can be difficult for 
@@ -611,8 +602,8 @@ R> rix(r_ver = "4.3.1",
 \end{CodeInput}
 ```
 
-This call to `rix()` generates an environment that installs several
-[R]{.proglang} packages (including [AER]{.pkg} version 1.2-8), several TeXLive
+This call to `rix()` generates a `default.nix` that builds a development shell
+which ships [R]{.proglang} and [R]{.proglang} packages (including [AER]{.pkg} version 1.2-8), several TeXLive
 packages for \LaTeX document authoring, development versions of [rix]{.pkg} and
 [fusen]{.pkg} from GitHub, and the Positron editor.
 
@@ -670,11 +661,11 @@ to be compiled.
 
 Additionally, updating the full [R]{.proglang} package set on [Nix]{.pkg} daily
 is impractical. While CRAN and Bioconductor update daily, the [R]{.proglang}
-packages in `nixpkgs` are only updated with new R releases. This limitation is
+packages in `nixpkgs` are only updated with new [R]{.proglang} releases. This limitation is
 due to [Nix]{.pkg}’s governance as a Linux distribution package manager.
 
-Our fork allows us to circumvent these limitations. For example, we provide a
-daily snapshot of CRAN. Each day, the [R]{.proglang} package set is updated and
+The `rstats-on-nix` fork allows us to circumvent these limitations. For example, it provides
+daily snapshots of CRAN. Each day, the [R]{.proglang} package set is updated and
 committed to a dated branch using GitHub Actions. Users can select a specific
 date with:
 
@@ -684,7 +675,7 @@ R> rix(date = "2024-12-14", ...)
 \end{CodeInput}
 ```
 
-We strive to provide an available date per week: each Monday, a GitHub Action
+I strive to provide an available date per week: each Monday, a GitHub Action
 tests popular packages on Linux and macOS, and only if all tests succeed is the
 date added to the list of available dates in [rix]{.pkg}. This ensures users can
 reliably install packages, and allows us to backport fixes if needed. For
@@ -694,7 +685,7 @@ backported the fix to our fork, making RStudio available to users of our fork
 earlier than upstream, as merging PRs in the official repository can take some
 time.
 
-We have backported fixes to our `nixpkgs` fork as far back as March 2019. The
+I have backported fixes to the `rstats-on-nix` `nixpkgs` fork as far back as March 2019. The
 process involves checking out a `nixpkgs` commit on the selected date, updating
 the [R]{.proglang} package set using Posit CRAN and Bioconductor snapshots,
 backporting fixes, and ensuring popular packages work on both x86-linux
@@ -709,6 +700,9 @@ this, we provide a binary cache sponsored by [Cachix](https://www.cachix.org/),
 complementing the public Nix cache. Instructions for using Cachix are in
 [rix]{.pkg}’s documentation. Using the cache significantly speeds up
 installations, as prebuilt packages are downloaded rather than compiled.
+
+The fork also allows me to catch issues (such as packages’ builds breaking) early
+on, and prepare fixes that can then be contributed upstream.
 
 ## Orchestrating the workflow with rixpress {#sec-rixpress}
 
@@ -822,8 +816,12 @@ R> rxp_populate(pipeline_steps, build = TRUE)
 ```
 
 The `rxp_populate()` function translates this [R]{.proglang} list into a
-`pipeline.nix` file, which declaratively defines the entire workflow. The
-package can then generate a visual representation of the pipeline's directed
+`pipeline.nix` file, which declaratively defines the entire workflow.
+Data flows from derivation to derivation by being serialized into the 
+efficient and language-agnostic  Arrow format using the pair of `encoder/decoder` 
+functions. Other universal formats, such as `csv` or `json` could have been used.
+
+The package can then generate a visual representation of the pipeline's directed
 acyclic graph:
 
 ![Graphical representation of the polyglot pipeline. Purple nodes are
@@ -869,6 +867,14 @@ allows polyglot workflows where each step runs in its own hermetically sealed
 environment. This ensures deep reproducibility, efficient caching, and seamless
 orchestration of multi-language analyses, making it easier to manage complex
 projects with confidence that results can be reproduced exactly.
+
+While [rix]{.pkg} and [rixpress]{.pkg} provide significant steps forward, it is 
+important to acknowledge current limitations. Both packages are relatively recent. 
+[rixpress]{.pkg}, in particular, requires further development, especially to enhance
+the ease of debugging complex pipelines. Its visualization capabilities are also still
+fairly limited; for instance, they do not currently indicate outdated derivations when
+a user modifies code that would necessitate a rebuild. These areas represent important 
+avenues for future work to further mature the framework and improve the user experience.
 
 ## Acknowledgments {.unnumbered}
 
