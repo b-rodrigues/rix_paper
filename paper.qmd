@@ -393,7 +393,11 @@ and building software in a fully reproducible and reliable manner. Unlike tradit
 package managers, [Nix]{.pkg} emphasizes immutable infrastructure and a functional
 approach, which significantly enhances the consistency of computational environments.
 As of writing, the primary Nix package collection, `nixpkgs`, provides access to over 
-120,000 packages, including nearly all of CRAN and Bioconductor. 
+120,000 packages, including nearly all of CRAN and Bioconductor, making it the largest,
+and among the most up-to-date package repository according to Repology:
+
+![nixpkgs is the largest and among the most up-to-date packages repository](repology.png){#fig-repology}
+
 This extensive coverage allows users to install not only [R]{.proglang} itself but 
 also all its required packages and system-level dependencies for any given project.
 
