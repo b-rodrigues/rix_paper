@@ -37,8 +37,6 @@ bibliography: bibliography.bib
 
 ## Introduction: Reproducibility is also about software {#sec-intro}
 
-## Introduction: Reproducibility is also about software {#sec-intro}
-
 @peng2011 introduced the concept of reproducibility as a *continuum*. At one end
 lies the least reproducible state, where only a paper describing the study is
 available. Reproducibility improves when authors share the original source code,
