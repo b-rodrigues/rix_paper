@@ -388,31 +388,39 @@ appropriate use cases and future directions.
 
 ## The Nix package manager {#sec-nix}
 
-[Nix]{.pkg} is a package manager designed to install and build software in a
-fully reproducible manner. As of this writing, it provides access to over
-120000 packages, including nearly all of CRAN and Bioconductor. This allows
-users to install not only [R]{.proglang} itself but also all packages required
-for a given project. Although [Nix]{.pkg} is the package manager of the NixOS
-Linux distribution, it can also be installed as a standalone tool on other Linux
-distributions, macOS, and the Windows Subsystem for Linux^[Effectively treating
-non-NixOS Linux distributions and Windows as equivalent platforms in practice.].
+[Nix]{.pkg} is a powerful, cross-platform package manager designed for installing 
+and building software in a fully reproducible and reliable manner. Unlike traditional 
+package managers, [Nix]{.pkg} emphasizes immutable infrastructure and a functional
+approach, which significantly enhances the consistency of computational environments.
+As of writing, the primary Nix package collection, `nixpkgs`, provides access to over 
+120,000 packages, including nearly all of CRAN and Bioconductor. 
+This extensive coverage allows users to install not only [R]{.proglang} itself but 
+also all its required packages and system-level dependencies for any given project.
 
-The advantage of using [Nix]{.pkg} to install [R]{.proglang} packages, instead
-of the standard `install.packages()` function, is that [Nix]{.pkg} ensures all
-dependencies of each package are installed, whether they are other
-[R]{.proglang} packages or system-level libraries.
+While [Nix]{.pkg} is the default package manager for the NixOS 
+Linux distribution, it can be installed as a standalone tool on other Linux 
+distributions, macOS, and effectively on Windows via the Windows Subsystem for 
+Linux (WSL2), treating these as equivalent platforms in practice.
 
-For example, the [xlsx]{.pkg} package requires [Java]{.proglang} to be
-installed. On some systems, installing [Java]{.proglang} may be difficult or
-even impossible manually. With [Nix]{.pkg}, however, the user only needs to
-declare that [xlsx]{.pkg} is required for the project; [Nix]{.pkg} automatically
-installs and configures [Java]{.proglang} as a dependency. This works because
-the maintainers of the [R]{.proglang} language packages for [Nix]{.pkg} have
-declared [Java]{.proglang} as a dependency of [xlsx]{.pkg}, allowing the process
-to happen seamlessly from the end-user perspective.
+A key advantage of using [Nix]{.pkg} to install [R]{.proglang} packages, as 
+opposed to the standard `install.packages()` function, lies in its comprehensive 
+dependency management. [Nix]{.pkg} ensures that all dependencies of each package are
+installed, irrespective of whether they are other [R]{.proglang} packages or 
+underlying system libraries.
 
-[xlsx]{.pkg} can thus be referred to as a component closure, and quoting
-@dolstra2004nix:
+Consider, for example, the [sf]{.pkg} package, which is fundamental for spatial data analysis in [R]{.proglang}.
+[sf]{.pkg} relies on several complex external system libraries such as [GDAL]{.proglang}, 
+[GEOS]{.proglang}, and [PROJ]{.proglang}. Manually installing and configuring these libraries 
+to be compatible with [sf]{.pkg} can be challenging and platform-specific. With [Nix]{.pkg}, 
+however, the user merely needs to declare [sf]{.pkg} as a project requirement. 
+[Nix]{.pkg} then automatically installs and configures all necessary system libraries
+as transitive dependencies. This seamless process is possible because the maintainers of the 
+[R]{.proglang} programming language for [Nix]{.pkg}
+have declaratively specified these dependencies for [sf]{.pkg} in `nixpkgs`, allowing the entire software 
+stack to be provisioned effortlessly from an end-user perspective.
+
+This concept is central to [Nix]{.pkg}'s design, where packages are referred to as *component closures*. 
+As @dolstra2004nix explains:
 
 > The idea is to always deploy component closures: if we deploy a component,
 > then we must also deploy its dependencies, their dependencies, and so on. That
@@ -422,60 +430,63 @@ to happen seamlessly from the end-user perspective.
 > closed, it is not safe to deploy, since using them might cause other
 > components to be referenced that are missing on the target system.
 
-But how does [Nix]{.pkg} achieve this reproducibility? Where do these packages,
-or *closures*, come from? When installing a package with [Nix]{.pkg}, an
-expression written in the [Nix]{.pkg} language is downloaded from the `nixpkgs`
-GitHub repository and evaluated. These expressions define *derivations*, which
-describe how to build a package: specifying its dependencies, the commands to
-build and install it, and the resulting output. Typically, a derivation
-downloads the source code, compiles it, and outputs a binary. Derivations are
-highly flexible; by writing custom derivations, users can define and build
-reproducible environments instead of a single program. The dependencies of each
-derivation are themselves defined in other expressions and are automatically
-installed if needed. In the case of [R]{.proglang}, maintainers declare the
-appropriate dependencies to create fully self-contained component closures.
+The core of [Nix]{.pkg}'s reproducibility lies in its functional package management paradigm
+and its unique approach to builds. When installing software with [Nix]{.pkg}, it evaluates
+an *expression* written in the [Nix]{.proglang} language. These expressions define *derivations*,
+which are declarative blueprints describing how to build a package. A derivation specifies all inputs: 
+source code, build commands, and crucially, all direct and transitive dependencies. This declarative 
+nature ensures that every build process is fully specified and independent of the environment where 
+it's executed. Furthermore, all [Nix]{.pkg} expressions for official packages are hosted in the `nixpkgs`
+GitHub repository. By referencing a specific commit of `nixpkgs` (a process known as *pinning a revision*) users 
+guarantee that all packages installed are derived from the exact same set of build instructions.
+This means that if an environment is built today using a pinned revision, it will produce the 
+identical set of software versions and configurations if rebuilt tomorrow, next year, or on a 
+different machine, as long as the `nixpkgs` repository remains accessible.
 
-Why is installing software with [Nix]{.pkg} reproducible? Because the entire set
-of [Nix]{.pkg} expressions is hosted on GitHub, it is possible to reference a
-specific commit of `nixpkgs`, a process called *pinning a revision*. Pinning a
-revision ensures that all packages installed by [Nix]{.pkg} are always the exact
-same versions, regardless of when in the future they are built, since the
-expressions downloaded correspond to that specific commit of `nixpkgs`.
+Pinning is crucial, but it is not the only reason [Nix]{.pkg} supports reproducibility.
+[Nix]{.pkg} is a *functional* package manager in the programming sense: it treats software builds as pure functions.
+Given the same inputs (source code, dependencies, build scripts), a [Nix]{.pkg} build will always produce the 
+identical output, regardless of when or where it's executed. This is achieved by disallowing side effects and 
+ensuring that builds operate within hermetic (isolated) environments, with no hidden dependencies on global system 
+state. While this functional approach greatly enhances reproducibility, it can sometimes introduce complexity for
+package maintainers, especially for software that needs to download external assets during installation (e.g., 
+certain Bioconductor packages). For end-users, however, this complexity is largely abstracted away. Additionally, 
+[Nix]{.pkg} supports multiple versions or *variants* of a package on the same system. Each package installed into
+the "Nix store" (typically in `/nix/store`) has a unique identifier derived from a hash of all its inputs. This 
+isolation ensures that projects always use their intended software versions, allowing multiple versions of
+[R]{.proglang} to coexist and preventing "dependency hell" and global environment pollution.
 
-Pinning is crucial, but it is not the only reason [Nix]{.pkg} supports
-reproducibility. [Nix]{.pkg} is a functional package manager: it applies
-principles from functional programming, disallowing side effects and global
-variables, and ensuring that the output of a build is always the same given the
-same inputs, regardless of time or location. A side note: while this functional
-approach greatly enhances reproducibility, it can make writing derivations more
-complex, particularly for packages that need to download assets during
-installation (e.g., some Bioconductor packages like [musData]{.pkg}). However,
-this concern is primarily for package maintainers, not end-users.
+For a more in-depth technical discussion of [Nix]{.pkg}'s design principles, we refer readers to @dolstra2004nix.
 
-Additionally, [Nix]{.pkg} supports multiple versions, or *variants*, of a
-package on the same system. Each variant has a unique identifier, allowing
-multiple versions of [R]{.proglang} to coexist and ensuring the correct version
-is used for each project. For a more technical discussion of [Nix]{.pkg}, we
-refer to @dolstra2004nix.
+By leveraging these principles, [Nix]{.pkg} can effectively replace and integrate the functionalities of 
+tools like [renv]{.pkg} and [Docker]{.pkg} for [R]{.proglang} projects, or `requirements.txt` files 
+and virtual environments for [Python]{.proglang} projects. Furthermore, [Nix]{.pkg} excels at building
+multi-language environments, which can seamlessly combine [R]{.proglang}, [Python]{.proglang}, [Julia]{.proglang},
+a [LaTeX]{.proglang} distribution, or any of the numerous other tools available in `nixpkgs`. 
+This enables the creation of a truly complete, project-specific, and deeply reproducible environment
+that can be used interactively for development or non-interactively for automated analysis. 
+As long as the `nixpkgs` repository (or a suitable fork, as discussed in Section @sec-fork) remains accessible,
+the environment can be rebuilt reliably in the future.
 
-With [Nix]{.pkg}, it is possible to effectively replace both [renv]{.pkg} and
-[Docker]{.pkg} for [R]{.proglang} projects—or, in the case of
-[Python]{.proglang}, to replace `requirements.txt` files and virtual
-environments. [Nix]{.pkg} also supports building multi-language environments,
-which can include [R]{.proglang} and [Python]{.proglang}, a \LaTeX
-distribution or any other of the 120,000 available tools. This enables the
-creation of a complete, project-specific, and reproducible environment that can
-be used interactively or non-interactively. As long as the `nixpkgs` GitHub
-repository remains online, the environment can be rebuilt in the future to rerun
-analyses reliably.
+[Nix]{.pkg} provides strong cross-platform support across major operating systems. It runs natively on Linux 
+(x86_64) with full functionality and optimal integration. On macOS (Intel and Apple Silicon), however, 
+reproducibility is less reliable due to dependencies on impure system frameworks and Xcode toolchains outside
+the Nix store. As a result, macOS users may need to update project pins after system or Xcode upgrades to 
+restore builds. On Windows, [Nix]{.pkg} works well through the Windows Subsystem for Linux (WSL2), though graphical
+applications may need extra setup. Nix environments on WSL can be used interactively via VS Code or Positron 
+for a smooth development experience.
 
-However, [Nix]{.pkg} has a steep learning curve. It is a complex system that
-comes with its own programming language, also called [Nix]{.proglang}, designed
-to solve the challenging problem of declaratively defining how software is built
-and configured. This ensures that installations are fully reproducible across
-operating systems and hardware platforms. To make [Nix]{.pkg} more accessible to
-[R]{.proglang} users that wish to use project-specific and reproducible
-development environments, we developed the [rix]{.pkg} package.
+While [Nix]{.pkg} is a powerful system, it comes with notable challenges. The steepest is its learning curve:
+[Nix]{.pkg} uses its own declarative language (also called [Nix]{.proglang}), which can be difficult for 
+those new to functional or declarative paradigms. Complexity becomes most apparent when writing custom 
+derivations or troubleshooting intricate build issues. Build times can also be long, especially for large
+environments, when pre-built binaries aren’t available. Additionally, because [Nix]{.pkg} stores all package
+outputs immutably in the Nix store, disk usage tends to be higher than with traditional package managers. 
+Finally, while `nixpkgs` is extensive, some new or niche packages may be missing or fail to build across platforms.
+
+To make these capabilities more approachable for [R]{.proglang} users seeking reproducible, 
+project-specific environments without learning the full [Nix]{.proglang} language, I created the 
+[rix]{.pkg} and [rixpress]{.pkg} packages.
 
 ## Reproducible development environments with Nix {#sec-repro-nix}
 
