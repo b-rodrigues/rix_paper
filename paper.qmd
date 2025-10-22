@@ -539,7 +539,7 @@ environment on a system where [R]{.proglang} is not yet installed but
 ```{=tex}
 \begin{CodeInput}
 $> nix-shell -I \
-+  nixpkgs=https://github.com/rstats-on-nix/nixpkgs/archive/2025-10-20.tar.gz -p \
++  nixpkgs=https://github.com/rstats-on-nix/nixpkgs/tarball/2025-10-20 -p \
 +  R rPackages.rix
 \end{CodeInput}
 ```
