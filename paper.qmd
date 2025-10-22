@@ -524,7 +524,7 @@ let
   };
 in
   pkgs.mkShell {
-    buildInputs = [ system_packages ];
+    packages = [ system_packages ];
     shellHook = "R --vanilla";
   }
 \end{CodeInput}
