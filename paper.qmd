@@ -828,7 +828,7 @@ functions. Other universal formats, such as `csv` or `json` could have been used
 [R]{.proglang}, and dark blue nodes are Quarto derivations.](dag.png){#fig-dag}
 
 The package can then generate a visual representation of the pipeline's directed
-acyclic graph by running `rxp_dag()`, as can be seen in Figure @fig-dag.
+acyclic graph by running `rxp_dag()`, as can be seen in @fig-dag.
 
 To execute the pipeline, one can either set `build = TRUE` in `rxp_populate()`
 or call `rxp_make()` separately. [Nix]{.pkg} executes each step in order,
