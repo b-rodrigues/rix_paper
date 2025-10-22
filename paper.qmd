@@ -352,11 +352,12 @@ calls, eliminating the need to learn the [Nix]{.proglang} language. It handles
 environment definition including [R]{.proglang}, [Python]{.proglang}, 
 [Julia]{.proglang}, system tools, and their dependencies.
 
-- **[rixpress]{.pkg}** orchestrates polyglot analytical pipelines using
+- [rixpress]{.pkg} orchestrates polyglot analytical pipelines using
 [Nix]{.pkg} as the build engine. Each pipeline step runs in its own
 hermetically sealed environment with automatic caching and dependency tracking.
 This enables true polyglot workflows where [R]{.proglang}, [Python]{.proglang} and 
-[Julia]{.proglang} steps coexist with different dependencies.
+[Julia]{.proglang} steps coexist with different dependencies. [Python]{.proglang} 
+user can use [ryxpress]{.pkg}, a port of [rixpress]{.pkg}. 
 
 Together, these packages provide what existing tools cannot: a single framework
 for managing reproducible, multi-language computational environments and
@@ -709,7 +710,7 @@ on, and prepare fixes that can then be contributed upstream.
 Defining a reproducible environment with [rix]{.pkg} addresses the first major
 challenge of reproducibility. The second challenge is reliably and efficiently
 executing the analysis workflow within that environment, which is the role of
-the [rixpress]{.pkg} package.
+the [rixpress]{.pkg} package (or [ryxpress]{.pkg} for [Python]{.proglang} users).
 
 As mentioned in the introduction, a build automation tool like [targets]{.pkg}
 is invaluable for managing complex analyses. It tracks dependencies between code
@@ -747,8 +748,8 @@ with additional details provided in the Appendix of this manuscript.
 The user defines the pipeline in an [R]{.proglang} script (`gen-pipeline.R`)
 using functions inspired by [targets]{.pkg}. The underlying logic for each step
 is encapsulated in separate helper scripts (`functions.jl`, `functions.py`, and
-`functions.R`), the full contents of which are detailed in the Appendix. The
-high-level orchestration script demonstrates how `{rixpress}` defines a
+`functions.R`). Further details are detailed step-by-step instructions are provided
+in the Appendix. The high-level orchestration script demonstrates how `{rixpress}` defines a
 granular, multi-step machine learning workflow that crosses language boundaries:
 
 ```{=tex}
@@ -823,6 +824,11 @@ Data flows from derivation to derivation by being serialized into the
 efficient and language-agnostic  Arrow format using the pair of `encoder/decoder` 
 functions. Other universal formats, such as `csv` or `json` could have been used.
 
+As a sidenote: [Python]{.proglang} users that wish to use [ryxpress]{.pkg} 
+would define the pipeline exactly the same way, as an [R]{.proglang} script.
+[ryxpress]{.pkg} calls [R]{.proglang} and [rixpress]{.pkg} under the
+hood to generate the `pipeline.nix` file and then build it.
+
 ![Graphical representation of the polyglot pipeline. Purple nodes are
 [Julia]{.proglang}, yellow nodes are [Python]{.pkg}, light blue nodes are
 [R]{.proglang}, and dark blue nodes are Quarto derivations.](dag.png){#fig-dag}
@@ -868,9 +874,9 @@ environment. This ensures deep reproducibility, efficient caching, and seamless
 orchestration of multi-language analyses, making it easier to manage complex
 projects with confidence that results can be reproduced exactly.
 
-While [rix]{.pkg} and [rixpress]{.pkg} provide significant steps forward, it is 
+While [rix]{.pkg} and [rixpress]{.pkg} (and [ryxpress]{.pkg}) provide significant steps forward, it is 
 important to acknowledge current limitations. Both packages are relatively recent. 
-[rixpress]{.pkg}, in particular, requires further development, especially to enhance
+[rixpress]{.pkg} (and [ryxpress]{.pkg}), in particular, requires further development, especially to enhance
 the ease of debugging complex pipelines. Its visualization capabilities are also still
 fairly limited; for instance, they do not currently indicate outdated derivations when
 a user modifies code that would necessitate a rebuild. These areas represent important 
@@ -1001,6 +1007,15 @@ When this script is run in the development shell (by executing `source("gen-pipe
 [rixpress]{.pkg} translates the declared pipeline into a master [Nix]{.proglang} expression
 that [Nix]{.pkg} can execute, automatically handling the caching of results and re-running only the necessary 
 steps if a piece of code or data changes.
+
+To build the pipeline from an interactive [Python]{.proglang} session, one would execute the following lines:
+
+```{=tex}
+\begin{CodeInput}
+Python> from ryxpress import rxp_make
+Python> rxp_make()
+\end{CodeInput}
+```
 
 #### Running the Project
 
