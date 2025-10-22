@@ -285,6 +285,25 @@ statistical computing workflows:
   standard way to specify that one step should run in a Python environment while
   another runs in R.
 
+5. Incomplete Reproducibility: Reproducibility should be understood as a spectrum
+  rather than a binary property, a notion emphasised in "Reproducibility in Software
+  Engineering" by @dellaieraMasterThesis2024. Docker illustrates this spectrum well:
+  it provides strong run-time reproducibility—that is, consistency in space
+  (where the same image behaves identically across different systems) but weak
+  build-time reproducibility, which concerns consistency over time. As defined in
+  the thesis, reproducibility at build time means being able to produce an identical
+  build artefact regardless of when or where it is built. However, Docker inherently
+  fails to guarantee this property. Its reliance on mutable base images and non-deterministic
+  instructions such as `apt-get update` leads to temporal drift: rebuilding the same
+  `Dockerfile` at different points in time can produce distinct outputs. In the
+  experimental evaluation conducted in the thesis, even with pinned base images,
+  checksums of the resulting containers varied across builds and machines. Thus, while
+  Docker offers partial reproducibility: strong at run time (space) and weak at build time (time),
+  it cannot on its own ensure verifiable, deterministic software artefacts. Achieving
+  true reproducibility requires pinning image digests, freezing dependency versions,
+  and employing deterministic build systems such as Nix or Guix for complete control
+  over both space and time [@Malka_2024].
+
 Even with a perfectly reproducible environment, researchers face another
 challenge: reliably executing the analysis workflow. Which scripts run first?
 What are the dependencies between steps? Manual execution is error-prone and
