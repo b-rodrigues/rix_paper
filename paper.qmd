@@ -183,8 +183,7 @@ separately using tools like [rig]{.pkg} [@rlib2023]. More critically,
 [GDAL]{.pkg} version 3.0 but the system has version 2.4 installed, [renv]{.pkg} cannot
 resolve this conflict. Users must manually install system libraries, and the
 process differs across operating systems. Further details are discussed in the
-[renv]{.pkg} 
-documentation^[\url{https://rstudio.github.io/renv/articles/renv.html#caveats}].
+[[renv]{.pkg} documentation](https://rstudio.github.io/renv/articles/renv.html#caveats).
 
 Other packages provide similar functionality with different trade-offs.
 [groundhog]{.pkg} by @simonsohn2023 makes it easy to install packages as they
