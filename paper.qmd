@@ -20,8 +20,10 @@ author:
 abstract: |
   Reproducible analysis requires more than clean, well-documented code: 
   researchers must also manage software dependencies, computational environments, and workflow execution. 
-  Existing tools like [Docker]{.pkg} and [renv]{.pkg} address parts of this challenge, but no single solution handles polyglot environments, 
-  system dependencies, and pipeline orchestration together. I present two [R]{.proglang} packages that leverage [Nix]{.pkg} to provide both reproducible polyglot 
+  Existing tools like [Docker]{.pkg} and [renv]{.pkg} address parts of this challenge, 
+  but no single solution handles polyglot environments, system dependencies, 
+  and workflow orchestration together.
+  I present two [R]{.proglang} packages that leverage [Nix]{.pkg} to provide both reproducible polyglot 
   environments and declarative workflow orchestration. [rix]{.pkg} generates [Nix]{.pkg} expressions that define reproducible environments 
   spanning [R]{.proglang}, [Python]{.proglang}, [Julia]{.proglang}, and system dependencies. Building on these environments, [rixpress]{.pkg} orchestrates polyglot pipelines where each 
   computational step runs in its own hermetically sealed environment, with automatic caching and dependency tracking. 
@@ -183,7 +185,7 @@ separately using tools like [rig]{.pkg} [@rlib2023]. More critically,
 [GDAL]{.pkg} version 3.0 but the system has version 2.4 installed, [renv]{.pkg} cannot
 resolve this conflict. Users must manually install system libraries, and the
 process differs across operating systems. Further details are discussed in the
-[renv]{.pkg} documentation^[(https://rstudio.github.io/renv/articles/renv.html#caveats)].
+[renv]{.pkg} documentation^[See \url{https://rstudio.github.io/renv/articles/renv.html}.].
 
 Other packages provide similar functionality with different trade-offs.
 [groundhog]{.pkg} by @simonsohn2023 makes it easy to install packages as they
@@ -453,7 +455,7 @@ the "Nix store" (typically in `/nix/store`) has a unique identifier derived from
 isolation ensures that projects always use their intended software versions, allowing multiple versions of
 [R]{.proglang} to coexist and preventing "dependency hell" and global environment pollution.
 
-For a more in-depth technical discussion of [Nix]{.pkg}'s design principles, I refer readers to @dolstra2004nix.
+For a more in-depth technical discussion of [Nix]{.pkg}'s design principles, see @dolstra2004nix.
 
 By leveraging these principles, [Nix]{.pkg} can effectively replace and integrate the functionalities of 
 tools like [renv]{.pkg} and [Docker]{.pkg} for [R]{.proglang} projects, or `requirements.txt` files 
@@ -522,7 +524,7 @@ any startup options.
 This expression can be saved in a file called `default.nix`. The environment can
 then be built on a system with [Nix]{.pkg} installed using the `nix-build`
 command.^[For installing [Nix]{.pkg}, I recommend the Determinate Systems
-installer: \url{https://determinate.systems/posts/determinate-nixnstaller}].
+installer: \url{https://determinate.systems/posts/determinate-nix-installer}].
 Once the build completes, the user can enter the interactive shell with
 `nix-shell`. This shell contains all the packages specified in `default.nix` and
 can be used for development, similar to activating a virtual environment in the
@@ -668,7 +670,7 @@ is impractical. While CRAN and Bioconductor update daily, the [R]{.proglang}
 packages in `nixpkgs` are only updated with new [R]{.proglang} releases. This limitation is
 due to [Nix]{.pkg}’s governance as a Linux distribution package manager.
 
-The `rstats-on-nix` fork allows us to circumvent these limitations. For example, it provides
+The `rstats-on-nix` fork allows me to circumvent these limitations. For example, it provides
 daily snapshots of CRAN. Each day, the [R]{.proglang} package set is updated and
 committed to a dated branch using GitHub Actions. Users can select a specific
 date with:
@@ -682,7 +684,7 @@ R> rix(date = "2024-12-14", ...)
 I strive to provide an available date per week: each Monday, a GitHub Action
 tests popular packages on Linux and macOS, and only if all tests succeed is the
 date added to the list of available dates in [rix]{.pkg}. This ensures users can
-reliably install packages, and allows us to backport fixes if needed. For
+reliably install packages, and allows me to backport fixes if needed. For
 example, when RStudio was temporarily broken due to a dependency issue
 (`boost`), a pull request was submitted to the official `nixpkgs` repository. I
 backported the fix to the `rstats-on-nix` fork, making RStudio available to users of 
@@ -744,7 +746,7 @@ polyglot pipeline that simulates a Real Business Cycle (RBC) model in
 [Julia]{.proglang} [@bezanson2017julia], uses the resulting data to train an
 [XGBoost]{.pkg} forecasting model in [Python]{.proglang}, visualizes the results
 in [R]{.proglang} with [ggplot2]{.pkg}, and finally compiles a [Quarto]{.pkg}
-report. The code to this example can be found in the  
+report. The code for this example can be found in the  
 [following repository](https://github.com/b-rodrigues/rixpress_demos/tree/master/rbc)^[https://github.com/b-rodrigues/rixpress_demos/tree/master/rbc],
 with additional details provided in the Appendix of this manuscript.
 
@@ -875,8 +877,10 @@ Furthermore, [rixpress]{.pkg} extends this reproducibility to entire analysis
 pipelines. By leveraging Nix as a build automation engine, [rixpress]{.pkg}
 allows polyglot workflows where each step runs in its own hermetically sealed
 environment. This ensures deep reproducibility, efficient caching, and seamless
-orchestration of polyglot analyses, making it easier to manage complex
-projects with confidence that results can be reproduced exactly.
+orchestration of polyglot analyses. Most importantly, it provides
+native polyglot support without the manual coordination required by 
+containerization approaches, making complex multi-language workflows 
+accessible to researchers without systems administration expertise.
 
 While [rix]{.pkg} and [rixpress]{.pkg} (and [ryxpress]{.pkg}) provide significant steps forward, it is 
 important to acknowledge current limitations. 
@@ -908,7 +912,7 @@ improved the quality and usability of these packages.
 ### Reproducing this paper
 
 The source code of this paper is hosted on GitHub and can be found
-on following 
+at following 
 [link](https://github.com/b-rodrigues/rix_paper)^[https://github.com/b-rodrigues/rix_paper].
 The paper can be easily compiled by running the following command:
 
