@@ -608,7 +608,7 @@ development versions of [rix]{.pkg} and [fusen]{.pkg} pulled directly from GitHu
 and the Positron editor. The reproducibility of this environment is guaranteed by pinning all
 components to a single point in time: the [R]{.proglang} packages are resolved from the CRAN
 snapshot of October 20, 2025, while all other system tools are fixed to the version of
-`nixpkgs` from that same date. Typing `nix-shell` in a terminal in the folder that containts
+`nixpkgs` from that same date. Typing `nix-shell` in a terminal in the folder that contains
 this `default.nix`, will drop the user into the shell. It should be noted that it is
 also possible to configure IDEs to dynamically load this shell to provide the right
 tooling for developing.
