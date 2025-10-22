@@ -80,4 +80,4 @@ The final output will be an HTML report located at `polyglot-example/result/fina
 
 ## License
 
-The code in this repository is licensed under the [GPL v3](LICENSE).
+The code in this repository is licensed under the [GPL v3](LICENSE.md).
