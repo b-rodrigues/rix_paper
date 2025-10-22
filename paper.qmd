@@ -916,7 +916,7 @@ on the development of [rix]{.pkg} and [rixpress]{.pkg}. In particular, I am
 grateful to David Watkins and Jacob Wujiciak-Jens for their reviews of [rix]{.pkg},
 and to William Landau and Anthony Martinez for their reviews of [rixpress]{.pkg}. I
 also acknowledge the contributions of Philipp Baumann, [rix]{.pkg}’s co-author,
-Richard J. Acton, Jordi Rosell, Elio Campitelli, László Kupcsik, and
+Richard J. Acton, Jordi Rosell, Elio Campitelli, László Kupcsik, Pol Dellaiera, and
 Michael Heming for [rix]{.pkg}. Their expertise and feedback greatly
 improved the quality and usability of these packages.
 
