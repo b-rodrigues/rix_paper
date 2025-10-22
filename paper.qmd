@@ -922,7 +922,7 @@ and compiles a final report with [Quarto]{.pkg}.
 
 The complete, runnable source code for this example is available in the paper's GitHub repository. 
 A shell script, `run_polyglot_example.sh`, is provided to automate the entire process from environment 
-creation to final output, as described at the end of this section^[\url{https://github.com/b-rodrigues/rix_paper/blob/master/run_polyglot_example.sh}].
+creation to final output, as described at the end of this section^[\url{https://github.com/b-rodrigues/rix_paper/blob/master/polyglot-example/run_polyglot_example.sh}].
 
 #### Project Structure and Components
 
