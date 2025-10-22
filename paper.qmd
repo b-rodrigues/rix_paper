@@ -880,11 +880,11 @@ avenues for future work to further mature the framework and improve the user exp
 
 I thank the rOpenSci reviewers and contributors who provided valuable feedback
 on the development of [rix]{.pkg} and [rixpress]{.pkg}. In particular, I am
-grateful to David Watkins and Jacob Wujiciak-Jens for their reviews of `{rix}`,
-and to William Landau and Anthony Martinez for their reviews of `{rixpress}`. I
+grateful to David Watkins and Jacob Wujiciak-Jens for their reviews of [rix]{.pkg},
+and to William Landau and Anthony Martinez for their reviews of [rixpress]{.pkg}. I
 also acknowledge the contributions of Philipp Baumann, [rix]{.pkg}’s co-author,
 Richard J. Acton, Jordi Rosell, Elio Campitelli, László Kupcsik, and 
-Michael Heming for `{rix}`. Their expertise and feedback greatly 
+Michael Heming for [rix]{.pkg}. Their expertise and feedback greatly 
 improved the quality and usability of these packages.
 
 ## References {.unnumbered}
@@ -943,7 +943,8 @@ This script uses the `rix()` function to programmatically generate a `default.ni
 This file serves as a complete blueprint for the computational environment, specifying:
 
 *   The exact versions of [R]{.proglang}, [Python]{.proglang}, and [Julia]{.proglang}.
-*   A list of required packages for each language (e.g., `ggplot2` for R, `xgboost` for Python, `DataFrames` for Julia).
+*   A list of required packages for each language 
+  (e.g., [ggplot2]{.pkg} for [R]{.proglang}, [xgboost]{.pkg} for [Python]{.proglang}, [DataFrames]{.pkg} for [Julia]{.proglang}).
 *   System-level dependencies like [Quarto]{.pkg}.
 
 Crucially, the entire environment is pinned to a specific date (`2025-10-14`), 
@@ -969,29 +970,29 @@ which also drop the user into the development shell.
 The scientific logic for each stage of the pipeline is encapsulated in the separate 
 helper scripts within the `functions/` directory.
 
-*   **The RBC Model Simulation (`functions.jl`):** This [Julia]{.proglang} script contains a single pure
-  function that implements the state-space solution to the RBC model, based on the economic theory of 
-  @depaoli2009rbc. It takes the model's economic parameters as inputs and returns the simulated time-series
+*   The RBC Model Simulation (`functions.jl`): This [Julia]{.proglang} script contains a single pure
+  function that implements the state-space solution to the RBC model, based on @depaoli2009rbc.
+  It takes the model's economic parameters as inputs and returns the simulated time-series
   data as a DataFrame.
-*   **The XGBoost Forecasting Model (`functions.py`):** This [Python]{.proglang} script handles the 
+*   The XGBoost Forecasting Model (`functions.py`): This [Python]{.proglang} script handles the 
   complete machine learning workflow through a series of modular functions. Its responsibilities include
   feature engineering (creating lagged variables), splitting the data into training and testing sets, 
   training the [XGBoost]{.pkg} model, and generating predictions.
-*   **The Visualization (`functions.R`):** This [R]{.proglang} script contains a function that uses
-  `[ggplot2]{.pkg}` to create the final visualization. It is designed to take the data frame of 
+*   The Visualization (`functions.R`): This [R]{.proglang} script contains a function that uses
+  [ggplot2]{.pkg} to create the final visualization. It is designed to take the data frame of 
   actual and predicted values produced by the Python script and generate a plot comparing the two series.
 
 #### Step 3: Orchestrating the Pipeline
 
 The entire workflow is defined and orchestrated by `gen-pipeline.R`. This script acts as the master plan, 
-using functions from the `[rixpress]{.pkg}` package to define each computational step as a *derivation*.
+using functions from the [rixpress]{.pkg} package to define each computational step as a *derivation*.
 It declaratively outlines the dependencies between steps:
 
 1.  It begins by defining the RBC model parameters in [Julia]{.proglang}.
 2.  It specifies that the **RBC simulation** in `functions.jl` depends on these parameters.
 3.  It then defines the series of **Python steps** (feature preparation, training, prediction), 
   making each one dependent on the output of the previous one. The first Python step is explicitly 
-  made dependent on the output from the Julia simulation. `rixpress` handles the passing of data 
+  made dependent on the output from the Julia simulation. [rixpress]{.pkg} handles the passing of data 
   between languages, in this case using the Arrow file format for efficiency.
 4.  Finally, it defines the **R visualization** step, which depends on the final predictions from 
   the Python model, and a **Quarto rendering** step that depends on the generated plot.
@@ -1003,8 +1004,9 @@ steps if a piece of code or data changes.
 
 #### Running the Project
 
-To execute this entire example, a user with Nix installed can simply run the `run_polyglot_example.sh` 
-script available in the root of the paper's repository. This script automates the full process:
+To execute this entire example, a user with Nix installed can simply run the 
+`run_polyglot_example.sh` script available in the root of the paper's repository.
+This script automates the full process:
 
 1.  It first executes `gen-env.R` inside a temporary Nix shell to build the `default.nix` file.
 2.  It then executes `gen-pipeline.R` inside the newly defined environment. This triggers Nix to run the
