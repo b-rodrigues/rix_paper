@@ -595,7 +595,7 @@ R> rix(date = "2025-10-20",
 \end{CodeInput}
 ```
 
-This call to rix() generates a `default.nix` file for a development shell that encapsulates 
+This call to `rix()` generates a `default.nix` file for a development shell that encapsulates 
 a complete and reproducible research environment. It provides [R]{.proglang} and its packages 
 (including [AER]{.pkg} at version 1.2-8), several TeXLive packages for \LaTeX document authoring, 
 development versions of [rix]{.pkg} and [fusen]{.pkg} pulled directly from GitHub at a specific commit,
@@ -973,8 +973,8 @@ helper scripts within the `functions/` directory.
 *   The RBC Model Simulation (`functions.jl`): This [Julia]{.proglang} script contains a single pure
   function that implements the state-space solution to the RBC model, based on @depaoli2009rbc.
   It takes the model's economic parameters as inputs and returns the simulated time-series
-  data as a DataFrame.
-*   The XGBoost Forecasting Model (`functions.py`): This [Python]{.proglang} script handles the 
+  data as a [DataFrame]{.pkg}.
+*   The [XGBoost]{.pkg} Forecasting Model (`functions.py`): This [Python]{.proglang} script handles the 
   complete machine learning workflow through a series of modular functions. Its responsibilities include
   feature engineering (creating lagged variables), splitting the data into training and testing sets, 
   training the [XGBoost]{.pkg} model, and generating predictions.
@@ -989,28 +989,28 @@ using functions from the [rixpress]{.pkg} package to define each computational s
 It declaratively outlines the dependencies between steps:
 
 1.  It begins by defining the RBC model parameters in [Julia]{.proglang}.
-2.  It specifies that the **RBC simulation** in `functions.jl` depends on these parameters.
-3.  It then defines the series of **Python steps** (feature preparation, training, prediction), 
-  making each one dependent on the output of the previous one. The first Python step is explicitly 
-  made dependent on the output from the Julia simulation. [rixpress]{.pkg} handles the passing of data 
-  between languages, in this case using the Arrow file format for efficiency.
+2.  It specifies that the RBC simulation in `functions.jl` depends on these parameters.
+3.  It then defines the series of [Python]{.proglang} steps (feature preparation, training, prediction), 
+  making each one dependent on the output of the previous one. The first [Python]{.proglang} step is explicitly 
+  made dependent on the output from the [Julia]{.proglang} simulation. [rixpress]{.pkg} handles the passing of data 
+  between languages, in this case using the [Arrow]{.pkg} file format for efficiency.
 4.  Finally, it defines the **R visualization** step, which depends on the final predictions from 
-  the Python model, and a **Quarto rendering** step that depends on the generated plot.
+  the [Python]{.proglang} model, and a **Quarto rendering** step that depends on the generated plot.
 
 When this script is run in the development shell (by executing `source("gen-pipeline.R")`), 
-[rixpress]{.pkg} translates the declared pipeline into a master Nix expression
-that Nix can execute, automatically handling the caching of results and re-running only the necessary 
+[rixpress]{.pkg} translates the declared pipeline into a master [Nix]{.proglang} expression
+that [Nix]{.pkg} can execute, automatically handling the caching of results and re-running only the necessary 
 steps if a piece of code or data changes.
 
 #### Running the Project
 
-To execute this entire example, a user with Nix installed can simply run the 
-`run_polyglot_example.sh` script available in the root of the paper's repository.
+This entire example can be executed by running the `run_polyglot_example.sh` 
+script available in the root of the paper's repository.
 This script automates the full process:
 
-1.  It first executes `gen-env.R` inside a temporary Nix shell to build the `default.nix` file.
-2.  It then executes `gen-pipeline.R` inside the newly defined environment. This triggers Nix to run the
+1.  It first executes `gen-env.R` inside a temporary [Nix]{.pkg} shell to build the `default.nix` file.
+2.  It then executes `gen-pipeline.R` inside the newly defined environment. This triggers [Nix]{.pkg} to run the
   entire polyglot pipeline in the correct order.
 
-Upon completion, the script will have generated all intermediate artifacts and the final `readme.html` 
-report containing the visualization.
+Upon completion, the script will have generated all intermediate artifacts and the final `readme.html` report found in
+the `pipeline-output` folder containing the visualization.
