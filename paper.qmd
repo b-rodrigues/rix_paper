@@ -967,7 +967,7 @@ grateful to David Watkins and Jacob Wujiciak-Jens for their reviews of
 [rix]{.pkg}’s co-author, Richard J. Acton, Jordi Rosell, Elio Campitelli, László
 Kupcsik, and Michael Heming for [rix]{.pkg}. Their expertise and feedback
 greatly improved the quality and usability of these packages. I would also like
-to thank Pol Dellaiera for providing feedback on the manuscript.
+to thank Pol Dellaiera and Edvin Syk for providing feedback on the manuscript.
 
 ## References {.unnumbered}
 
