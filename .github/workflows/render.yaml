@@ -49,7 +49,6 @@ jobs:
 
     - name: Push docs
       run: |
-        cd ..
         git pull --rebase --autostash origin master
         git add docs/
         if git diff --cached --quiet; then

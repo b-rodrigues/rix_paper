@@ -992,10 +992,13 @@ $> nix-shell --run "quarto render paper.qmd --to jss-pdf"
 \end{CodeInput}
 ```
 
-This command utilizes the `default.nix` file to build the exact computational
-environment required to compile the manuscript. To ensure continuous
-reproducibility, the paper is also automatically re-compiled via GitHub Actions
-on every push to the repository, using the same Nix environment.
+The `default.nix` file defines the exact computational environment required to
+compile the manuscript, ensuring full reproducibility of the build process. To
+guarantee the reproducibility of the manuscript, it is automatically
+recompiled via GitHub Actions upon each commit, using the same Nix environment.
+An HTML version is additionally deployed to GitHub Pages, providing an
+accessible format for viewing on smaller devices at this
+[link](https://b-rodrigues.github.io/rix_paper/)^[[https://b-rodrigues.github.io/rix_paper/](https://b-rodrigues.github.io/rix_paper/)].
 
 ### A Complete Polyglot Example with rixpress
 
