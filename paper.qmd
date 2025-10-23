@@ -62,7 +62,10 @@ operating system on which the analysis was performed, even though differences in
 operating systems can lead to divergent results when using the same code and
 software versions, as shown by @neupane2019. It is even less common for authors
 to provide step-by-step installation instructions for the required software
-stack.
+stack, an omission often driven by institutional constraints. Journals, for
+instance, can inadvertently work against reproducibility by imposing strict page
+or word limits that leave no room for the necessary technical documentation,
+effectively discouraging thoroughness in the name of brevity.
 
 Even when such instructions are given, they often fail across different
 platforms or versions of the same platform. This lack of portability not only
@@ -1116,6 +1119,7 @@ This script automates the full process:
     the `default.nix` file.
 2.  It then executes `gen-pipeline.R` inside the newly defined environment. This
   triggers [Nix]{.pkg} to run the entire polyglot pipeline in the correct order.
+
 Upon completion, the script will have generated all intermediate artifacts and
 the final `readme.html` report found in the `pipeline-output` folder containing
 the visualization.
