@@ -42,24 +42,21 @@ jobs:
     - name: Render
       run: nix-shell --run "quarto render paper.qmd"
 
-    - name: Upload rendered paper
-      uses: actions/upload-artifact@v4
-      with:
-        name: paper_${{ github.sha }}
-        path: rendered_pdf/
+    - name: Move paper to root
+      run: mv rendered_pdf/paper.pdf paper.pdf
 
     - name: Copy output to docs for serving
       run: |
-        rm docs/index.html
+        rm docs/index.html paper.pdf
         cp -r rendered_pdf/paper.html docs/index.html
 
     - name: Push docs
       run: |
         git pull --rebase --autostash origin master
-        git add docs/
+        git add docs/ paper.pdf
         if git diff --cached --quiet; then
           echo "No changes to commit."
         else
-          git commit -m "Updated website"
+          git commit -m "Updated paper"
           git push origin master
         fi
