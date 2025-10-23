@@ -1209,6 +1209,8 @@ recompiled via GitHub Actions upon each commit, using the same Nix environment.
 An HTML version is additionally deployed to GitHub Pages, providing an
 accessible format for viewing on smaller devices at this
 [link](https://b-rodrigues.github.io/rix_paper/)^[[https://b-rodrigues.github.io/rix_paper/](https://b-rodrigues.github.io/rix_paper/)].
+The PDF version of the manuscript can be found at
+[link](https://b-rodrigues.github.io/rix_paper/paper.pdf)^[[https://b-rodrigues.github.io/rix_paper/paper.pdf](https://b-rodrigues.github.io/rix_paper/paper.pdf)].
 
 ### A Complete Polyglot Example with rixpress
 
