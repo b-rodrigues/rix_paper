@@ -39,7 +39,7 @@ abstract: |
   executable years into the future.
 
 keywords: [reproducibility, R, Nix]
-keywords-formatted: [reproducibility, "[R]{.proglang}", "[Nix]{.pkg}"]
+keywords-formatted: [reproducibility, "[R]{.proglang}", "[Python]{.proglang}", "[Julia]{.proglang}", "[Nix]{.pkg}"]
 number-sections: true
 
 bibliography: bibliography.bib
