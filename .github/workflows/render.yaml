@@ -42,10 +42,13 @@ jobs:
     - name: Render
       run: nix-shell --run "quarto render paper.qmd"
 
+    - name: Rename
+      run: mv docs/paper.html docs/index.html
+
     - name: Push docs
       run: |
         git pull --rebase --autostash origin master
-        git add docs/
+        git add docs/index.html docs/paper.pdf
         if git diff --cached --quiet; then
           echo "No changes to commit."
         else
