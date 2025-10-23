@@ -426,7 +426,13 @@ What researchers need is a tool that:
 The [Nix]{.pkg} package manager provides these capabilities. [Nix]{.pkg} ensures
 reproducible software installation by deploying *component closures*—packages
 bundled with all their dependencies and transitive dependencies
-[@dolstra2004nix]. This creates self-contained software environments that work
+[@dolstra2004nix]. Think of installing a package like packing for a trip.
+Traditional package managers are like packing just your clothes, assuming you'll
+find a toothbrush and soap at your destination. [Nix]{.pkg} packs everything you
+might need—the entire self-contained kit. This is what [Nix]{.pkg} calls a
+*component closure*.
+
+This creates self-contained software environments that work
 identically across machines and over time. [Nix]{.pkg} can replace
 [Docker]{.pkg} for environment isolation, [renv]{.pkg} for package management,
 and even [Make]{.pkg} for workflow orchestration—all within a single, unified
@@ -541,11 +547,18 @@ identical set of software versions and configurations if rebuilt tomorrow, next
 year, or on a different machine, as long as the `nixpkgs` repository remains
 accessible.
 
-Pinning is crucial, but it is not the only reason [Nix]{.pkg} supports
-reproducibility. [Nix]{.pkg} is a *functional* package manager in the
-programming sense: it treats software builds as pure functions. Given the same
-inputs (source code, dependencies, build scripts), a [Nix]{.pkg} build will
-always produce the identical output, regardless of when or where it's executed.
+Pinning is essential, but it is not the only mechanism through which [Nix]{.pkg}
+achieves reproducibility. [Nix]{.pkg} adopts principles from functional
+programming, conceptualizing software builds as *pure functions*. In
+mathematics, a pure function is defined as one that always produces the same
+output for a given input—for instance, if \( f(x) = x^2 \), then \( f(2) = 4 \)
+invariably holds. Analogously, [Nix]{.pkg} ensures that, given identical inputs
+(such as source code, dependencies, and build instructions), the resulting
+output (the built package) remains identical, irrespective of the environment or
+time of execution. In this sense, [Nix]{.pkg} functions as a *functional package
+manager*, applying the deterministic properties of pure functions to software
+construction.
+
 This is achieved by disallowing side effects and ensuring that builds operate
 within hermetic (isolated) environments, with no hidden dependencies on global
 system state. While this functional approach greatly enhances reproducibility,
@@ -553,11 +566,18 @@ it can sometimes introduce complexity for package maintainers, especially for
 software that needs to download external assets during installation (e.g.,
 certain Bioconductor packages). For end-users, however, this complexity is
 largely abstracted away. Additionally, [Nix]{.pkg} supports multiple versions or
-*variants* of a package on the same system. Each package installed into the "Nix
-store" (typically in `/nix/store`) has a unique identifier derived from a hash
-of all its inputs. This isolation ensures that projects always use their
-intended software versions, allowing multiple versions of [R]{.proglang} to
-coexist and preventing "dependency hell" and global environment pollution.
+*variants* of a package on the same system.
+
+[Nix]{.pkg} installs all packages into a centralized, content-addressed
+directory called the [Nix]{.pkg} store (typically `/nix/store`). Each package
+gets a unique subdirectory whose name includes a hash of all its inputs: source
+code, dependencies, build instructions. This means
+`/nix/store/abc123-dplyr-1.0.0` and `/nix/store/xyz789-dplyr-1.1.0` can coexist
+without conflicts.
+
+This isolation ensures that projects always use their intended software
+versions, allowing multiple versions of [R]{.proglang} to coexist and preventing
+"dependency hell" and global environment pollution.
 
 For a more in-depth technical discussion of [Nix]{.pkg}'s design principles, see
 @dolstra2004nix.
@@ -661,7 +681,16 @@ then be built on a system with [Nix]{.pkg} installed using the `nix-build`
 command.^[For installing [Nix]{.pkg}, I recommend the Determinate Systems
 installer: \url{https://determinate.systems/posts/determinate-nix-installer}].
 Once the build completes, the user can enter the interactive shell with
-`nix-shell`. This shell contains all the packages specified in `default.nix` and
+`nix-shell`, which executes following steps:
+
+- Nix reads the expression and identifies what needs to be installed;
+- It checks if these packages already exist in `/nix/store`;
+- If not, it downloads or builds them (with all dependencies);
+- It creates a new shell environment and updates the `$PATH` to include the
+  right binaries from `/nix/store`.
+- The user is now in an interactive [Nix]{.pkg} shell session.
+
+This shell contains all the packages specified in `default.nix` and
 can be used for development, similar to activating a virtual environment in the
 [Python]{.proglang} ecosystem.
 
