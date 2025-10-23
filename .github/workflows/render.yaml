@@ -46,3 +46,15 @@ jobs:
       run: |
         rm docs/index.html
         cp -r rendered_pdf/paper.html docs/index.html
+
+    - name: Push docs
+      run: |
+        cd ..
+        git pull --rebase --autostash origin master
+        git add docs/
+        if git diff --cached --quiet; then
+          echo "No changes to commit."
+        else
+          git commit -m "Updated website"
+          git push origin master
+        fi
