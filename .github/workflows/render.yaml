@@ -42,13 +42,13 @@ jobs:
     - name: Render
       run: nix-shell --run "quarto render paper.qmd"
 
-    - name: Move paper to root
-      run: mv rendered_pdf/paper.pdf paper.pdf
-
     - name: Copy output to docs for serving
       run: |
-        rm docs/index.html
+        rm docs/index.html docs/paper.pdf
         cp -r rendered_pdf/paper.html docs/index.html
+
+    - name: Move paper to docs
+      run: mv rendered_pdf/paper.pdf docs/paper.pdf
 
     - name: Push docs
       run: |
