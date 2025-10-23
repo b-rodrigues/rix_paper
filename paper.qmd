@@ -305,7 +305,7 @@ a `Dockerfile`, which defines the structure and content of the [Docker]{.pkg}
 image.
 
 Once the image is built, the analysis can be executed inside a *container*,
-which is a running instance of the image. Containers are typically run
+which is a running instance of the image. [Docker]{.pkg} containers are typically run
 non-interactively, allowing the complete computational environment to be
 instantiated and executed with a single command.
 
@@ -327,7 +327,7 @@ without starting from scratch.
 Despite its strengths, [Docker]{.pkg} presents several challenges for
 statistical computing workflows:
 
-1. Poor interactive support: While containers can be modified at runtime,
+1. Poor interactive support: While [Docker]{.pkg} containers can be modified at runtime,
   changes are lost when the container stops unless explicitly saved. Running
   graphical applications like RStudio Desktop from containers requires complex
   X11 configuration that works reliably only on Linux. Instead, web-based IDEs
@@ -366,13 +366,13 @@ statistical computing workflows:
   non-deterministic instructions such as `apt-get update` leads to temporal
   drift: rebuilding the same `Dockerfile` at different points in time can
   produce distinct outputs. In the experimental evaluation conducted in the
-  thesis, even with pinned base images, checksums of the resulting containers
-  varied across builds and machines. Thus, while Docker offers partial
-  reproducibility: strong at run time (space) and weak at build time (time), it
-  cannot on its own ensure verifiable, deterministic software artifacts.
-  Achieving true reproducibility requires pinning image digests, freezing
-  dependency versions, and employing deterministic build systems such as Nix or
-  Guix for complete control over both space and time [@Malka_2024].
+  thesis, even with pinned base images, checksums of the resulting [Docker]{.pkg}
+  containers varied across builds and machines. Thus, while Docker offers
+  partial reproducibility: strong at run time (space) and weak at build time
+  (time), it cannot on its own ensure verifiable, deterministic software
+  artifacts. Achieving true reproducibility requires pinning image digests,
+  freezing dependency versions, and employing deterministic build systems such
+  as Nix or Guix for complete control over both space and time [@Malka_2024].
 
 Even with a perfectly reproducible environment, researchers face another
 challenge: reliably executing the analysis workflow. Which scripts run first?
