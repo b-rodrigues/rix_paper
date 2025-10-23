@@ -58,17 +58,18 @@ By *linked and executable code and data*, Peng referred to compiled source code
 and runnable scripts. In this paper, I interpret this notion more broadly as the
 *computational environment*: the complete set of software required to execute an
 analysis. Here too, a continuum exists. At the minimal end, authors might only
-name the main software used—say, the [R]{.proglang} programming language. More
-careful authors might also specify the version of [R]{.proglang}, or list the
-additional packages and their versions. Rarely, however, do authors specify the
-operating system on which the analysis was performed, even though differences in
-operating systems can lead to divergent results when using the same code and
-software versions, as shown by @neupane2019. It is even less common for authors
-to provide step-by-step installation instructions for the required software
-stack, an omission often driven by institutional constraints. Journals, for
-instance, can inadvertently work against reproducibility by imposing strict page
-or word limits that leave no room for the necessary technical documentation,
-effectively discouraging thoroughness in the name of brevity.
+name the main software used—say, the [R]{.proglang} programming language
+[@r-core-team]. More careful authors might also specify the version of
+[R]{.proglang}, or list the additional packages and their versions. Rarely,
+however, do authors specify the operating system on which the analysis was
+performed, even though differences in operating systems can lead to divergent
+results when using the same code and software versions, as shown by
+@neupane2019. It is even less common for authors to provide step-by-step
+installation instructions for the required software stack, an omission often
+driven by institutional constraints. Journals, for instance, can inadvertently
+work against reproducibility by imposing strict page or word limits that leave
+no room for the necessary technical documentation, effectively discouraging
+thoroughness in the name of brevity.
 
 Even when such instructions are given, they often fail across different
 platforms or versions of the same platform. This lack of portability not only
@@ -86,10 +87,10 @@ another barrier to reproducibility.
 This paper focuses specifically on two critical but often overlooked aspects of
 reproducibility: *computational environment management* and *workflow
 orchestration*. I present a comprehensive framework that addresses both
-challenges using the [Nix]{.pkg} package manager, making it accessible to
-researchers through two [R]{.proglang} packages: [rix]{.pkg} and
+challenges using the [Nix]{.pkg} package manager [@dolstra2004nix], making it
+accessible to researchers through two [R]{.proglang} packages: [rix]{.pkg} and
 [rixpress]{.pkg}. Before introducing these packages, I survey existing tools and
-their limitations to contextualize my contribution.
+their limitations to contextualise my contribution.
 
 A range of tools now exist to help researchers approach the gold standard of
 full reproducibility, or to consistently deploy the same development environment
@@ -291,7 +292,7 @@ will share the same package versions.
 
 These tools represent significant progress in reproducibility, but they share a
 common limitation: none addresses system-level dependencies or supports polyglot
-environments. A project using [R]{.proglang} [@r-core-team], [Python]{.proglang}
+environments. A project using [R]{.proglang}, [Python]{.proglang}
 [@python3], and system tools like [Quarto]{.pkg} or \LaTeX requires coordinating
 multiple package managers ([renv]{.pkg} for R, virtual environments for
 [Python]{.proglang}, manual installation for system tools), each with its own
@@ -402,7 +403,7 @@ state of the art:
 - A `Dockerfile` providing a complete computational environment
 
 However, achieving this required mastering multiple complex tools: [renv]{.pkg}
-for package management, [Docker]{.pkg} for environment containerization, and
+for package management, [Docker]{.pkg} for environment containerisation, and
 [Make]{.pkg} for workflow orchestration. Each tool has its own syntax, concepts,
 and failure modes. The complexity compounds for polyglot projects; for instance,
 a [Python]{.proglang} project would require learning virtual environments, and
@@ -476,7 +477,7 @@ appropriate use cases and future directions.
 
 [Nix]{.pkg} is a powerful, cross-platform package manager designed for
 installing and building software in a fully reproducible and reliable manner.
-Unlike traditional package managers, [Nix]{.pkg} emphasizes immutable
+Unlike traditional package managers, [Nix]{.pkg} emphasises immutable
 infrastructure and a functional approach, which significantly enhances the
 consistency of computational environments. As of writing, the primary [Nix]{.pkg}
 package collection, `nixpkgs`, provides access to over 120,000 packages,
@@ -547,7 +548,7 @@ accessible.
 
 Pinning is essential, but it is not the only mechanism through which [Nix]{.pkg}
 achieves reproducibility. [Nix]{.pkg} adopts principles from functional
-programming, conceptualizing software builds as *pure functions*. In
+programming, conceptualising software builds as *pure functions*. In
 mathematics, a pure function is defined as one that always produces the same
 output for a given input—for instance, if \( f(x) = x^2 \), then \( f(2) = 4 \)
 invariably holds. Analogously, [Nix]{.pkg} ensures that, given identical inputs
@@ -566,7 +567,7 @@ certain Bioconductor packages). For end-users, however, this complexity is
 largely abstracted away. Additionally, [Nix]{.pkg} supports multiple versions or
 *variants* of a package on the same system.
 
-[Nix]{.pkg} installs all packages into a centralized, content-addressed
+[Nix]{.pkg} installs all packages into a centralised, content-addressed
 directory called the [Nix]{.pkg} store (typically `/nix/store`). Each package
 gets a unique subdirectory whose name includes a hash of all its inputs: source
 code, dependencies, build instructions. This means
@@ -880,7 +881,7 @@ hashes, providing reproducibility for the [Python]{.proglang} package layer.
 While this approach doesn't achieve Nix's level of build-time determinism for
 [Python]{.proglang} packages ([uv]{.pkg} still downloads wheels or builds
 packages at install time rather than using pre-built, content-addressed
-artifacts) it provides a pragmatic balance: comprehensive [Python]{.proglang}
+artefacts) it provides a pragmatic balance: comprehensive [Python]{.proglang}
 package availability with reasonable reproducibility guarantees. For polyglot
 projects, this means [R]{.proglang} and system-level dependencies remain fully
 reproducible through [Nix]{.pkg}, while [Python]{.proglang} packages gain the
@@ -1030,15 +1031,15 @@ providing two key benefits:
      rendering step in yet another, all within the same pipeline.
   2. Deep Reproducibility: Each step is a hermetically sealed [Nix]{.pkg} derivation
      whose output is cached in the [Nix]{.pkg} store based on the hash of all its
-     inputs. All artifacts are direct children of the computational environment
+     inputs. All artefacts are direct children of the computational environment
      (because the computational environment is actually a dependency of the
-     artifacts), ensuring they are rebuilt if the environment changes, keeping
+     artefacts), ensuring they are rebuilt if the environment changes, keeping
      environment and outputs always in sync.
 
 To illustrate these capabilities with a realistic research task, I present a
 polyglot pipeline that simulates a Real Business Cycle (RBC) model in
 [Julia]{.proglang}, uses the resulting data to train an
-[XGBoost]{.pkg} forecasting model in [Python]{.proglang}, visualizes the results
+[XGBoost]{.pkg} forecasting model in [Python]{.proglang}, visualises the results
 in [R]{.proglang} with [ggplot2]{.pkg}, and finally compiles a [Quarto]{.pkg}
 report. The code for this example can be found in the [following
 repository](https://github.com/b-rodrigues/rixpress_demos/tree/master/rbc)^[https://github.com/b-rodrigues/rixpress_demos/tree/master/rbc],
@@ -1108,7 +1109,7 @@ pipeline_steps <- list(
     encoder = "save_arrow"
   ),
 
-  # STEP 3: R - Visualize the predictions
+  # STEP 3: R - Visualise the predictions
   rxp_r(
     name = output_plot,
     expr = plot_predictions(final_predictions_df),
@@ -1174,7 +1175,7 @@ R> pipeline_steps <- list(
 +    encoder = "save_arrow"
 +  ),
 +
-+  # STEP 3: R - Visualize the predictions
++  # STEP 3: R - Visualise the predictions
 +  rxp_r(
 +    name = output_plot,
 +    expr = plot_predictions(final_predictions_df),
@@ -1206,7 +1207,7 @@ function `rxp_qmd()` is used to compile a [Quarto]{.pkg} document (there is also
 
 The `rxp_populate()` function translates this [R]{.proglang} list into a
 `pipeline.nix` file, which declaratively defines the entire workflow. Data flows
-from derivation to derivation by being serialized into the efficient and
+from derivation to derivation by being serialised into the efficient and
 language-agnostic Arrow format using the pair of `encoder/decoder` functions.
 Other universal formats, such as `csv` or `json` could have been used.
 
@@ -1229,9 +1230,9 @@ To execute the pipeline, one can either set `build = TRUE` in `rxp_populate()`
 or call `rxp_make()` separately. [Nix]{.pkg} executes each step in order,
 building dependencies as needed. Outputs are cached, so subsequent runs only
 recompute steps with changed inputs or code. This provides the efficiency of
-[targets]{.pkg} with polyglot support and bit-for-bit reproducibility. Artifacts
+[targets]{.pkg} with polyglot support and bit-for-bit reproducibility. Artefacts
 can be inspected interactively in [R]{.proglang} using
-`rxp_read("artifact_name")` or `rxp_load("artifact_name")`.
+`rxp_read("artefact_name")` or `rxp_load("artefact_name")`.
 
 [rixpress]{.pkg} also includes several additional features not covered here for
 brevity. As mentioned previously, it is also possible to configure popular IDEs
@@ -1268,7 +1269,7 @@ While [rix]{.pkg} and [rixpress]{.pkg} (and [ryxpress]{.pkg}) provide
 significant steps forward, it is important to acknowledge current limitations.
 [rixpress]{.pkg} (and [ryxpress]{.pkg}) in particular requires further
 development, especially to enhance the ease of debugging complex pipelines. Its
-visualization capabilities are also still fairly limited; for instance, they do
+visualisation capabilities are also still fairly limited; for instance, they do
 not currently indicate outdated derivations when a user modifies code that would
 necessitate a rebuild. These areas represent important avenues for future work
 to further mature the framework and improve the user experience.
@@ -1327,7 +1328,7 @@ The PDF version of the manuscript can be found at
 This appendix provides a conceptual walk-through of the polyglot pipeline
 example discussed in Section 5. The pipeline simulates a Real Business Cycle
 (RBC) model in [Julia]{.proglang}, trains an [XGBoost]{.pkg} model in
-[Python]{.proglang}, visualizes the results in [R]{.proglang}, and compiles a
+[Python]{.proglang}, visualises the results in [R]{.proglang}, and compiles a
 final report with [Quarto]{.pkg}.
 
 The complete, runnable source code for this example is available in the paper's
@@ -1345,7 +1346,7 @@ pipeline orchestration.
 *   `functions/`: This directory contains the helper scripts with the core analytical code for each language.
     *   `functions.jl`: The [Julia]{.proglang} script for the economic simulation.
     *   `functions.py`: The [Python]{.proglang} script for the machine learning workflow.
-    *   `functions.R`: The [R]{.proglang} script for data visualization.
+    *   `functions.R`: The [R]{.proglang} script for data visualisation.
 *   `gen-env.R`: An [R]{.proglang} script that defines the reproducible computational environment.
 *   `gen-pipeline.R`: The main [R]{.proglang} script that defines and orchestrates the entire polyglot pipeline.
 
@@ -1404,8 +1405,8 @@ separate helper scripts within the `functions/` directory.
   through a series of modular functions. Its responsibilities include feature
   engineering (creating lagged variables), splitting the data into training and
   testing sets, training the [XGBoost]{.pkg} model, and generating predictions.
-*   The Visualization (`functions.R`): This [R]{.proglang} script contains a
-  function that uses [ggplot2]{.pkg} to create the final visualization. It is
+*   The Visualisation (`functions.R`): This [R]{.proglang} script contains a
+  function that uses [ggplot2]{.pkg} to create the final visualisation. It is
   designed to take the data frame of actual and predicted values produced by the
   Python script and generate a plot comparing the two series.
 
@@ -1425,7 +1426,7 @@ dependencies between steps:
   dependent on the output from the [Julia]{.proglang} simulation.
   [rixpress]{.pkg} handles the passing of data between languages, in this case
   using the [Arrow]{.pkg} file format for efficiency.
-4.  Finally, it defines the **R visualization** step, which depends on the final
+4.  Finally, it defines the **R visualisation** step, which depends on the final
   predictions from the [Python]{.proglang} model, and a **Quarto rendering**
   step that depends on the generated plot.
 
@@ -1462,6 +1463,6 @@ This script automates the full process:
 2.  It then executes `gen-pipeline.R` inside the newly defined environment. This
   triggers [Nix]{.pkg} to run the entire polyglot pipeline in the correct order.
 
-Upon completion, the script will have generated all intermediate artifacts and
+Upon completion, the script will have generated all intermediate artefacts and
 the final `readme.html` report found in the `pipeline-output` folder containing
-the visualization.
+the visualisation.
