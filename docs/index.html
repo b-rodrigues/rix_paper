@@ -22,6 +22,41 @@ width: 0.8em;
 margin: 0 0.8em 0.2em -1em;  vertical-align: middle;
 }
 
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+}
+pre.numberSource { margin-left: 3em; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+
 div.csl-bib-body { }
 div.csl-entry {
 clear: both;
@@ -2238,12 +2273,45 @@ vertical-align: -.125em;
 <p>Finally, once the execution environment is correctly configured, additional clarity is needed on how to <em>run</em> the project itself. Which packages should be loaded first? Which scripts should be executed, and in what order? Without clear documentation or automated orchestration, these operational details become yet another barrier to reproducibility.</p>
 <p>This paper focuses specifically on two critical but often overlooked aspects of reproducibility: <em>computational environment management</em> and <em>workflow orchestration</em>. I present a comprehensive framework that addresses both challenges using the <code>Nix</code> package manager, making it accessible to researchers through two <code>R</code> packages: <code>rix</code> and <code>rixpress</code>. Before introducing these packages, I survey existing tools and their limitations to contextualize my contribution.</p>
 <p>A range of tools now exist to help researchers approach the gold standard of full reproducibility, or to consistently deploy the same development environment across multiple machines. Let us first consider the most basic step in this process: listing the software used. In <code>R</code>, the <code>sessionInfo()</code> function provides a concise summary of the software environment, including the R version, platform details, and all loaded packages. Its output can be saved to a file and included as part of a study’s reproducibility record. Below is an example output from <code>sessionInfo()</code>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>R version <span class="dv">4</span>.<span class="fl">3.2</span> (<span class="dv">2023-10-31</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>Platform<span class="sc">:</span> aarch64<span class="sc">-</span>unknown<span class="sc">-</span>linux<span class="sc">-</span><span class="fu">gnu</span> (<span class="dv">64</span><span class="sc">-</span>bit)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Running under<span class="sc">:</span> Ubuntu <span class="dv">22</span>.<span class="fl">04.3</span> LTS</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>Matrix products<span class="sc">:</span> default</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>BLAS<span class="sc">:</span>   <span class="er">/</span>usr<span class="sc">/</span>lib<span class="sc">/</span>aarch64<span class="sc">-</span>linux<span class="sc">-</span>gnu<span class="sc">/</span>openblas<span class="sc">-</span>pthread<span class="sc">/</span>libblas.so<span class="fl">.3</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>LAPACK<span class="sc">:</span> <span class="er">/</span>usr<span class="sc">/</span>lib<span class="sc">/</span>aarch64<span class="sc">-</span>linux<span class="sc">-</span>gnu<span class="sc">/</span>openblas<span class="sc">-</span>pthread<span class="sc">/</span>libopenblasp[...]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>locale<span class="sc">:</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a> LC_CTYPE<span class="ot">=</span>en_US.UTF<span class="dv">-8</span>       LC_NUMERIC<span class="ot">=</span>C</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a> LC_TIME<span class="ot">=</span>en_US.UTF<span class="dv">-8</span>        LC_COLLATE<span class="ot">=</span>en_US.UTF<span class="dv">-8</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a> ...</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>attached base packages<span class="sc">:</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a> stats     graphics  grDevices utils     datasets  methods   base</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>other attached packages<span class="sc">:</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a> nnet_7<span class="fl">.3</span><span class="dv">-19</span>  mgcv_1<span class="fl">.9</span><span class="dv">-0</span>   nlme_3<span class="fl">.1</span><span class="dv">-163</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>loaded via a <span class="fu">namespace</span> (and not attached)<span class="sc">:</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a> compiler_4.<span class="fl">3.2</span>  Matrix_1<span class="fl">.6-1.1</span>  tools_4.<span class="fl">3.2</span>     splines_4.<span class="fl">3.2</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a> grid_4.<span class="fl">3.2</span>      lattice_0<span class="fl">.21</span><span class="dv">-9</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>When an author includes this information, others attempting to reproduce the study (future readers, collaborators, or even the author at a later time) can easily see which version of <code>R</code> and which packages (with their versions) were used. However, reproducing the environment still requires manually installing the correct package versions—a process that becomes particularly difficult when packages depend on system-level libraries. For example, the <code>sf</code> package requires <code>GDAL</code>, <code>GEOS</code>, and <code>PROJ</code> system libraries. Installing and configuring these dependencies varies substantially across operating systems and can be prohibitively difficult on some platforms.</p>
 <p>A more robust approach than simply listing package versions is to use the <code>renv</code> package. <code>renv</code> captures the project’s software state and writes it to a <code>renv.lock</code> file, which includes the exact versions of <code>R</code> and all required packages. This lockfile serves as a blueprint for restoring the environment automatically, ensuring that others can recreate the same setup with minimal effort. Below is an abbreviated example of an <code>renv.lock</code> file:</p>
 <p>This lockfile lists each package alongside its version and the repository from which it was downloaded. Creating it requires only a single command: <code>renv::init()</code>. Others can then reproduce the same package library by running <code>renv::restore()</code>, which installs the exact package versions in an isolated, project-specific library that does not interfere with the user’s global R library.</p>
 <p>However, <code>renv</code> has important limitations. It does not restore the version of <code>R</code> itself—installing the correct R version must be done separately using tools like <code>rig</code> <span class="citation" data-cites="rlib2023">(<a href="#ref-rlib2023" role="doc-biblioref">R Infrastructure 2023</a>)</span>. More critically, <code>renv</code> does not handle system-level dependencies. If <code>sf</code> requires <code>GDAL</code> version 3.0 but the system has version 2.4 installed, <code>renv</code> cannot resolve this conflict. Users must manually install system libraries, and the process differs across operating systems. Further details are discussed in the <code>renv</code> documentation<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
 <p>Other packages provide similar functionality with different trade-offs. <code>groundhog</code> by <span class="citation" data-cites="simonsohn2023">Simonsohn and Gruson (<a href="#ref-simonsohn2023" role="doc-biblioref">2023</a>)</span> makes it easy to install packages as they existed on CRAN at a given date:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">groundhog.library</span>(<span class="st">&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="st"> library(&#39;purrr&#39;)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st"> library(&#39;ggplot2&#39;)&quot;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a> <span class="st">&quot;2017-10-04&quot;</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a> <span class="at">tolerate.R.version =</span> <span class="st">&quot;4.2.2&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><code>groundhog</code> places packages in project-specific libraries but does not install <code>R</code> itself. Without the <code>tolerate.R.version</code> argument, it will refuse to proceed if the R version does not match expectations. <code>rang</code>, developed by <span class="citation" data-cites="chan2023">Chan and Schoch (<a href="#ref-chan2023" role="doc-biblioref">2023</a>)</span>, offers similar date-based package installation. The Posit Package Manager provides another approach through dated CRAN snapshots, configured via the <code>.Rprofile</code> file:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">repos =</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">REPO_NAME =</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;https://packagemanager.posit.co/cran/__linux__/jammy/2023-06-30&quot;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>This approach installs all packages from the specified snapshot date, but unless users explicitly manage separate libraries for different projects, all projects will share the same package versions.</p>
 <p>These tools represent significant progress in reproducibility, but they share a common limitation: none addresses system-level dependencies or supports polyglot environments. A project using <code>R</code>, <code>Python</code>, and system tools like <code>Quarto</code> or requires coordinating multiple package managers (<code>renv</code> for R, virtual environments for Python, manual installation for system tools), each with its own configuration and potential for conflicts.</p>
 <p>The most comprehensive approach to reproducibility is containerization with <code>Docker</code>. <code>Docker</code> packages a <em>data product</em> together with all its dependencies—including the operating system, system libraries, programming languages, and packages—into a self-contained image. A statistical analysis can be viewed as such a data product. The steps to create an image are specified in a <code>Dockerfile</code>, which defines the structure and content of the <code>Docker</code> image.</p>
@@ -2319,16 +2387,60 @@ Figure 1: Package repository size and freshness according to Repology. <code>ni
 <section id="sec-repro-nix" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="sec-repro-nix"><span class="header-section-number">3</span> Reproducible development environments with Nix</h2>
 <p>As mentioned, <code>Nix</code> expressions are written in the <code>Nix</code> programming language, which is purely functional. Here is a simple example that creates a shell environment containing version 4.3.1 of <code>R</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode nix code-with-copy"><code class="sourceCode nix"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="va">pkgs</span> <span class="op">=</span> <span class="bu">import</span> <span class="op">(</span><span class="bu">fetchTarball</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;https://github.com/NixOS/nixpkgs/archive/976fa336.tar.gz&quot;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">)</span> <span class="op">{};</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="va">system_packages</span> <span class="op">=</span> <span class="bu">builtins</span><span class="op">.</span>attrValues <span class="op">{</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">inherit</span> <span class="op">(</span>pkgs<span class="op">)</span> <span class="va">R</span><span class="op">;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">};</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="kw">in</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  pkgs<span class="op">.</span>mkShell <span class="op">{</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="va">buildInputs</span> <span class="op">=</span> <span class="op">[</span> system_packages <span class="op">];</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="va">shellHook</span> <span class="op">=</span> <span class="st">&quot;R --vanilla&quot;</span><span class="op">;</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>In this expression, the <code>let</code> keyword is used to define variables. The variable <code>pkgs</code> imports the set of packages from the <code>nixpkgs</code> repository at the specified commit <code>976fa336</code>. The variable <code>system_packages</code> lists the packages to include in the environment; in this case, it is just the <code>R</code> programming language, along with all its dependencies and their transitive dependencies. The <code>mkShell</code> function then creates a development shell with the specified packages. The <code>shellHook</code> is set to <code>&quot;R --vanilla&quot;</code>, meaning that entering the shell automatically starts <code>R</code> in vanilla mode, ignoring any startup options.</p>
 <p>This expression can be saved in a file called <code>default.nix</code>. The environment can then be built on a system with <code>Nix</code> installed using the <code>nix-build</code> command.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>. Once the build completes, the user can enter the interactive shell with <code>nix-shell</code>. This shell contains all the packages specified in <code>default.nix</code> and can be used for development, similar to activating a virtual environment in the <code>Python</code> ecosystem.</p>
 <p>Writing <code>Nix</code> expressions can be challenging for users unfamiliar with the <code>Nix</code> language. However, the ability to define a fully reproducible development environment in a single text file and then rebuild it anywhere is highly appealing. To lower the barrier to adoption of <code>Nix</code> for reproducibility, I developed the <code>rix</code> package.</p>
 <p><code>rix</code> provides the <code>rix()</code> function, which simplifies generating <code>Nix</code> expressions. It is available on CRAN and can be installed like any other R package. Additionally, it can bootstrap an <code>R</code> development environment on a system where <code>R</code> is not yet installed but <code>Nix</code> is available. This can be done by running (inside of a terminal):</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nix-shell</span> <span class="at">-I</span> <span class="dt">\</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  nixpkgs=https://github.com/rstats-on-nix/nixpkgs/tarball/2025-10-20 <span class="at">-p</span> <span class="dt">\</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  R rPackages.rix</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>(the <code>-I</code> flag allows one to pass a specific revision of <code>nixpkgs</code>, ensuring temporary shells are also reproducible).</p>
 <p>This command opens a temporary <code>R</code> session with <code>rix</code> available.<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a> From there, users can generate new <code>Nix</code> expressions for building environments. For example, the following generates a <code>default.nix</code> file that installs <code>R</code> 4.3.1 along with the <code>dplyr</code> and <code>chronicler</code> packages:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&#39;rix&#39;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">rix</span>(<span class="at">r_ver =</span> <span class="st">&quot;4.3.1&quot;</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_pkgs =</span> <span class="fu">c</span>(<span class="st">&quot;dplyr&quot;</span>, <span class="st">&quot;chronicler&quot;</span>),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">project_path =</span> <span class="st">&quot;.&quot;</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><code>rix</code> can also handle more complex setups, and users can provide a date instead of a specific <code>R</code> version:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rix</span>(<span class="at">date =</span> <span class="st">&quot;2025-10-20&quot;</span>,</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">r_pkgs =</span> <span class="fu">c</span>(<span class="st">&quot;rix&quot;</span>, <span class="st">&quot;dplyr&quot;</span>, <span class="st">&quot;chronicler&quot;</span>, <span class="st">&quot;AER@1.2-8&quot;</span>),</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">system_pkgs =</span> <span class="fu">c</span>(<span class="st">&quot;quarto&quot;</span>, <span class="st">&quot;git&quot;</span>),</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">tex_pkgs =</span> <span class="fu">c</span>(</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;amsmath&quot;</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;framed&quot;</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;fvextra&quot;</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;environ&quot;</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;fontawesome5&quot;</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;orcidlink&quot;</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;pdfcol&quot;</span>,</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;tcolorbox&quot;</span>,</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;tikzfill&quot;</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">git_pkgs =</span> <span class="fu">list</span>(</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">package_name =</span> <span class="st">&quot;fusen&quot;</span>,</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">repo_url =</span> <span class="st">&quot;https://github.com/ThinkR-open/fusen&quot;</span>,</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">commit =</span> <span class="st">&quot;60346860111be79fc2beb33c53e195f97504a667&quot;</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">ide =</span> <span class="st">&quot;positron&quot;</span>,</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">project_path =</span> <span class="st">&quot;.&quot;</span>,</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>This call to <code>rix()</code> generates a <code>default.nix</code> file for a development shell that encapsulates a complete and reproducible research environment. It provides <code>R</code> and its packages (including <code>AER</code> at version 1.2-8), several TeXLive packages for document authoring, development versions of <code>rix</code> and <code>fusen</code> pulled directly from GitHub at a specific commit, and the Positron editor. The reproducibility of this environment is guaranteed by pinning all components to a single point in time: the <code>R</code> packages are resolved from the CRAN snapshot of October 20, 2025, while all other system tools are fixed to the version of <code>nixpkgs</code> from that same date. Typing <code>nix-shell</code> in a terminal within the folder that contains this <code>default.nix</code> will drop the user into a new shell. It should be noted that it uses the <code>nixpkgs</code> from that same date. It is also possible to configure IDEs to dynamically load this new shell to provide the proper development tooling.</p>
 <p><code>rix</code> can generate <code>Nix</code> expressions even if <code>Nix</code> is not installed on the system. This is useful for continuous integration and continuous deployment (CI/CD) workflows on platforms such as GitHub Actions. For instance, the repository containing the source code for this article<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> uses GitHub Actions to compile the paper. Each time a push is made to the master branch, a runner installs <code>Nix</code>, generates the environment from the hosted <code>default.nix</code> file, and compiles the paper using <code>Quarto</code> within the reproducible environment. This ensure that <em>exactly</em> the same environment is used on the author’s computer and on the CI/CD without any additional, platform-specific, configuration.</p>
 <p>Instead of first entering a <code>Nix</code> shell, it is also possible to run a program directly from the environment:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /path/to/project/ <span class="kw">&amp;&amp;</span> <span class="ex">nix-shell</span> default.nix <span class="at">--run</span> <span class="st">&quot;Rscript analysis.R&quot;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>This command runs <code>Rscript</code> and executes the <code>analysis.R</code> script, which in this example should be located in the same directory as <code>default.nix</code>.</p>
 </section>
 <section id="sec-fork" class="level2" data-number="4">
@@ -2336,9 +2448,11 @@ Figure 1: Package repository size and freshness according to Repology. <code>ni
 <p>As explained earlier, <code>Nix</code> uses expressions from the <code>nixpkgs</code> GitHub repository to build software. However, when generating expressions with <code>rix</code>, the fork <code>rstats-on-nix/nixpkgs</code> is used instead.</p>
 <p>Using a fork offers several advantages. First, it provides flexibility that the official <code>nixpkgs</code> repository cannot always accommodate. <code>Nix</code> is primarily the package manager for the NixOS Linux distribution, and governance and technical choices made upstream can limit what <code>rix</code> aims to provide.</p>
 <p>For instance, while <code>Nix</code> can theoretically support multiple versions (or <em>variants</em>) of the same package, in practice maintainers cannot provide several variants for all <code>R</code> packages, given the size of the ecosystem (over 20,000 CRAN and Bioconductor packages). This makes it difficult to install a specific version of an <code>R</code> package not included in a particular <code>nixpkgs</code> commit. With <code>rix</code>, users can install a specific package version from source, e.g.:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rix</span>(..., <span class="at">r_pkgs =</span> <span class="st">&quot;dplyr@1.0.7&quot;</span>, ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>However, installing from source might fail, especially if the package needs to be compiled.</p>
 <p>Additionally, updating the full <code>R</code> package set on <code>Nix</code> daily is impractical. While CRAN and Bioconductor update daily, the <code>R</code> packages in <code>nixpkgs</code> are only updated with new <code>R</code> releases. This limitation is due to <code>Nix</code>’s governance as a Linux distribution package manager.</p>
 <p>The <code>rstats-on-nix</code> fork allows me to circumvent these limitations. For example, it provides daily snapshots of CRAN. Each day, the <code>R</code> package set is updated and committed to a dated branch using GitHub Actions. Users can select a specific date with:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rix</span>(<span class="at">date =</span> <span class="st">&quot;2024-12-14&quot;</span>, ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>I strive to provide an available date per week: each Monday, a GitHub Action tests popular packages on Linux and macOS, and only if all tests succeed is the date added to the list of available dates in <code>rix</code>. This ensures users can reliably install packages, and allows me to backport fixes if needed. For example, when RStudio was temporarily broken due to a dependency issue (<code>boost</code>), a pull request was submitted to the official <code>nixpkgs</code> repository. I backported the fix to the <code>rstats-on-nix</code> fork, making RStudio available to users of <code>rix</code> earlier than upstream, as merging PRs in the official repository can take some time.</p>
 <p>I have backported fixes to the <code>rstats-on-nix</code> <code>nixpkgs</code> fork as far back as March 2019. The process involves checking out a <code>nixpkgs</code> commit on the selected date, updating the <code>R</code> package set using Posit CRAN and Bioconductor snapshots, backporting fixes, and ensuring popular packages work on both x86-linux (including WSL2) and aarch64-darwin (Apple Silicon). These changes are committed to a dated branch in <code>rstats-on-nix/nixpkgs</code>. Users can see all available dates with <code>rix::available_dates()</code>.</p>
 <p>A drawback of forking <code>nixpkgs</code> is that backported packages are not included upstream and thus are not prebuilt by Nix’s CI platform, Hydra. Users may need to build many packages from source, which can be time-consuming. To mitigate this, I provide a binary cache sponsored by <a href="https://www.cachix.org/">Cachix</a>, complementing the public Nix cache. Instructions for using Cachix are in <code>rix</code>’s documentation. Using the cache significantly speeds up installations, as prebuilt packages are downloaded rather than compiled.</p>
@@ -2355,6 +2469,67 @@ Figure 1: Package repository size and freshness according to Repology. <code>ni
 </ol>
 <p>To illustrate these capabilities with a realistic research task, I present a polyglot pipeline that simulates a Real Business Cycle (RBC) model in <code>Julia</code> <span class="citation" data-cites="bezanson2017julia">(<a href="#ref-bezanson2017julia" role="doc-biblioref">Bezanson et al. 2017</a>)</span>, uses the resulting data to train an <code>XGBoost</code> forecasting model in <code>Python</code>, visualizes the results in <code>R</code> with <code>ggplot2</code>, and finally compiles a <code>Quarto</code> report. The code for this example can be found in the <a href="https://github.com/b-rodrigues/rixpress_demos/tree/master/rbc">following repository</a><a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>, with additional details provided in the Appendix of this manuscript.</p>
 <p>The user defines the pipeline in an <code>R</code> script (<code>gen-pipeline.R</code>) using functions inspired by <code>targets</code>. The underlying logic for each step is encapsulated in separate helper scripts (<code>functions.jl</code>, <code>functions.py</code>, and <code>functions.R</code>). Further details are provided as well as step-by-step instructions in the Appendix. The high-level orchestration script demonstrates how <code>{rixpress}</code> defines a granular, multi-step machine learning workflow that crosses language boundaries:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&#39;rixpress&#39;</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>pipeline_steps <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># STEP 0: Define RBC Model Parameters in Julia</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rxp_jl</span>(alpha, <span class="fl">0.3</span>),</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rxp_jl</span>(beta, <span class="dv">1</span> <span class="sc">/</span> <span class="fl">1.01</span>),</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ... (other parameters omitted for brevity) ...</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># STEP 1: Julia - Simulate the RBC model</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rxp_jl</span>(</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> simulated_rbc_data,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">expr =</span> <span class="st">&quot;simulate_rbc_model(alpha, beta, delta, rho, sigma, sigma_z)&quot;</span>,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">user_functions =</span> <span class="st">&quot;functions/functions.jl&quot;</span>,</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">encoder =</span> <span class="st">&quot;arrow_write&quot;</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># STEP 2.1: Python - Prepare features</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rxp_py</span>(</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> processed_data,</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">expr =</span> <span class="st">&quot;prepare_features(simulated_rbc_data)&quot;</span>,</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">user_functions =</span> <span class="st">&quot;functions/functions.py&quot;</span>,</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">decoder =</span> <span class="st">&quot;pyarrow.feather.read_feather&quot;</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># STEP 2.2: Python - Split data (X_train, y_train, etc.)</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rxp_py</span>(<span class="at">name =</span> X_train, <span class="at">expr =</span> <span class="st">&quot;get_X_train(processed_data)&quot;</span>, ...),</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ... (other data splits omitted for brevity) ...</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># STEP 2.3: Python - Train the XGBoost model</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rxp_py</span>(</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> trained_model,</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">expr =</span> <span class="st">&quot;train_model(X_train, y_train)&quot;</span>,</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">user_functions =</span> <span class="st">&quot;functions/functions.py&quot;</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># STEP 2.4: Python - Make predictions and format results</span></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ... (prediction and formatting steps omitted for brevity) ...</span></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rxp_py</span>(</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> final_predictions_df,</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">expr =</span> <span class="st">&quot;format_results(y_test, model_predictions)&quot;</span>,</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">user_functions =</span> <span class="st">&quot;functions/functions.py&quot;</span>,</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">encoder =</span> <span class="st">&quot;save_arrow&quot;</span></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>  <span class="co"># STEP 3: R - Visualize the predictions</span></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rxp_r</span>(</span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> output_plot,</span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">expr =</span> <span class="fu">plot_predictions</span>(final_predictions_df),</span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">user_functions =</span> <span class="st">&quot;functions/functions.R&quot;</span>,</span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">decoder =</span> arrow<span class="sc">::</span>read_feather</span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>  <span class="co"># STEP 4: Quarto - Compile the final report</span></span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rxp_qmd</span>(</span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> final_report,</span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">qmd_file =</span> <span class="st">&quot;readme.qmd&quot;</span></span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate the &#39;pipeline.nix&#39; file from the R list</span></span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a><span class="fu">rxp_populate</span>(pipeline_steps, <span class="at">build =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The <code>rxp_populate()</code> function translates this <code>R</code> list into a <code>pipeline.nix</code> file, which declaratively defines the entire workflow. Data flows from derivation to derivation by being serialized into the efficient and language-agnostic Arrow format using the pair of <code>encoder/decoder</code> functions. Other universal formats, such as <code>csv</code> or <code>json</code> could have been used.</p>
 <p>As a sidenote: <code>Python</code> users who wish to use <code>ryxpress</code> define pipelines using the same <code>R</code>-based DSL shown above. This design choice keeps the pipeline definition language consistent across both <code>R</code> and <code>Python</code> ecosystems. <code>ryxpress</code> calls <code>R</code> and <code>rixpress</code> under the hood to generate and build the <code>pipeline.nix</code> file.</p>
 <div id="fig-dag" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -2434,6 +2609,7 @@ Simonsohn, Uri, and Hugo Gruson. 2023. <em>Groundhog: Version-Control for CRAN, 
 <section id="reproducing-this-paper" class="level3" data-number="7.1">
 <h3 data-number="7.1" class="anchored" data-anchor-id="reproducing-this-paper"><span class="header-section-number">7.1</span> Reproducing this paper</h3>
 <p>The source code of this paper is hosted on GitHub and can be found at following <a href="https://github.com/b-rodrigues/rix_paper">link</a><a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>. The paper can be easily compiled by running the following command:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nix-shell</span> <span class="at">--run</span> <span class="st">&quot;quarto render paper.qmd --to jss-pdf&quot;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The <code>default.nix</code> file defines the exact computational environment required to compile the manuscript, ensuring full reproducibility of the build process. To guarantee the reproducibility of the manuscript, it is automatically recompiled via GitHub Actions upon each commit, using the same Nix environment. An HTML version is additionally deployed to GitHub Pages, providing an accessible format for viewing on smaller devices at this <a href="https://b-rodrigues.github.io/rix_paper/">link</a><a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>.</p>
 </section>
 <section id="a-complete-polyglot-example-with-rixpress" class="level3" data-number="7.2">
@@ -2464,6 +2640,9 @@ Simonsohn, Uri, and Hugo Gruson. 2023. <em>Groundhog: Version-Control for CRAN, 
 </ul>
 <p>Crucially, the entire environment is pinned to a specific date (<code>2025-10-14</code>), ensuring that anyone who builds the environment, now or in the future, will get the exact same software versions, guaranteeing reproducibility.</p>
 <p>By dropping into a temporary shell using the following command:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nix-shell</span> <span class="at">-I</span> <span class="dt">\</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  nixpkgs=https://github.com/rstats-on-nix/nixpkgs/tarball/2025-10-20 <span class="at">-p</span> <span class="dt">\</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  R rPackages.rix</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>it is possible to generate the <code>default.nix</code> by sourcing <code>gen-env.R</code>. Then, one leaves this temporary shell, and builds the environment using the command <code>nix-shell</code>, which also drop the user into the development shell.</p>
 </section>
 <section id="step-2-the-core-analytical-logic" class="level4" data-number="7.2.3">
@@ -2486,6 +2665,8 @@ Simonsohn, Uri, and Hugo Gruson. 2023. <em>Groundhog: Version-Control for CRAN, 
 </ol>
 <p>When this script is run in the development shell (by executing <code>source(&quot;gen-pipeline.R&quot;)</code>), <code>rixpress</code> translates the declared pipeline into a master <code>Nix</code> expression that <code>Nix</code> can execute, automatically handling the caching of results and re-running only the necessary steps if a piece of code or data changes.</p>
 <p>To build the pipeline from an interactive <code>Python</code> session, one would execute the following lines:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> ryxpress <span class="im">import</span> rxp_make</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>rxp_make()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="running-the-project" class="level4" data-number="7.2.5">
 <h4 data-number="7.2.5" class="anchored" data-anchor-id="running-the-project"><span class="header-section-number">7.2.5</span> Running the Project</h4>
