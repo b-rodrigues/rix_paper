@@ -47,7 +47,7 @@ jobs:
 
     - name: Copy output to docs for serving
       run: |
-        rm docs/index.html paper.pdf
+        rm docs/index.html
         cp -r rendered_pdf/paper.html docs/index.html
 
     - name: Push docs
