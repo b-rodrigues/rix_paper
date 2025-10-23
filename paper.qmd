@@ -291,13 +291,13 @@ will share the same package versions.
 
 These tools represent significant progress in reproducibility, but they share a
 common limitation: none addresses system-level dependencies or supports polyglot
-environments. A project using [R]{.proglang}, [Python]{.proglang}, and system
-tools like [Quarto]{.pkg} or \LaTeX requires coordinating multiple package
-managers ([renv]{.pkg} for R, virtual environments for Python, manual
-installation for system tools), each with its own configuration and potential
-for conflicts.
+environments. A project using [R]{.proglang} [@r-core-team], [Python]{.proglang}
+[@python3], and system tools like [Quarto]{.pkg} or \LaTeX requires coordinating
+multiple package managers ([renv]{.pkg} for R, virtual environments for
+[Python]{.proglang}, manual installation for system tools), each with its own
+configuration and potential for conflicts.
 
-The most comprehensive approach to reproducibility is containerization with
+The most comprehensive approach to reproducibility is containerisation with
 [Docker]{.pkg}. [Docker]{.pkg} packages a *data product* together with all its
 dependencies—including the operating system, system libraries, programming
 languages, and packages—into a self-contained image. A statistical analysis can
@@ -328,12 +328,12 @@ without starting from scratch.
 Despite its strengths, [Docker]{.pkg} presents several challenges for
 statistical computing workflows:
 
-1. Poor interactive support: While [Docker]{.pkg} containers can be modified at runtime,
-  changes are lost when the container stops unless explicitly saved. Running
-  graphical applications like RStudio Desktop from containers requires complex
-  X11 configuration that works reliably only on Linux. Instead, web-based IDEs
-  (like RStudio Server) are used, but come with the inherent limitations of
-  web-based solutions.
+1. Poor interactive support: While [Docker]{.pkg} containers can be modified at
+  runtime, changes are lost when the container stops unless explicitly saved.
+  Running graphical applications like RStudio Desktop from containers requires
+  complex X11 configuration that works reliably only on Linux. Instead,
+  web-based IDEs (like RStudio Server) are used, but come with the inherent
+  limitations of web-based solutions.
 
 2. Steep learning curve: [Docker]{.pkg} images are minimal Linux systems, so
   writing reliable `Dockerfile`s requires familiarity with Linux system
@@ -351,29 +351,26 @@ statistical computing workflows:
 
 4. Single-language focus: While [Docker]{.pkg} can support polyglot
   environments, orchestrating them requires manual coordination. There is no
-  standard way to specify that one step should run in a Python environment while
-  another runs in R.
+  standard way to specify that one step should run in a [Python]{.pkg}
+  environment while another runs in R.
 
-5. Incomplete Reproducibility: Reproducibility should be understood as a
-  spectrum rather than a binary property, a notion emphasised in
-  "Reproducibility in Software Engineering" by @dellaieraMasterThesis2024.
-  Docker illustrates this spectrum well: it provides strong run-time
-  reproducibility—that is, consistency in space (where the same image behaves
-  identically across different systems) but weak build-time reproducibility,
-  which concerns consistency over time. As defined in the thesis,
-  reproducibility at build time means being able to produce an identical build
-  artefact regardless of when or where it is built. However, Docker inherently
-  fails to guarantee this property. Its reliance on mutable base images and
-  non-deterministic instructions such as `apt-get update` leads to temporal
-  drift: rebuilding the same `Dockerfile` at different points in time can
-  produce distinct outputs. In the experimental evaluation conducted in the
-  thesis, even with pinned base images, checksums of the resulting [Docker]{.pkg}
-  containers varied across builds and machines. Thus, while Docker offers
-  partial reproducibility: strong at run time (space) and weak at build time
-  (time), it cannot on its own ensure verifiable, deterministic software
-  artifacts. Achieving true reproducibility requires pinning image digests,
-  freezing dependency versions, and employing deterministic build systems such
-  as Nix or Guix for complete control over both space and time [@Malka_2024].
+5. Incomplete Reproducibility: Reproducibility should be viewed as a spectrum
+   rather than a binary property, as emphasised in *Reproducibility in Software
+   Engineering* by @dellaieraMasterThesis2024. [Docker]{.pkg} illustrates this
+   spectrum well: it achieves strong run-time reproducibility—consistency across
+   systems (space)—but weak build-time reproducibility, which concerns
+   consistency across time. As defined in the thesis, build-time reproducibility
+   means producing identical artefacts regardless of when or where they are
+   built. [Docker]{.pkg} cannot guarantee this, as its reliance on mutable base
+   images and non-deterministic commands such as `apt-get update` (or similar
+   commands, depending on which base image is used) introduces temporal drift:
+   rebuilding the same `Dockerfile` at different times can yield different
+   results. Even with pinned base images, the thesis found that container
+   checksums varied across builds and machines. Thus, while [Docker]{.pkg}
+   provides partial reproducibility, strong in space but weak in time, verifiable,
+   deterministic artefacts require pinning image digests, freezing dependencies,
+   and using deterministic build systems such as [Nix]{.pkg} for full control
+   over both dimensions [@Malka_2024].
 
 Even with a perfectly reproducible environment, researchers face another
 challenge: reliably executing the analysis workflow. Which scripts run first?
@@ -388,12 +385,12 @@ recomputes steps affected by changes. This dramatically improves efficiency for
 complex analyses.
 
 However, [targets]{.pkg} operates within a single R session. While it can call
-Python via [reticulate]{.pkg} or execute system commands, all steps share the
-same computational environment. For truly polyglot pipelines (where different
-steps may require incompatible dependencies or different language versions) this
-limitation becomes problematic. One might run [targets]{.pkg} inside a
-[Docker]{.pkg} container to ensure reproducibility, but this requires the entire
-pipeline to use a single environment.
+[Python]{.proglang} via [reticulate]{.pkg} or execute system commands, all steps
+share the same computational environment. For truly polyglot pipelines (where
+different steps may require incompatible dependencies or different language
+versions) this limitation becomes problematic. One might run [targets]{.pkg}
+inside a [Docker]{.pkg} container to ensure reproducibility, but this requires
+the entire pipeline to use a single environment.
 
 @mcdermott2021 provides an excellent example of achieving the gold standard of
 reproducibility. The accompanying GitHub
@@ -450,7 +447,7 @@ packages:
 - [rix]{.pkg} generates [Nix]{.pkg} expressions from intuitive R function calls,
 eliminating the need to learn the [Nix]{.proglang} language. It handles
 environment definition including [R]{.proglang}, [Python]{.proglang},
-[Julia]{.proglang}, system tools, and their dependencies.
+[Julia]{.proglang} [@bezanson2017julia], system tools, and their dependencies.
 
 - [rixpress]{.pkg} orchestrates polyglot analytical pipelines using [Nix]{.pkg}
 as the build engine. Each pipeline step runs in its own hermetically sealed
@@ -481,7 +478,7 @@ appropriate use cases and future directions.
 installing and building software in a fully reproducible and reliable manner.
 Unlike traditional package managers, [Nix]{.pkg} emphasizes immutable
 infrastructure and a functional approach, which significantly enhances the
-consistency of computational environments. As of writing, the primary Nix
+consistency of computational environments. As of writing, the primary [Nix]{.pkg}
 package collection, `nixpkgs`, provides access to over 120,000 packages,
 including nearly all of CRAN and Bioconductor. According to Repology, a service
 that tracks package repositories across distributions, `nixpkgs` is both the
@@ -844,11 +841,11 @@ packages, or specific versions, may not be available through [Nix]{.pkg}.
 For projects requiring [Python]{.proglang} packages not yet available in
 [Nix]{.pkg}, [rix]{.pkg} supports integration with [uv]{.pkg}, a modern
 [Python]{.proglang} package manager. This allows users to combine Nix's
-system-level reproducibility (Python interpreter, system libraries) with
-[uv]{.pkg}'s comprehensive package availability. While this hybrid approach
-sacrifices some of Nix's deterministic build guarantees for Python packages, it
-provides a pragmatic solution when the needed packages are unavailable in
-`nixpkgs`.
+system-level reproducibility ([Python]{.proglang} interpreter, system libraries)
+with [uv]{.pkg}'s comprehensive package availability. While this hybrid approach
+sacrifices some of Nix's deterministic build guarantees for [Python]{.proglang}
+packages, it provides a pragmatic solution when the needed packages are
+unavailable in `nixpkgs`.
 
 Users can include [uv]{.pkg} as a system package:
 
@@ -1022,16 +1019,17 @@ environment, and orchestrating steps across different languages (e.g.,
 [R]{.proglang} and [Python]{.proglang}) requires manual handling via packages
 like [reticulate]{.pkg}.
 
-[rixpress]{.pkg} overcomes these limitations by using Nix not just as a package
-manager, but as the build automation engine itself. In a [rixpress]{.pkg}
-pipeline, each step is defined as a Nix derivation, providing two key benefits:
+[rixpress]{.pkg} overcomes these limitations by using [Nix]{.pkg} not just as a
+package manager, but as the build automation engine itself. In a
+[rixpress]{.pkg} pipeline, each step is defined as a [Nix]{.pkg} derivation,
+providing two key benefits:
 
-  1. True Polyglot Pipelines: Each step can have its own Nix environment. A
-     Python step can run in a pure Python environment, an [R]{.proglang} step in
-     an [R]{.proglang} environment, and a Quarto rendering step in yet another,
-     all within the same pipeline.
-  2. Deep Reproducibility: Each step is a hermetically sealed Nix derivation
-     whose output is cached in the Nix store based on the hash of all its
+  1. True Polyglot Pipelines: Each step can have its own [Nix]{.pkg} environment. A
+     [Python]{.proglang} step can run in a pure [Python]{.proglang} environment,
+     an [R]{.proglang} step in an [R]{.proglang} environment, and a Quarto
+     rendering step in yet another, all within the same pipeline.
+  2. Deep Reproducibility: Each step is a hermetically sealed [Nix]{.pkg} derivation
+     whose output is cached in the [Nix]{.pkg} store based on the hash of all its
      inputs. All artifacts are direct children of the computational environment
      (because the computational environment is actually a dependency of the
      artifacts), ensuring they are rebuilt if the environment changes, keeping
@@ -1039,7 +1037,7 @@ pipeline, each step is defined as a Nix derivation, providing two key benefits:
 
 To illustrate these capabilities with a realistic research task, I present a
 polyglot pipeline that simulates a Real Business Cycle (RBC) model in
-[Julia]{.proglang} [@bezanson2017julia], uses the resulting data to train an
+[Julia]{.proglang}, uses the resulting data to train an
 [XGBoost]{.pkg} forecasting model in [Python]{.proglang}, visualizes the results
 in [R]{.proglang} with [ggplot2]{.pkg}, and finally compiles a [Quarto]{.pkg}
 report. The code for this example can be found in the [following
@@ -1062,8 +1060,7 @@ independently outside of [Nix]{.pkg}.
 
 The following example demonstrates how [rixpress]{.pkg} orchestrates a granular,
 multi-step data science workflow that crosses language boundaries. (Complete
-setup instructions and a detailed walkthrough are provided in Appendix Section
-@sec-polyglot-example.)
+setup instructions and a detailed walkthrough are provided in Appendix)
 
 ::: {.content-hidden when-format="pdf"}
 ```r
@@ -1202,10 +1199,10 @@ Computation steps, referred to as *derivations*, are defined using the functions
 [Julia]{.proglang}, and [Python]{.proglang} environments, respectively. Variants
 of these functions suffixed with `_file()` designate *import derivations*, which
 introduce external data into the pipeline. It is important to note that any data
-imported in this way is stored within the Nix store, ensuring reproducibility
-but also persisting the data in the build environment. The function `rxp_qmd()`
-is used to compile a [Quarto]{.pkg} document (there is also `rxp_rmd()` which
-serves the same purpose for [R Markdown]{.pkg} documents).
+imported in this way is stored within the [Nix]{.pkg} store, ensuring
+reproducibility but also persisting the data in the build environment. The
+function `rxp_qmd()` is used to compile a [Quarto]{.pkg} document (there is also
+`rxp_rmd()` which serves the same purpose for [R Markdown]{.pkg} documents).
 
 The `rxp_populate()` function translates this [R]{.proglang} list into a
 `pipeline.nix` file, which declaratively defines the entire workflow. Data flows
@@ -1259,7 +1256,7 @@ use cases: running scripts and pipelines, developing interactive [shiny]{.pkg}
 applications, or serving [plumber]{.pkg} APIs.
 
 Furthermore, [rixpress]{.pkg} extends this reproducibility to entire analysis
-pipelines. By leveraging Nix as a build automation engine, [rixpress]{.pkg}
+pipelines. By leveraging [Nix]{.pkg} as a build automation engine, [rixpress]{.pkg}
 allows polyglot workflows where each step runs in its own hermetically sealed
 environment. This ensures deep reproducibility, efficient caching, and seamless
 orchestration of polyglot analyses. Most importantly, it provides native
@@ -1317,10 +1314,10 @@ $> nix-shell --run "quarto render paper.qmd --to jss-pdf"
 
 The `default.nix` file defines the exact computational environment required to
 compile the manuscript, ensuring full reproducibility of the build process. To
-guarantee the reproducibility of the manuscript, it is automatically
-recompiled via GitHub Actions upon each commit, using the same Nix environment.
-An HTML version is additionally deployed to GitHub Pages, providing an
-accessible format for viewing on smaller devices at this
+guarantee the reproducibility of the manuscript, it is automatically recompiled
+via GitHub Actions upon each commit, using the same [Nix]{.pkg} environment. An
+HTML version is additionally deployed to GitHub Pages, providing an accessible
+format for viewing on smaller devices at this
 [link](https://b-rodrigues.github.io/rix_paper/)^[[https://b-rodrigues.github.io/rix_paper/](https://b-rodrigues.github.io/rix_paper/)].
 The PDF version of the manuscript can be found at
 [link](https://b-rodrigues.github.io/rix_paper/paper.pdf)^[[https://b-rodrigues.github.io/rix_paper/paper.pdf](https://b-rodrigues.github.io/rix_paper/paper.pdf)].
