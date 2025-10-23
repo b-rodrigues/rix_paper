@@ -9,6 +9,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
     - name: Checkout Code
@@ -20,7 +23,7 @@ jobs:
         logger: pretty
         log-directives: nix_installer=trace
         backtrace: full
-        
+
     - uses: cachix/cachix-action@v15
       with:
         name: rstats-on-nix
@@ -32,9 +35,14 @@ jobs:
 
     - name: Render
       run: nix-shell --run "quarto render paper.qmd --to jss-pdf"
-  
+
     - name: Upload rendered paper
       uses: actions/upload-artifact@v4
       with:
         name: paper_${{ github.sha }}
         path: rendered_pdf/
+
+    - name: Copy output to docs for serving
+      run: |
+        rm docs/index.html
+        cp -r rendered_pdf/paper.html docs/index.html

@@ -3,7 +3,9 @@ title: "Nix for Polyglot, Reproducible Data Science Workflows"
 format:
     jss-pdf:
         keep-tex: true
-    jss-html: default
+    jss-html:
+        embed-resources: true
+        toc: true
 author:
   - name: Bruno Rodrigues
     affiliations:
