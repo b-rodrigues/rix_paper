@@ -99,6 +99,40 @@ version, platform details, and all loaded packages. Its output can be saved to a
 file and included as part of a study's reproducibility record. Below is an
 example output from `sessionInfo()`:
 
+::: {.content-hidden when-format="pdf"}
+```R
+sessionInfo()
+```
+:::
+
+::: {.content-hidden when-format="pdf"}
+```R
+R version 4.3.2 (2023-10-31)
+Platform: aarch64-unknown-linux-gnu (64-bit)
+Running under: Ubuntu 22.04.3 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/aarch64-linux-gnu/openblas-pthread/libblas.so.3
+LAPACK: /usr/lib/aarch64-linux-gnu/openblas-pthread/libopenblasp[...]
+
+locale:
+ LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C
+ LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8
+ ...
+
+attached base packages:
+ stats     graphics  grDevices utils     datasets  methods   base
+
+other attached packages:
+ nnet_7.3-19  mgcv_1.9-0   nlme_3.1-163
+
+loaded via a namespace (and not attached):
+ compiler_4.3.2  Matrix_1.6-1.1  tools_4.3.2     splines_4.3.2
+ grid_4.3.2      lattice_0.21-9
+```
+:::
+
+
 ```{=tex}
 \begin{CodeInput}
 R> sessionInfo()
@@ -203,6 +237,16 @@ Other packages provide similar functionality with different trade-offs.
 [groundhog]{.pkg} by @simonsohn2023 makes it easy to install packages as they
 existed on CRAN at a given date:
 
+::: {.content-hidden when-format="pdf"}
+```R
+groundhog.library("
+ library('purrr')
+ library('ggplot2')",
+ "2017-10-04",
+ tolerate.R.version = "4.2.2")
+```
+:::
+
 ```{=tex}
 \begin{CodeInput}
 R> groundhog.library("
@@ -219,6 +263,16 @@ will refuse to proceed if the R version does not match expectations.
 [rang]{.pkg}, developed by @chan2023, offers similar date-based package
 installation. The Posit Package Manager provides another approach through dated
 CRAN snapshots, configured via the `.Rprofile` file:
+
+::: {.content-hidden when-format="pdf"}
+```R
+options(repos =
+  c(REPO_NAME =
+    "https://packagemanager.posit.co/cran/__linux__/jammy/2023-06-30"
+  )
+)
+```
+:::
 
 ```{=tex}
 \begin{CodeInput}
@@ -556,6 +610,25 @@ As mentioned, [Nix]{.pkg} expressions are written in the [Nix]{.proglang}
 programming language, which is purely functional. Here is a simple example that
 creates a shell environment containing version 4.3.1 of [R]{.proglang}:
 
+::: {.content-hidden when-format="pdf"}
+```nix
+let
+  pkgs = import (fetchTarball
+    "https://github.com/NixOS/nixpkgs/archive/976fa336.tar.gz"
+  ) {};
+  system_packages = builtins.attrValues {
+    inherit (pkgs) R;
+  };
+in
+  pkgs.mkShell {
+    buildInputs = [ system_packages ];
+    shellHook = "R --vanilla";
+  }
+```
+:::
+
+
+
 ```{=tex}
 \begin{CodeInput}
 let
@@ -604,11 +677,20 @@ other R package. Additionally, it can bootstrap an [R]{.proglang} development
 environment on a system where [R]{.proglang} is not yet installed but
 [Nix]{.pkg} is available. This can be done by running (inside of a terminal):
 
+::: {.content-hidden when-format="pdf"}
+```bash
+nix-shell -I \
+  nixpkgs=https://github.com/rstats-on-nix/nixpkgs/tarball/2025-10-20 -p \
+  R rPackages.rix
+```
+:::
+
+
 ```{=tex}
 \begin{CodeInput}
 $> nix-shell -I \
-+  nixpkgs=https://github.com/rstats-on-nix/nixpkgs/tarball/2025-10-20 -p \
-+  R rPackages.rix
++    nixpkgs=https://github.com/rstats-on-nix/nixpkgs/tarball/2025-10-20 -p \
++    R rPackages.rix
 \end{CodeInput}
 ```
 
@@ -621,6 +703,17 @@ packages.] From there, users can generate new [Nix]{.pkg} expressions for
 building environments. For example, the following generates a `default.nix` file
 that installs [R]{.proglang} 4.3.1 along with the [dplyr]{.pkg} and
 [chronicler]{.pkg} packages:
+
+::: {.content-hidden when-format="pdf"}
+```r
+library('rix')
+
+rix(r_ver = "4.3.1",
+  r_pkgs = c("dplyr", "chronicler"),
+  project_path = ".",
+  overwrite = TRUE)
+```
+:::
 
 ```{=tex}
 \begin{CodeInput}
@@ -635,6 +728,33 @@ R> rix(r_ver = "4.3.1",
 
 [rix]{.pkg} can also handle more complex setups, and users can provide a date
 instead of a specific [R]{.proglang} version:
+
+::: {.content-hidden when-format="pdf"}
+```r
+rix(date = "2025-10-20",
+  r_pkgs = c("rix", "dplyr", "chronicler", "AER@1.2-8"),
+  system_pkgs = c("quarto", "git"),
+  tex_pkgs = c(
+        "amsmath",
+        "framed",
+        "fvextra",
+        "environ",
+        "fontawesome5",
+        "orcidlink",
+        "pdfcol",
+        "tcolorbox",
+        "tikzfill"
+  ),
+  git_pkgs = list(
+      package_name = "fusen",
+      repo_url = "https://github.com/ThinkR-open/fusen",
+      commit = "60346860111be79fc2beb33c53e195f97504a667"
+  ),
+  ide = "positron",
+  project_path = ".",
+  overwrite = TRUE)
+```
+:::
 
 ```{=tex}
 \begin{CodeInput}
@@ -692,6 +812,12 @@ configuration.
 Instead of first entering a [Nix]{.pkg} shell, it is also possible to run a
 program directly from the environment:
 
+::: {.content-hidden when-format="pdf"}
+```bash
+cd /path/to/project/ && nix-shell default.nix --run "Rscript analysis.R"
+```
+:::
+
 ```{=tex}
 \begin{CodeInput}
 cd /path/to/project/ && nix-shell default.nix --run "Rscript analysis.R"
@@ -720,6 +846,12 @@ specific version of an [R]{.proglang} package not included in a particular
 `nixpkgs` commit. With [rix]{.pkg}, users can install a specific package version
 from source, e.g.:
 
+::: {.content-hidden when-format="pdf"}
+```r
+rix(..., r_pkgs = "dplyr@1.0.7", ...)
+```
+:::
+
 ```{=tex}
 \begin{CodeInput}
 R> rix(..., r_pkgs = "dplyr@1.0.7", ...)
@@ -739,6 +871,12 @@ The `rstats-on-nix` fork allows me to circumvent these limitations. For example,
 it provides daily snapshots of CRAN. Each day, the [R]{.proglang} package set is
 updated and committed to a dated branch using GitHub Actions. Users can select a
 specific date with:
+
+::: {.content-hidden when-format="pdf"}
+```r
+rix(date = "2024-12-14", ...)
+```
+:::
 
 ```{=tex}
 \begin{CodeInput}
@@ -823,6 +961,72 @@ is encapsulated in separate helper scripts (`functions.jl`, `functions.py`, and
 instructions in the Appendix. The high-level orchestration script demonstrates
 how `{rixpress}` defines a granular, multi-step machine learning workflow that
 crosses language boundaries:
+
+::: {.content-hidden when-format="pdf"}
+```r
+library('rixpress')
+
+pipeline_steps <- list(
+  # STEP 0: Define RBC Model Parameters in Julia
+  rxp_jl(alpha, 0.3),
+  rxp_jl(beta, 1 / 1.01),
+  # ... (other parameters omitted for brevity) ...
+
+  # STEP 1: Julia - Simulate the RBC model
+  rxp_jl(
+    name = simulated_rbc_data,
+    expr = "simulate_rbc_model(alpha, beta, delta, rho, sigma, sigma_z)",
+    user_functions = "functions/functions.jl",
+    encoder = "arrow_write"
+  ),
+
+  # STEP 2.1: Python - Prepare features
+  rxp_py(
+    name = processed_data,
+    expr = "prepare_features(simulated_rbc_data)",
+    user_functions = "functions/functions.py",
+    decoder = "pyarrow.feather.read_feather"
+  ),
+
+  # STEP 2.2: Python - Split data (X_train, y_train, etc.)
+  rxp_py(name = X_train, expr = "get_X_train(processed_data)", ...),
+  # ... (other data splits omitted for brevity) ...
+
+  # STEP 2.3: Python - Train the XGBoost model
+  rxp_py(
+    name = trained_model,
+    expr = "train_model(X_train, y_train)",
+    user_functions = "functions/functions.py"
+  ),
+
+  # STEP 2.4: Python - Make predictions and format results
+  # ... (prediction and formatting steps omitted for brevity) ...
+  rxp_py(
+    name = final_predictions_df,
+    expr = "format_results(y_test, model_predictions)",
+    user_functions = "functions/functions.py",
+    encoder = "save_arrow"
+  ),
+
+  # STEP 3: R - Visualize the predictions
+  rxp_r(
+    name = output_plot,
+    expr = plot_predictions(final_predictions_df),
+    user_functions = "functions/functions.R",
+    decoder = arrow::read_feather
+  ),
+
+  # STEP 4: Quarto - Compile the final report
+  rxp_qmd(
+    name = final_report,
+    qmd_file = "readme.qmd"
+  )
+)
+
+# Generate the 'pipeline.nix' file from the R list
+rxp_populate(pipeline_steps, build = TRUE)
+```
+:::
 
 ```{=tex}
 \begin{CodeInput}
@@ -986,6 +1190,12 @@ at following
 [link](https://github.com/b-rodrigues/rix_paper)^[https://github.com/b-rodrigues/rix_paper].
 The paper can be easily compiled by running the following command:
 
+::: {.content-hidden when-format="pdf"}
+```bash
+nix-shell --run "quarto render paper.qmd --to jss-pdf"
+```
+:::
+
 ```{=tex}
 \begin{CodeInput}
 $> nix-shell --run "quarto render paper.qmd --to jss-pdf"
@@ -1047,6 +1257,14 @@ the exact same software versions, guaranteeing reproducibility.
 
 By dropping into a temporary shell using the following command:
 
+::: {.content-hidden when-format="pdf"}
+```bash
+nix-shell -I \
+  nixpkgs=https://github.com/rstats-on-nix/nixpkgs/tarball/2025-10-20 -p \
+  R rPackages.rix
+```
+:::
+
 ```{=tex}
 \begin{CodeInput}
 $> nix-shell -I \
@@ -1107,6 +1325,13 @@ steps if a piece of code or data changes.
 
 To build the pipeline from an interactive [Python]{.proglang} session, one would
 execute the following lines:
+
+::: {.content-hidden when-format="pdf"}
+```python
+from ryxpress import rxp_make
+rxp_make()
+```
+:::
 
 ```{=tex}
 \begin{CodeInput}
