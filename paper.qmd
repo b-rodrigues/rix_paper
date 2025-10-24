@@ -176,13 +176,23 @@ example, the [sf]{.pkg} package requires [GDAL]{.pkg}, [GEOS]{.pkg}, and
 varies substantially across operating systems and can be prohibitively difficult
 on some platforms.
 
-A more robust approach than simply listing package versions is to use the
-[renv]{.pkg} package. [renv]{.pkg} captures the project's software state and
-writes it to a `renv.lock` file, which includes the exact versions of
-[R]{.proglang} and all required packages. This lockfile serves as a blueprint
-for restoring the environment automatically, ensuring that others can recreate
-the same setup with minimal effort. Below is an abbreviated example of an
-`renv.lock` file:
+A more robust approach than simply listing package versions is to use tools that
+help data scientists define per-project environments. This is common practice
+for [Python]{.proglang} users, who have many tools at their disposal, such as
+the built-in *virtual environments* module, but also sophisticated third-party
+tools. One particularly popular tool is [uv]{.pkg}, which manages both
+project-specific [Python]{.proglang} interpreters (enabling different Python
+versions per project) and package libraries using a lock file mechanism.
+
+In the [R]{.proglang} ecosystem, virtual environments are not a built-in
+language feature as they are in [Python]{.proglang}, but tools like [renv]{.pkg}
+provide equivalent functionality. [renv]{.pkg} captures the project's software
+state and writes it to a lock file (called `renv.lock`), which includes the
+exact versions of [R]{.proglang} and all required packages. This lockfile serves
+as a blueprint for restoring the environment automatically, ensuring that others
+can recreate the same setup with minimal effort. Below is an abbreviated example
+of an `renv.lock` file:
+
 ```{=tex}
 \begin{Code}
 {
@@ -218,6 +228,7 @@ the same setup with minimal effort. Below is an abbreviated example of an
 \end{Code}
 ```
 
+
 This lockfile lists each package alongside its version and the repository from
 which it was downloaded. Creating it requires only a single command:
 `renv::init()`. Others can then reproduce the same package library by running
@@ -225,78 +236,37 @@ which it was downloaded. Creating it requires only a single command:
 project-specific library that does not interfere with the user's global R
 library.
 
-However, [renv]{.pkg} has important limitations. It does not restore the version
-of [R]{.proglang} itself—installing the correct R version must be done
-separately using tools like [rig]{.pkg} [@rlib2023]. More critically,
-[renv]{.pkg} does not handle system-level dependencies. If [sf]{.pkg} requires
-[GDAL]{.pkg} version 3.0 but the system has version 2.4 installed, [renv]{.pkg}
-cannot resolve this conflict. Users must manually install system libraries, and
-the process differs across operating systems. Further details are discussed in
-the [renv]{.pkg} documentation^[See
-\url{https://rstudio.github.io/renv/articles/renv.html}.].
+However, both [renv]{.pkg} and [uv]{.pkg} have important limitations. While
+[uv]{.pkg} manages Python interpreter versions directly, [renv]{.pkg} does not
+restore the version of [R]{.proglang} itself—installing the correct R version
+must be done separately using tools like [rig]{.pkg} [@rlib2023]. More
+critically, neither [uv]{.pkg} nor [renv]{.pkg} handle system-level
+dependencies. If [sf]{.pkg} requires [GDAL]{.pkg} version 3.0 but the system has
+version 2.4 installed, neither tool can resolve this conflict. Users must
+manually install system libraries, and the process differs across operating
+systems. Further details are discussed in the [renv]{.pkg} documentation^[See
+https://rstudio.github.io/renv/articles/renv.html.].
 
-Other packages provide similar functionality with different trade-offs.
-[groundhog]{.pkg} by @simonsohn2023 makes it easy to install packages as they
-existed on CRAN at a given date:
+Pre-compiled binary packages (Python wheels or R binaries from Posit Package
+Manager) can simplify installation by avoiding compilation, but they do not
+eliminate the need for system libraries that would be required at runtime—these
+must still be installed separately.
 
-::: {.content-hidden when-format="pdf"}
-```R
-groundhog.library("
- library('purrr')
- library('ggplot2')",
- "2017-10-04",
- tolerate.R.version = "4.2.2")
-```
-:::
+Other [R]{.proglang} packages provide similar functionality with different
+trade-offs. [groundhog]{.pkg} [@simonsohn2023] and [rang]{.pkg} [@chan2023]
+enable date-based package installation, retrieving packages as they existed on
+CRAN at a specified date. The Posit Package Manager offers another approach
+through dated CRAN snapshots. However, like [renv]{.pkg}, these tools focus on
+[R]{.proglang} packages and do not address system-level dependencies or
+[R]{.proglang} version management.
 
-```{=tex}
-\begin{CodeInput}
-R> groundhog.library("
-+   library('purrr')
-+   library('ggplot2')",
-+   "2017-10-04",
-+   tolerate.R.version = "4.2.2")
-\end{CodeInput}
-```
-
-[groundhog]{.pkg} places packages in project-specific libraries but does not
-install [R]{.proglang} itself. Without the `tolerate.R.version` argument, it
-will refuse to proceed if the R version does not match expectations.
-[rang]{.pkg}, developed by @chan2023, offers similar date-based package
-installation. The Posit Package Manager provides another approach through dated
-CRAN snapshots, configured via the `.Rprofile` file:
-
-::: {.content-hidden when-format="pdf"}
-```R
-options(repos =
-  c(REPO_NAME =
-    "https://packagemanager.posit.co/cran/__linux__/jammy/2023-06-30"
-  )
-)
-```
-:::
-
-```{=tex}
-\begin{CodeInput}
-R> options(repos =
-+    c(REPO_NAME =
-+      "https://packagemanager.posit.co/cran/__linux__/jammy/2023-06-30"
-+    )
-+  )
-\end{CodeInput}
-```
-
-This approach installs all packages from the specified snapshot date, but unless
-users explicitly manage separate libraries for different projects, all projects
-will share the same package versions.
-
-These tools represent significant progress in reproducibility, but they share a
-common limitation: none addresses system-level dependencies or supports polyglot
-environments. A project using [R]{.proglang}, [Python]{.proglang}
-[@python3], and system tools like [Quarto]{.pkg} or \LaTeX requires coordinating
-multiple package managers ([renv]{.pkg} for R, virtual environments for
-[Python]{.proglang}, manual installation for system tools), each with its own
-configuration and potential for conflicts.
+These tools represent significant progress in reproducibility within their
+respective ecosystems, but they share a common limitation: none addresses
+system-level dependencies or supports polyglot environments. A project using
+[R]{.proglang}, [Python]{.proglang} [@python3], and system tools like
+[Quarto]{.pkg} or \LaTeX requires coordinating multiple package managers
+([renv]{.pkg} for R, [uv]{.pkg} for [Python]{.proglang}, manual installation for
+system tools), each with its own configuration and potential for conflicts.
 
 The most comprehensive approach to reproducibility is containerisation with
 [Docker]{.pkg}. [Docker]{.pkg} packages a *data product* together with all its
@@ -352,7 +322,7 @@ statistical computing workflows:
 
 4. Single-language focus: While [Docker]{.pkg} can support polyglot
   environments, orchestrating them requires manual coordination. There is no
-  standard way to specify that one step should run in a [Python]{.pkg}
+  standard way to specify that one step should run in a [Python]{.proglang}
   environment while another runs in R.
 
 5. Incomplete Reproducibility: Reproducibility should be viewed as a spectrum
@@ -368,10 +338,10 @@ statistical computing workflows:
    rebuilding the same `Dockerfile` at different times can yield different
    results. Even with pinned base images, the thesis found that container
    checksums varied across builds and machines. Thus, while [Docker]{.pkg}
-   provides partial reproducibility, strong in space but weak in time, verifiable,
-   deterministic artefacts require pinning image digests, freezing dependencies,
-   and using deterministic build systems such as [Nix]{.pkg} for full control
-   over both dimensions [@Malka_2024].
+   provides strong run-time reproducibility, achieving verifiable, deterministic
+   artefacts requires pinning image digests, freezing dependencies, and using
+   deterministic build systems such as [Nix]{.pkg} for full control over both
+   temporal and spatial dimensions [@Malka_2024].
 
 Even with a perfectly reproducible environment, researchers face another
 challenge: reliably executing the analysis workflow. Which scripts run first?
