@@ -1,19 +1,20 @@
 # Nix for Polyglot, Reproducible Data Science Workflows
 
-This repository contains the source code and reproducible environment for the paper, 
-"Nix for Polyglot, Reproducible Data Science Workflows".
+This repository contains the source code and reproducible environment for the
+paper, "Nix for Polyglot, Reproducible Data Science Workflows".
 
 ## Reproducing the Paper
 
-The primary goal of this repository is to demonstrate the reproducibility of the paper itself.
-The entire computational environment required to compile the manuscript from its source is defined using Nix.
+The primary goal of this repository is to demonstrate the reproducibility of the
+paper itself. The entire computational environment required to compile the
+manuscript from its source is defined using Nix.
 
 ### Prerequisites
 
-You must have **Nix** installed on your system (Linux, WSL for Windows or macOS). 
-We strongly recommend using the 
-[Determinate Systems Nix Installer](https://determinate.systems/posts/determinate-nix-installer) 
-for a seamless setup.
+You must have **Nix** installed on your system (Linux, WSL for Windows or
+macOS). We strongly recommend using the [Determinate Systems Nix
+Installer](https://determinate.systems/posts/determinate-nix-installer) for a
+seamless setup.
 
 ### Instructions
 
@@ -30,20 +31,22 @@ for a seamless setup.
 
 This single command performs the following actions:
 - It reads the `default.nix` file in the repository.
-- It builds the exact, bit-for-bit identical environment containing Quarto, a TeXLive distribution,
-   and all necessary fonts and dependencies.
+- It builds the exact, bit-for-bit identical environment containing Quarto, a
+   TeXLive distribution, and all necessary fonts and dependencies.
 - It then executes the `quarto render` command inside that environment.
 
-The first time you run this command, Nix will download and build all dependencies, 
-which may take a considerable amount of time. Subsequent runs will be nearly instantaneous due to caching.
+The first time you run this command, Nix will download and build all
+dependencies, which may take a considerable amount of time. Subsequent runs will
+be nearly instantaneous due to caching.
 
 Upon completion, you will find the compiled manuscript at `paper.pdf`.
 
 ## Running the Polyglot Example
 
-The paper discusses a complete polyglot example that simulates an economic model in Julia,
-trains a machine learning model in Python, and visualizes the results in R. 
-This repository includes a script to set up and run this entire pipeline from scratch.
+The paper discusses a complete polyglot example that simulates an economic model
+in Julia, trains a machine learning model in Python, and visualizes the results
+in R. This repository includes a script to set up and run this entire pipeline
+from scratch.
 
 ### Instructions
 
@@ -68,7 +71,8 @@ This script will:
 2.  Build the complete polyglot Nix environment defined in `gen-env.R`.
 3.  Execute the entire analysis pipeline defined in `gen-pipeline.R`.
 
-The final output will be an HTML report located at `polyglot-example/result/final_report/readme.html`.
+The final output will be an HTML report located at
+`polyglot-example/pipeline-output/readme.html`.
 
 ## Repository Structure
 
