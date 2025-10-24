@@ -67,16 +67,16 @@ results when using the same code and software versions, as shown by
 @neupane2019. It is even less common for authors to provide step-by-step
 installation instructions for the required software stack, an omission often
 driven by institutional constraints. Journals, for instance, can inadvertently
-work against reproducibility by imposing strict page or word limits that leave
-no room for the necessary technical documentation, effectively discouraging
-thoroughness in the name of brevity.
+hinder reproducibility by imposing strict page or word limits that leave no room
+for the necessary technical documentation, discouraging thoroughness in the name
+of brevity.
 
 Even when such instructions are given, they often fail across different
 platforms or versions of the same platform. This lack of portability not only
 hinders reproducibility but also complicates everyday research workflows.
-Researchers working across multiple machines must be able to recreate the same
-environment consistently, and collaborators must share identical computational
-setups to avoid inconsistencies.
+Researchers using multiple machines must recreate environments consistently, and
+collaborators must share identical computational setups to avoid
+inconsistencies.
 
 Finally, once the execution environment is correctly configured, additional
 clarity is needed on how to *run* the project itself. Which packages should be
@@ -84,11 +84,11 @@ loaded first? Which scripts should be executed, and in what order? Without clear
 documentation or automated orchestration, these operational details become yet
 another barrier to reproducibility.
 
-This paper focuses specifically on two critical but often overlooked aspects of
+This paper focuses on two critical but often overlooked aspects of
 reproducibility: *computational environment management* and *workflow
-orchestration*. I present a comprehensive framework that addresses both
-challenges using the [Nix]{.pkg} package manager [@dolstra2004nix], making it
-accessible to researchers through two [R]{.proglang} packages: [rix]{.pkg} and
+orchestration*. I present a comprehensive framework addressing both challenges
+using the [Nix]{.pkg} package manager [@dolstra2004nix], making it accessible to
+researchers through two [R]{.proglang} packages: [rix]{.pkg} and
 [rixpress]{.pkg}. Before introducing these packages, I survey existing tools and
 their limitations to contextualise my contribution.
 
@@ -98,7 +98,7 @@ across multiple machines. Let us first consider the most basic step in this
 process: listing the software used. In [R]{.proglang}, the `sessionInfo()`
 function provides a concise summary of the software environment, including the R
 version, platform details, and all loaded packages. Its output can be saved to a
-file and included as part of a study's reproducibility record. Below is an
+file and included as part of a study’s reproducibility record. Below is an
 example output from `sessionInfo()`:
 
 ::: {.content-hidden when-format="pdf"}
@@ -167,181 +167,105 @@ loaded via a namespace (and not attached):
 
 When an author includes this information, others attempting to reproduce the
 study (future readers, collaborators, or even the author at a later time) can
-easily see which version of [R]{.proglang} and which packages (with their
-versions) were used. However, reproducing the environment still requires
-manually installing the correct package versions—a process that becomes
-particularly difficult when packages depend on system-level libraries. For
-example, the [sf]{.pkg} package requires [GDAL]{.pkg}, [GEOS]{.pkg}, and
-[PROJ]{.pkg} system libraries. Installing and configuring these dependencies
-varies substantially across operating systems and can be prohibitively difficult
-on some platforms.
+see which version of [R]{.proglang} and which packages (with their versions)
+were used. However, reproducing the environment still requires manually
+installing the correct package versions—a process that becomes difficult when
+packages depend on system-level libraries. For example, the [sf]{.pkg} package
+requires [GDAL]{.pkg}, [GEOS]{.pkg}, and [PROJ]{.pkg} libraries. Installing and
+configuring these dependencies varies substantially across operating systems and
+can be prohibitively difficult on some platforms.
 
 A more robust approach than simply listing package versions is to use tools that
-help data scientists define per-project environments. This is common practice
-for [Python]{.proglang} users, who have many tools at their disposal, such as
-the built-in *virtual environments* module, but also sophisticated third-party
-tools. One particularly popular tool is [uv]{.pkg}, which manages both
-project-specific [Python]{.proglang} interpreters (enabling different Python
-versions per project) and package libraries using a lock file mechanism.
+define per-project environments. This is common for [Python]{.proglang} users,
+who have many tools at their disposal, such as the built-in *virtual
+environments* module, or third-party tools like [uv]{.pkg}, which manages both
+project-specific interpreters and package libraries using a lock file mechanism.
 
-In the [R]{.proglang} ecosystem, virtual environments are not a built-in
-language feature as they are in [Python]{.proglang}, but tools like [renv]{.pkg}
-provide equivalent functionality. [renv]{.pkg} captures the project's software
-state and writes it to a lock file (called `renv.lock`), which includes the
-exact versions of [R]{.proglang} and all required packages. This lockfile serves
-as a blueprint for restoring the environment automatically, ensuring that others
-can recreate the same setup with minimal effort. Below is an abbreviated example
-of an `renv.lock` file:
+In the [R]{.proglang} ecosystem, virtual environments are not built-in as they
+are in [Python]{.proglang}, but tools like [renv]{.pkg} provide equivalent
+functionality. [renv]{.pkg} captures the project’s software state and writes it
+to a lock file (`renv.lock`), which includes the exact versions of
+[R]{.proglang} and all required packages. This lockfile serves as a blueprint
+for restoring the environment automatically, ensuring others can recreate the
+same setup with minimal effort.
 
-```{=tex}
-\begin{Code}
-{
-  "R": {
-    "Version": "4.2.2",
-    "Repositories": [
-      {
-        "Name": "CRAN",
-        "URL": "https://packagemanager.rstudio.com/all/latest"
-      }
-    ]
-  },
-  "Packages": {
-    "MASS": {
-      "Package": "MASS",
-      "Version": "7.3-58.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "762e1804143a332333c054759f89a706",
-      "Requirements": []
-    },
-    "Matrix": {
-      "Package": "Matrix",
-      "Version": "1.5-1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "539dc0c0c05636812f1080f473d2c177",
-      "Requirements": ["lattice"]
-    }
-    ... additional packages omitted ...
-  }
-}
-\end{Code}
-```
+However, both [renv]{.pkg} and [uv]{.pkg} have limitations. While [uv]{.pkg}
+manages Python interpreter versions directly, [renv]{.pkg} does not restore the
+version of [R]{.proglang} itself—installing the correct version must be done
+separately using tools like [rig]{.pkg} [@rlib2023]. More critically, neither
+handles system-level dependencies. If [sf]{.pkg} requires [GDAL]{.pkg} version
+3.0 but the system has version 2.4 installed, neither tool can resolve this
+conflict. Users must manually install system libraries, and the process differs
+across operating systems.
 
-
-This lockfile lists each package alongside its version and the repository from
-which it was downloaded. Creating it requires only a single command:
-`renv::init()`. Others can then reproduce the same package library by running
-`renv::restore()`, which installs the exact package versions in an isolated,
-project-specific library that does not interfere with the user's global R
-library.
-
-However, both [renv]{.pkg} and [uv]{.pkg} have important limitations. While
-[uv]{.pkg} manages Python interpreter versions directly, [renv]{.pkg} does not
-restore the version of [R]{.proglang} itself—installing the correct R version
-must be done separately using tools like [rig]{.pkg} [@rlib2023]. More
-critically, neither [uv]{.pkg} nor [renv]{.pkg} handle system-level
-dependencies. If [sf]{.pkg} requires [GDAL]{.pkg} version 3.0 but the system has
-version 2.4 installed, neither tool can resolve this conflict. Users must
-manually install system libraries, and the process differs across operating
-systems. Further details are discussed in the [renv]{.pkg} documentation^[See
-https://rstudio.github.io/renv/articles/renv.html.].
-
-Pre-compiled binary packages (Python wheels or R binaries from Posit Package
-Manager) can simplify installation by avoiding compilation, but they do not
-eliminate the need for system libraries that would be required at runtime—these
-must still be installed separately.
-
-Other [R]{.proglang} packages provide similar functionality with different
-trade-offs. [groundhog]{.pkg} [@simonsohn2023] and [rang]{.pkg} [@chan2023]
-enable date-based package installation, retrieving packages as they existed on
-CRAN at a specified date. The Posit Package Manager offers another approach
-through dated CRAN snapshots. However, like [renv]{.pkg}, these tools focus on
-[R]{.proglang} packages and do not address system-level dependencies or
-[R]{.proglang} version management.
+Pre-compiled binaries simplify installation but do not eliminate the need for
+system libraries required at runtime. Other [R]{.proglang} packages such as
+[groundhog]{.pkg} [@simonsohn2023] and [rang]{.pkg} [@chan2023] enable
+date-based package installation, while the Posit Package Manager provides dated
+CRAN snapshots. However, like [renv]{.pkg}, these focus on R packages and do not
+address system-level dependencies or R version management.
 
 These tools represent significant progress in reproducibility within their
-respective ecosystems, but they share a common limitation: none addresses
-system-level dependencies or supports polyglot environments. A project using
-[R]{.proglang}, [Python]{.proglang} [@python3], and system tools like
-[Quarto]{.pkg} or \LaTeX requires coordinating multiple package managers
-([renv]{.pkg} for R, [uv]{.pkg} for [Python]{.proglang}, manual installation for
-system tools), each with its own configuration and potential for conflicts.
+ecosystems, but they share a common limitation: none handles system-level
+dependencies or polyglot environments. A project using [R]{.proglang},
+[Python]{.proglang} [@python3], and system tools like [Quarto]{.pkg} or \LaTeX
+requires coordinating multiple package managers ([renv]{.pkg} for R, [uv]{.pkg}
+for Python, manual installation for system tools), each with its own
+configuration and potential conflicts.
 
-The most comprehensive approach to reproducibility is containerisation with
-[Docker]{.pkg}. [Docker]{.pkg} packages a *data product* together with all its
+The most comprehensive approach to date is containerisation with [Docker]{.pkg}.
+[Docker]{.pkg} packages a *data product* together with all its
 dependencies—including the operating system, system libraries, programming
-languages, and packages—into a self-contained image. A statistical analysis can
-be viewed as such a data product. The steps to create an image are specified in
-a `Dockerfile`, which defines the structure and content of the [Docker]{.pkg}
-image.
-
-Once the image is built, the analysis can be executed inside a *container*,
-which is a running instance of the image. [Docker]{.pkg} containers are typically run
-non-interactively, allowing the complete computational environment to be
-instantiated and executed with a single command.
+languages, and packages—into a self-contained image. Once built, the analysis
+can be executed inside a *container*, a running instance of the image.
 
 The strength of [Docker]{.pkg} lies in its ability to bundle not only the
 correct versions of [R]{.proglang} and its packages but also system-level
-dependencies. Since [Docker]{.pkg} images are effectively minimal Linux systems,
-they naturally include libraries required by packages like [sf]{.pkg}. This
-ensures that future replicators have access to the same software environment,
-including all necessary system components. Moreover, these images can be easily
-shared via registries like Docker Hub, enabling seamless reproducibility across
-machines and collaborators.
+dependencies. Since [Docker]{.pkg} images are minimal Linux systems, they
+include the libraries required by packages such as [sf]{.pkg}, ensuring that
+future replicators have access to the same environment. Moreover, these images
+can be shared via registries like Docker Hub, enabling reproducibility across
+systems.
 
-The Rocker project, introduced by @boettiger2017, provides a collection of
-pre-built [Docker]{.pkg} images for the [R]{.proglang} community. These images
-come with specific R versions and, in some cases, preinstalled packages, making
-them convenient base images for building reproducible analysis environments
-without starting from scratch.
+The Rocker project [@boettiger2017] provides pre-built [Docker]{.pkg} images for
+the [R]{.proglang} community, offering specific R versions and, in some cases,
+preinstalled packages. These serve as convenient bases for reproducible analysis
+environments.
 
-Despite its strengths, [Docker]{.pkg} presents several challenges for
-statistical computing workflows:
+Despite its strengths, [Docker]{.pkg} presents several challenges:
 
-1. Poor interactive support: While [Docker]{.pkg} containers can be modified at
-  runtime, changes are lost when the container stops unless explicitly saved.
-  Running graphical applications like RStudio Desktop from containers requires
-  complex X11 configuration that works reliably only on Linux. Instead,
-  web-based IDEs (like RStudio Server) are used, but come with the inherent
-  limitations of web-based solutions.
+1. Poor interactive support: While containers can be modified at runtime,
+   changes are lost unless explicitly saved. Running graphical applications like
+   RStudio Desktop requires complex X11 configuration that works reliably only
+   on Linux. Web-based IDEs such as RStudio Server are alternatives but have
+   their own limitations.
 
-2. Steep learning curve: [Docker]{.pkg} images are minimal Linux systems, so
-  writing reliable `Dockerfile`s requires familiarity with Linux system
-  administration. To ensure reproducibility, `Dockerfile`s should reference
-  specific image *digests* rather than *tags*, but this practice is rarely
-  followed. Packages like [dockerfiler]{.pkg} [@dockerfiler] help automate
-  `Dockerfile` creation but cannot eliminate the need for basic Linux knowledge.
+2. Steep learning curve: Writing reliable `Dockerfile`s requires familiarity
+   with Linux system administration. To ensure reproducibility, `Dockerfile`s
+   should reference image *digests* rather than *tags*, but this is rarely done.
+   Packages like [dockerfiler]{.pkg} [@dockerfiler] help automate this but do
+   not remove the need for basic Linux knowledge.
 
-3. Post-hoc reproducibility: A common workflow is to develop analyses
-  interactively using standard R installations, then create a `Dockerfile`
-  afterward to enable reproduction. While this achieves post-hoc
-  reproducibility, it fails to address the challenge of deploying consistent
-  environments across multiple machines *during* development, a critical need
-  for collaborative projects.
+3. Post-hoc reproducibility: Analyses are often developed interactively and
+   containerised only afterward, achieving post-hoc reproducibility rather than
+   consistent environments during development.
 
-4. Single-language focus: While [Docker]{.pkg} can support polyglot
-  environments, orchestrating them requires manual coordination. There is no
-  standard way to specify that one step should run in a [Python]{.proglang}
-  environment while another runs in R.
+4. Single-language focus: While [Docker]{.pkg} can support polyglot setups,
+   orchestrating them requires manual coordination. There is no standard way to
+   specify that one step runs in [Python]{.proglang} and another in [R]{.proglang}.
 
-5. Incomplete Reproducibility: Reproducibility should be viewed as a spectrum
-   rather than a binary property, as emphasised in *Reproducibility in Software
-   Engineering* by @dellaieraMasterThesis2024. [Docker]{.pkg} illustrates this
-   spectrum well: it achieves strong run-time reproducibility—consistency across
-   systems (space)—but weak build-time reproducibility, which concerns
-   consistency across time. As defined in the thesis, build-time reproducibility
-   means producing identical artefacts regardless of when or where they are
-   built. [Docker]{.pkg} cannot guarantee this, as its reliance on mutable base
-   images and non-deterministic commands such as `apt-get update` (or similar
-   commands, depending on which base image is used) introduces temporal drift:
-   rebuilding the same `Dockerfile` at different times can yield different
-   results. Even with pinned base images, the thesis found that container
-   checksums varied across builds and machines. Thus, while [Docker]{.pkg}
-   provides strong run-time reproducibility, achieving verifiable, deterministic
-   artefacts requires pinning image digests, freezing dependencies, and using
+5. Incomplete reproducibility: Reproducibility is best viewed as a spectrum
+   rather than a binary property [@dellaieraMasterThesis2024]. [Docker]{.pkg}
+   achieves strong run-time reproducibility—consistency across systems
+   (space)—but weak build-time reproducibility, or consistency over time.
+   Mutable base images and non-deterministic commands such as `apt-get update`
+   introduce temporal drift: rebuilding the same `Dockerfile` at different times
+   can yield different results. Even with pinned base images, container
+   checksums can vary across builds and machines. Thus, while [Docker]{.pkg}
+   provides strong run-time reproducibility, achieving deterministic artefacts
+   requires pinning image digests, freezing dependencies, and using
    deterministic build systems such as [Nix]{.pkg} for full control over both
-   temporal and spatial dimensions [@Malka_2024].
+   time and space [@Malka_2024].
 
 Even with a perfectly reproducible environment, researchers face another
 challenge: reliably executing the analysis workflow. Which scripts run first?
@@ -349,99 +273,80 @@ What are the dependencies between steps? Manual execution is error-prone and
 poorly documented. Build automation tools like [Make]{.pkg} address this by
 defining analyses as ordered, reproducible steps.
 
-Within [R]{.proglang}, the [targets]{.pkg} package by @landau2021 provides a
-modern, declarative approach to workflow management. [targets]{.pkg} tracks
-dependencies between code and data, caches intermediate results, and only
-recomputes steps affected by changes. This dramatically improves efficiency for
-complex analyses.
+Within [R]{.proglang}, the [targets]{.pkg} package [@landau2021] provides a
+modern, declarative approach to workflow management. It tracks dependencies,
+caches results, and only recomputes affected steps, improving efficiency for
+complex analyses. However, [targets]{.pkg} operates within a single
+[R]{.proglang} session. For truly polyglot pipelines—where steps may require
+incompatible dependencies or different language versions—this becomes
+problematic. Running [targets]{.pkg} inside a [Docker]{.pkg} container ensures
+reproducibility but forces the entire pipeline to share one environment.
 
-However, [targets]{.pkg} operates within a single R session. While it can call
-[Python]{.proglang} via [reticulate]{.pkg} or execute system commands, all steps
-share the same computational environment. For truly polyglot pipelines (where
-different steps may require incompatible dependencies or different language
-versions) this limitation becomes problematic. One might run [targets]{.pkg}
-inside a [Docker]{.pkg} container to ensure reproducibility, but this requires
-the entire pipeline to use a single environment.
+@mcdermott2021 provides an excellent example of best practice. The accompanying
+repository^[See
+[https://github.com/grantmcdermott/skeptic-priors](https://github.com/grantmcdermott/skeptic-priors)]
+demonstrates:
 
-@mcdermott2021 provides an excellent example of achieving the gold standard of
-reproducibility. The accompanying GitHub
-repository^[https://github.com/grantmcdermott/skeptic-priors] demonstrates the
-state of the art:
+- Package versions recorded in an `renv.lock` file;
+- A `Makefile` automating the full analysis;
+- A `Dockerfile` providing the computational environment.
 
-- Package versions recorded in an `renv.lock` file
-- A `Makefile` automating the full analysis
-- A `Dockerfile` providing a complete computational environment
+Achieving this required mastering multiple complex tools: [renv]{.pkg} for
+package management, [Docker]{.pkg} for containerisation, and [Make]{.pkg} for
+orchestration. The complexity increases for polyglot projects, which must manage
+multiple ecosystems simultaneously.
 
-However, achieving this required mastering multiple complex tools: [renv]{.pkg}
-for package management, [Docker]{.pkg} for environment containerisation, and
-[Make]{.pkg} for workflow orchestration. Each tool has its own syntax, concepts,
-and failure modes. The complexity compounds for polyglot projects; for instance,
-a [Python]{.proglang} project would require learning virtual environments, and
-coordinating [R]{.proglang} and [Python]{.proglang} in a single analysis
-requires additional tooling.
+Researchers therefore need a tool that:
 
-What researchers need is a tool that:
-
-1. Manages complete environments including programming languages, packages, and
-   system dependencies;
-2. Supports multiple languages natively, not through workarounds;
-3. Works interactively without the complexity of containers;
-4. Provides step-level isolation so different pipeline steps can use
-  different environments;
+1. Manages complete environments including languages, packages, and system
+   dependencies;
+2. Supports multiple languages natively;
+3. Works interactively without container complexity;
+4. Provides step-level isolation for different environments;
 5. Ensures bit-for-bit reproducibility through deterministic builds;
 6. Remains simple enough for researchers without systems administration
-  expertise.
+   expertise.
 
-The [Nix]{.pkg} package manager provides these capabilities. [Nix]{.pkg} ensures
-reproducible software installation by deploying *component closures*—packages
-bundled with all their dependencies and transitive dependencies
-[@dolstra2004nix]. Think of installing a package like packing for a trip.
-Traditional package managers are like packing just your clothes, assuming you'll
-find a toothbrush and soap at your destination. [Nix]{.pkg} packs everything you
-might need—the entire self-contained kit. This is what [Nix]{.pkg} calls a
-*component closure*.
+The [Nix]{.pkg} package manager provides these capabilities. It ensures
+reproducible installation by deploying *component closures*—packages bundled
+with all their direct and transitive dependencies [@dolstra2004nix]. Think of
+installing a package as packing for a trip: traditional package managers assume
+you’ll find essentials at your destination, while [Nix]{.pkg} packs everything
+you need. This produces self-contained software environments that behave
+identically across machines and over time.
 
-This creates self-contained software environments that work
-identically across machines and over time. [Nix]{.pkg} can replace
-[Docker]{.pkg} for environment isolation, [renv]{.pkg} for package management,
-and even [Make]{.pkg} for workflow orchestration—all within a single, unified
-framework.
-
-However, [Nix]{.pkg} has a steep learning curve. It is a complex system with its
-own purely functional programming language designed to declaratively define how
-software is built and configured. While this functional approach ensures
-reproducibility, it creates a significant barrier to adoption.
+[Nix]{.pkg} can replace [Docker]{.pkg} for isolation, [renv]{.pkg} for package
+management, and even [Make]{.pkg} for orchestration—all within a single, unified
+framework. However, it has a steep learning curve, with its own functional
+language for declaratively defining software builds and configurations. While
+this ensures reproducibility, it also creates a barrier to adoption.
 
 To make [Nix]{.pkg} accessible to researchers, I developed two [R]{.proglang}
 packages:
 
 - [rix]{.pkg} generates [Nix]{.pkg} expressions from intuitive R function calls,
-eliminating the need to learn the [Nix]{.proglang} language. It handles
-environment definition including [R]{.proglang}, [Python]{.proglang},
-[Julia]{.proglang} [@bezanson2017julia], system tools, and their dependencies.
+  eliminating the need to learn the [Nix]{.proglang} language. It handles
+  environment definitions including [R]{.proglang}, [Python]{.proglang},
+  [Julia]{.proglang} [@bezanson2017julia], system tools, and dependencies.
 
 - [rixpress]{.pkg} orchestrates polyglot analytical pipelines using [Nix]{.pkg}
-as the build engine. Each pipeline step runs in its own hermetically sealed
-environment with automatic caching and dependency tracking. This enables true
-polyglot workflows where [R]{.proglang}, [Python]{.proglang} and
-[Julia]{.proglang} steps coexist with different dependencies.
-[Python]{.proglang} user can use [ryxpress]{.pkg}, a port of [rixpress]{.pkg}.
+  as the build engine. Each step runs in its own hermetic environment with
+  automatic caching and dependency tracking, enabling true polyglot workflows
+  across R, Python, and Julia. [Python]{.proglang} users can use
+  [ryxpress]{.pkg}, a direct port.
 
-Together, these packages provide what existing tools cannot: a single framework
-for managing reproducible, polyglot computational environments and executing
-complex analytical workflows with step-level isolation. While [Nix]{.pkg}
-remains complex for advanced use cases, [rix]{.pkg} and [rixpress]{.pkg}
-abstract this complexity for common research workflows, making deep
-reproducibility accessible without requiring systems administration expertise.
+Together, these packages provide a single framework for managing reproducible,
+polyglot environments and executing complex workflows with step-level isolation.
+While [Nix]{.pkg} remains complex for advanced use, [rix]{.pkg} and
+[rixpress]{.pkg} abstract this complexity, making deep reproducibility
+accessible without systems administration expertise.
 
-The remainder of this paper proceeds as follows. Section 2 introduces the
-[Nix]{.pkg} package manager and explains why its functional approach enables
-reproducibility. Section 3 presents [rix]{.pkg} and demonstrates environment
-definition for various use cases. Section 4 discusses the `rstats-on-nix` fork
-of the official package repository and how it addresses practical limitations.
-Section 5 introduces [rixpress]{.pkg} and demonstrates polyglot pipeline
-orchestration through a complete example. Section 6 concludes with discussion of
-appropriate use cases and future directions.
+The remainder of this paper proceeds as follows. Section 2 introduces
+[Nix]{.pkg} and explains how its functional model enables reproducibility.
+Section 3 presents [rix]{.pkg} and demonstrates environment definition. Section
+4 discusses the `rstats-on-nix` fork of the package repository. Section 5
+introduces [rixpress]{.pkg} and demonstrates polyglot pipeline orchestration.
+Section 6 concludes with discussion of future directions.
 
 ## The Nix package manager {#sec-nix}
 
