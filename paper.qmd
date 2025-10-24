@@ -190,13 +190,13 @@ for restoring the environment automatically, ensuring others can recreate the
 same setup with minimal effort.
 
 However, both [renv]{.pkg} and [uv]{.pkg} have limitations. While [uv]{.pkg}
-manages Python interpreter versions directly, [renv]{.pkg} does not restore the
-version of [R]{.proglang} itself—installing the correct version must be done
-separately using tools like [rig]{.pkg} [@rlib2023]. More critically, neither
-handles system-level dependencies. If [sf]{.pkg} requires [GDAL]{.pkg} version
-3.0 but the system has version 2.4 installed, neither tool can resolve this
-conflict. Users must manually install system libraries, and the process differs
-across operating systems.
+manages [Python]{.proglang} interpreter versions directly, [renv]{.pkg} does not
+restore the version of [R]{.proglang} itself—installing the correct version must
+be done separately using tools like [rig]{.pkg} [@rlib2023]. More critically,
+neither handles system-level dependencies. If [sf]{.pkg} requires [GDAL]{.pkg}
+version 3.0 but the system has version 2.4 installed, neither tool can resolve
+this conflict. Users must manually install system libraries, and the process
+differs across operating systems.
 
 Pre-compiled binaries simplify installation but do not eliminate the need for
 system libraries required at runtime. Other [R]{.proglang} packages such as
@@ -210,7 +210,7 @@ ecosystems, but they share a common limitation: none handles system-level
 dependencies or polyglot environments. A project using [R]{.proglang},
 [Python]{.proglang} [@python3], and system tools like [Quarto]{.pkg} or \LaTeX
 requires coordinating multiple package managers ([renv]{.pkg} for R, [uv]{.pkg}
-for Python, manual installation for system tools), each with its own
+for [Python]{.proglang}, manual installation for system tools), each with its own
 configuration and potential conflicts.
 
 The most comprehensive approach to date is containerisation with [Docker]{.pkg}.
@@ -332,8 +332,8 @@ packages:
 - [rixpress]{.pkg} orchestrates polyglot analytical pipelines using [Nix]{.pkg}
   as the build engine. Each step runs in its own hermetic environment with
   automatic caching and dependency tracking, enabling true polyglot workflows
-  across R, Python, and Julia. [Python]{.proglang} users can use
-  [ryxpress]{.pkg}, a direct port.
+  across [R]{.proglang}, [Python]{.proglang}, and [Julia]{.proglang}.
+  [Python]{.proglang} users can use [ryxpress]{.pkg}, a direct port.
 
 Together, these packages provide a single framework for managing reproducible,
 polyglot environments and executing complex workflows with step-level isolation.
@@ -363,7 +363,7 @@ largest and among the most up-to-date package repositories available (see Figure
 
 ![Package repository size and freshness according to Repology. `nixpkgs` leads
 in both total package count and update recency, making it well-suited for
-reproducible research environments.](repology.png){#fig-repology}
+reproducible research environments.](images/repology.png){#fig-repology}
 
 This extensive coverage allows users to install not only [R]{.proglang} itself
 but also all its required packages and system-level dependencies for any given
@@ -1096,7 +1096,7 @@ package to the `py_conf` argument of `rix()`.
 
 ![Graphical representation of the polyglot pipeline. Purple nodes are
 [Julia]{.proglang}, yellow nodes are [Python]{.pkg}, light blue nodes are
-[R]{.proglang}, and dark blue nodes are Quarto derivations.](dag.png){#fig-dag}
+[R]{.proglang}, and dark blue nodes are Quarto derivations.](images/dag.png){#fig-dag}
 
 The package can then generate a visual representation of the pipeline's directed
 acyclic graph by running `rxp_dag()`, as can be seen in @fig-dag.
@@ -1283,7 +1283,7 @@ separate helper scripts within the `functions/` directory.
 *   The Visualisation (`functions.R`): This [R]{.proglang} script contains a
   function that uses [ggplot2]{.pkg} to create the final visualisation. It is
   designed to take the data frame of actual and predicted values produced by the
-  Python script and generate a plot comparing the two series.
+  [Python]{.proglang} script and generate a plot comparing the two series.
 
 #### Step 3: Orchestrating the Pipeline
 
