@@ -19,24 +19,34 @@ author:
     orcid: 0000-0002-3211-3689
     email: bruno@brodrigues.co
     url: https://www.brodrigues.co
+  - name: Philipp Baumann
+    affiliations:
+      - name: Alliance SwissPass, Switzerland
+        department: Data and Analytics
+        address: 7, Länggassstrasse
+        city: Bern
+        country: Switzerland
+        postal-code: 3012
+    orcid: 0000-0002-3194-8975
+    email: baumann-philipp@protonmail.com
 abstract: |
   Reproducible analysis requires more than clean, well-documented code:
   researchers must also manage software dependencies, computational
   environments, and workflow execution. Existing tools like [Docker]{.pkg} and
   [renv]{.pkg} address parts of this challenge, but no single solution handles
   polyglot environments, system dependencies, and workflow orchestration
-  together. I present two [R]{.proglang} packages that leverage [Nix]{.pkg} to
+  together. We present two [R]{.proglang} packages that leverage [Nix]{.pkg} to
   provide both reproducible polyglot environments and declarative workflow
   orchestration. [rix]{.pkg} generates [Nix]{.pkg} expressions that define
   reproducible environments spanning [R]{.proglang}, [Python]{.proglang},
   [Julia]{.proglang}, and system dependencies. Building on these environments,
   [rixpress]{.pkg} (and its [Python]{.proglang} port, [ryxpress]{.pkg})
-  orchestrates polyglot pipelines where each computational step runs in its own
+  orchestrate polyglot pipelines. Each computational step runs in its own
   hermetically sealed environment, with automatic caching and dependency
   tracking. This approach enables researchers to develop analyses interactively
-  while maintaining bit-for-bit reproducibility, supports collaboration across
-  heterogeneous computational environments, and ensures that analyses remain
-  executable years into the future.
+  while maintaining bit-for-bit reproducibility. Beyond, it supports
+  collaboration across heterogeneous computational environments, and ensures
+  that analyses can be reproduced years into the future.
 
 keywords: [reproducibility, R, Nix]
 keywords-formatted: [reproducibility, "[R]{.proglang}", "[Python]{.proglang}", "[Julia]{.proglang}", "[Nix]{.pkg}"]
@@ -55,7 +65,7 @@ level when what Roger Peng called *linked and executable code and data* are
 provided.
 
 By *linked and executable code and data*, Peng referred to compiled source code
-and runnable scripts. In this paper, I interpret this notion more broadly as the
+and runnable scripts. In this paper, we interpret this notion more broadly as the
 *computational environment*: the complete set of software required to execute an
 analysis. Here too, a continuum exists. At the minimal end, authors might only
 name the main software used—say, the [R]{.proglang} programming language
@@ -86,11 +96,11 @@ another barrier to reproducibility.
 
 This paper focuses on two critical but often overlooked aspects of
 reproducibility: *computational environment management* and *workflow
-orchestration*. I present a comprehensive framework addressing both challenges
+orchestration*. We present a comprehensive framework addressing both challenges
 using the [Nix]{.pkg} package manager [@dolstra2004nix], making it accessible to
 researchers through two [R]{.proglang} packages: [rix]{.pkg} and
-[rixpress]{.pkg}. Before introducing these packages, I survey existing tools and
-their limitations to contextualise my contribution.
+[rixpress]{.pkg}. Before introducing these packages, we survey existing tools and
+their limitations to contextualise our contributions.
 
 A range of tools now exist to help researchers approach the gold standard of
 full reproducibility, or to consistently deploy the same development environment
@@ -169,7 +179,7 @@ When an author includes this information, others attempting to reproduce the
 study (future readers, collaborators, or even the author at a later time) can
 see which version of [R]{.proglang} and which packages (with their versions)
 were used. However, reproducing the environment still requires manually
-installing the correct package versions—a process that becomes difficult when
+installing the correct package versions --- a process that becomes difficult when
 packages depend on system-level libraries. For example, the [sf]{.pkg} package
 requires [GDAL]{.pkg}, [GEOS]{.pkg}, and [PROJ]{.pkg} libraries. Installing and
 configuring these dependencies varies substantially across operating systems and
@@ -182,7 +192,7 @@ environments* module, or third-party tools like [uv]{.pkg}, which manages both
 project-specific interpreters and package libraries using a lock file mechanism.
 
 In the [R]{.proglang} ecosystem, virtual environments are not built-in as they
-are in [Python]{.proglang}, but tools like [renv]{.pkg} provide equivalent
+are in [Python]{.proglang}, however tools like [renv]{.pkg} provide equivalent
 functionality. [renv]{.pkg} captures the project’s software state and writes it
 to a lock file (`renv.lock`), which includes the exact versions of
 [R]{.proglang} and all required packages. This lockfile serves as a blueprint
@@ -571,8 +581,8 @@ can be used for development, similar to activating a virtual environment in the
 Writing [Nix]{.pkg} expressions can be challenging for users unfamiliar with the
 [Nix]{.proglang} language. However, the ability to define a fully reproducible
 development environment in a single text file and then rebuild it anywhere is
-highly appealing. To lower the barrier to adoption of [Nix]{.pkg} for
-reproducibility, I developed the [rix]{.pkg} package.
+highly appealing. [rix]{.pkg} aims to lower the barrier to adoption of [Nix]{.pkg} for
+reproducibility.
 
 [rix]{.pkg} provides the `rix()` function, which simplifies generating
 [Nix]{.pkg} expressions. It is available on CRAN and can be installed like any
