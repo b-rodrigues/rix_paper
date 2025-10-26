@@ -1,32 +1,30 @@
-name: Run Polyglot Nix Pipeline
-# This action triggers on every push to any branch.
-# You can customize this to run on specific branches, pull requests, or manually.
+name: Run Repro Script
 on: [push]
 jobs:
   run-reproducible-pipeline:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository code
-        uses: actions/checkout@v4
-        
+        uses: actions/checkout@v5
+
       - uses: cachix/install-nix-action@v31
         with:
           nix_path: nixpkgs=https://github.com/rstats-on-nix/nixpkgs/archive/refs/heads/r-daily.tar.gz
-    
+
       - uses: cachix/cachix-action@v14
         with:
           name: rstats-on-nix
-          
+
       - name: Run the pipeline and record execution time
         # The working-directory is set to the folder containing your script.
-        working-directory: ./polyglot-example
+        working-directory: ./repro-script
         run: |
           # Record the start time using a Unix timestamp.
           start_time=$(date +%s)
           # Make the script executable and run it.
           # The script will create all necessary files and execute the Nix pipeline.
-          chmod +x ./run_polyglot_example.sh
-          ./run_polyglot_example.sh
+          chmod +x ./repro_script.sh
+          ./run_repro_script.sh
           # Record the end time and calculate the total duration.
           end_time=$(date +%s)
           duration=$((end_time - start_time))

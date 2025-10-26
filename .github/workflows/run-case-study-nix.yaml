@@ -1,0 +1,65 @@
+name: Case study with Nix
+
+on:
+  repository_dispatch:
+    types: [trigger-demo]
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [main, master]
+
+permissions: write-all
+
+jobs:
+  rbc:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    defaults:
+      run:
+        working-directory: ./case-study/nix
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Create this folder to silence warning
+        run: mkdir -p ~/.nix-defexpr/channels
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=https://github.com/rstats-on-nix/nixpkgs/archive/r-daily.tar.gz
+
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v15
+        with:
+          name: rstats-on-nix
+
+      - name: Build dev env
+        run: |
+          nix-shell --expr "$(curl -sl https://raw.githubusercontent.com/ropensci/rix/main/inst/extdata/default.nix)" --run "Rscript -e 'source(\"gen-env.R\")'"
+
+      - name: Checkout default.nix
+        run: cat default.nix
+
+      - name: Generate and check out pipeline
+        run: |
+          nix-shell --quiet --run "Rscript -e 'source(\"gen-pipeline.R\")'"
+          cat pipeline.nix
+
+      - name: Build pipeline
+        run: |
+          nix-shell --quiet --run "Rscript -e 'rixpress::rxp_make()'"
+
+      - name: Put generated HTML in workdir
+        run: |
+          nix-shell --quiet --run "Rscript -e 'rixpress::rxp_copy(\"final_report\")'"
+
+      - name: Upload the report as an artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: rbc-model-report
+          path: ./pipeline-output
