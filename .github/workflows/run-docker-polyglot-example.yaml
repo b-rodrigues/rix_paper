@@ -1,0 +1,47 @@
+name: Build Pipeline, Run, and Upload Report
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-generate-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Check out repository
+        uses: actions/checkout@v4
+
+      - name: 2. Build the Docker image
+        # This step runs the Dockerfile, which includes the 'make all' command.
+        # When this step is complete, the report is already generated inside the image.
+        run: docker build -t rbc-pipeline-image .
+
+      - name: 3. Extract the report from the Docker image
+        # We don't need to 'docker run' the whole pipeline again.
+        # We can create a temporary container and copy the finished report out.
+        run: |
+          # Create a directory on the runner to hold the report.
+          mkdir -p ./report-output
+
+          # Create a temporary, non-running container from our image.
+          id=$(docker create rbc-pipeline-image)
+
+          # Copy the generated HTML report from the container's filesystem
+          # to the directory we just created on the runner.
+          docker cp ${id}:/rbc/report/readme.html ./report-output/readme.html
+
+          # Clean up the temporary container.
+          docker rm -v ${id}
+
+      - name: 4. Upload the report as an artifact
+        # This action takes the report from the runner and attaches it to the workflow run.
+        uses: actions/upload-artifact@v4
+        with:
+          # The name of the artifact bundle that will appear in the GitHub UI.
+          name: rbc-model-report
+
+          # The path on the runner where the report was copied to.
+          path: ./report-output/readme.html
