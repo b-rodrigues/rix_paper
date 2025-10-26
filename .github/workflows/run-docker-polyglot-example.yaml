@@ -5,6 +5,10 @@ jobs:
   build-and-generate-report:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./docker-polyglot-example
+
     steps:
       - name: 1. Check out repository
         uses: actions/checkout@v4
