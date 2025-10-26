@@ -1,38 +1,32 @@
 name: Run Polyglot Nix Pipeline
-
 # This action triggers on every push to any branch.
 # You can customize this to run on specific branches, pull requests, or manually.
 on: [push]
-
 jobs:
   run-reproducible-pipeline:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository code
         uses: actions/checkout@v4
-
-
+        
       - uses: cachix/install-nix-action@v31
         with:
           nix_path: nixpkgs=https://github.com/rstats-on-nix/nixpkgs/archive/refs/heads/r-daily.tar.gz
-
+    
       - uses: cachix/cachix-action@v14
         with:
           name: rstats-on-nix
-
+          
       - name: Run the pipeline and record execution time
         # The working-directory is set to the folder containing your script.
         working-directory: ./polyglot-example
         run: |
           # Record the start time using a Unix timestamp.
           start_time=$(date +%s)
-
           # Make the script executable and run it.
           # The script will create all necessary files and execute the Nix pipeline.
           chmod +x ./run_polyglot_example.sh
           ./run_polyglot_example.sh
-
           # Record the end time and calculate the total duration.
           end_time=$(date +%s)
           duration=$((end_time - start_time))
@@ -40,11 +34,14 @@ jobs:
           # Format the duration into minutes and seconds for readability.
           minutes=$((duration / 60))
           seconds=$((duration % 60))
-
           # Append a formatted message to the GitHub Actions summary view.
           # This makes the total runtime prominently visible in the UI.
-          echo "### ⏱️ Pipeline Execution Time" >> $GITHUB_SUMMARY
-          echo "" >> $GITHUB_SUMMARY
-          echo "The reproducible pipeline finished in **$minutes minute(s) and $seconds second(s)**." >> $GITHUB_SUMMARY
-          echo "" >> $GITHUB_SUMMARY
-          echo "The final report is available at \`final_report/readme.html\` in the runner." >> $GITHUB_SUMMARY
+          if [ -n "$GITHUB_SUMMARY" ]; then
+            echo "### ⏱️ Pipeline Execution Time" >> "$GITHUB_SUMMARY"
+            echo "" >> "$GITHUB_SUMMARY"
+            echo "The reproducible pipeline finished in **$minutes minute(s) and $seconds second(s)**." >> "$GITHUB_SUMMARY"
+            echo "" >> "$GITHUB_SUMMARY"
+            echo "The final report is available at \`final_report/readme.html\` in the runner." >> "$GITHUB_SUMMARY"
+          else
+            echo "Pipeline execution time: $minutes minute(s) and $seconds second(s)"
+          fi
