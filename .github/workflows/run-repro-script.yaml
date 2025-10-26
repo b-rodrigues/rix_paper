@@ -24,11 +24,11 @@ jobs:
           # Make the script executable and run it.
           # The script will create all necessary files and execute the Nix pipeline.
           chmod +x ./repro_script.sh
-          ./run_repro_script.sh
+          ./repro_script.sh
           # Record the end time and calculate the total duration.
           end_time=$(date +%s)
           duration=$((end_time - start_time))
-          
+
           # Format the duration into minutes and seconds for readability.
           minutes=$((duration / 60))
           seconds=$((duration % 60))
