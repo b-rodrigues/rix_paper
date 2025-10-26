@@ -20,23 +20,25 @@ author:
     email: bruno@brodrigues.co
     url: https://www.brodrigues.co
 abstract: |
-  Reproducible analysis requires more than clean, well-documented code:
-  researchers must also manage software dependencies, computational
-  environments, and workflow execution. Existing tools like [Docker]{.pkg} and
-  [renv]{.pkg} address parts of this challenge, but no single solution handles
-  polyglot environments, system dependencies, and workflow orchestration
-  together. I present two [R]{.proglang} packages that leverage [Nix]{.pkg} to
-  provide both reproducible polyglot environments and declarative workflow
-  orchestration. [rix]{.pkg} generates [Nix]{.pkg} expressions that define
-  reproducible environments spanning [R]{.proglang}, [Python]{.proglang},
-  [Julia]{.proglang}, and system dependencies. Building on these environments,
-  [rixpress]{.pkg} (and its [Python]{.proglang} port, [ryxpress]{.pkg})
-  orchestrates polyglot pipelines where each computational step runs in its own
-  hermetically sealed environment, with automatic caching and dependency
-  tracking. This approach enables researchers to develop analyses interactively
-  while maintaining bit-for-bit reproducibility, supports collaboration across
-  heterogeneous computational environments, and ensures that analyses remain
-  executable years into the future.
+  Reproducible analysis requires more than clean, well-documented code; it
+  demands the precise management of software dependencies, computational
+  environments, and workflow execution. While researchers can combine tools like
+  [Docker]{.pkg}, [renv]{.pkg} for [R]{.proglang} packages (or [uv]{.pkg} for
+  [Python]{.proglang} packages) and [Make]{.pkg} to address these needs, the
+  resulting toolchain is often complex and fragile, requiring the coordination
+  of multiple disparate systems. This paper introduces a unified framework built
+  on the [Nix]{.pkg} package manager, made accessible through two [R]{.proglang}
+  packages. The first, [rix]{.pkg}, generates declarative [Nix]{.pkg}
+  expressions to define version-pinned, reproducible environments that encompass
+  [R]{.proglang}, [Python]{.proglang}, [Julia]{.proglang}, and system-level
+  dependencies. The second, [rixpress]{.pkg} (and its [Python]{.proglang} port,
+  [ryxpress]{.pkg}), leverages these environments to orchestrate polyglot
+  pipelines where each computational step runs in a hermetically sealed,
+  language-specific environment with automatic caching. By treating the entire
+  computational environment as code, this integrated approach ensures a high
+  degree of reproducibility, supports collaboration across heterogeneous
+  systems, and helps guarantee that analyses remain executable long into the
+  future.
 
 keywords: [reproducibility, R, Nix]
 keywords-formatted: [reproducibility, "[R]{.proglang}", "[Python]{.proglang}", "[Julia]{.proglang}", "[Nix]{.pkg}"]
