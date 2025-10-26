@@ -36,12 +36,12 @@ jobs:
           seconds=$((duration % 60))
           # Append a formatted message to the GitHub Actions summary view.
           # This makes the total runtime prominently visible in the UI.
-          if [ -n "$GITHUB_SUMMARY" ]; then
-            echo "### ⏱️ Pipeline Execution Time" >> "$GITHUB_SUMMARY"
-            echo "" >> "$GITHUB_SUMMARY"
-            echo "The reproducible pipeline finished in **$minutes minute(s) and $seconds second(s)**." >> "$GITHUB_SUMMARY"
-            echo "" >> "$GITHUB_SUMMARY"
-            echo "The final report is available at \`final_report/readme.html\` in the runner." >> "$GITHUB_SUMMARY"
+          if [ -n $GITHUB_STEP_SUMMARY ]; then
+            echo "### ⏱️ Pipeline Execution Time" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The reproducible pipeline finished in **$minutes minute(s) and $seconds second(s)**." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The final report is available at \`final_report/readme.html\` in the runner." >> $GITHUB_STEP_SUMMARY
           else
             echo "Pipeline execution time: $minutes minute(s) and $seconds second(s)"
           fi
