@@ -1,11 +1,6 @@
-name: Build Pipeline, Run, and Upload Report
+name: Run Polyglot Docker Pipeline
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
+on: [push]
 jobs:
   build-and-generate-report:
     runs-on: ubuntu-latest
