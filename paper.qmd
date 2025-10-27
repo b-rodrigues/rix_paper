@@ -279,6 +279,21 @@ Despite its strengths, [Docker]{.pkg} presents several challenges:
    deterministic build systems such as [Nix]{.pkg} for full control over both
    time and space [@Malka_2024].
 
+Despite these shortcomings, [Docker]{.pkg} remains valuable for specific use
+cases: production deployment, CI/CD integration, and cross-platform
+distribution. The two approaches are not mutually exclusive. [Nix]{.pkg} can be
+installed and used inside [Docker]{.pkg}, combining [Nix]{.pkg}'s deterministic
+builds with [Docker]{.pkg}'s deployment infrastructure. In this workflow,
+[Nix]{.pkg} handles environment reproducibility during the build of the image,
+while [Docker]{.pkg} serves as the distribution mechanism. This addresses
+[Docker]{.pkg}'s build-time reproducibility issues while maintaining its deployment
+advantages. However, for research workflows where interactive development is
+primary and [Docker]{.pkg}'s complexity is a barrier, [Nix]{.pkg} alone may suffice.
+
+Thankfully, it is entirely possible to combine both [Docker]{.pkg} and [Nix]{.pkg}:
+[Nix]{.pkg} to setup reproducible environments and [Docker]{.pkg} for deployment
+across the many different already existing infrastructures.
+
 Even with a perfectly reproducible environment, researchers face another
 challenge: reliably executing the analysis workflow. Which scripts run first?
 What are the dependencies between steps? Manual execution is error-prone and
@@ -447,19 +462,30 @@ construction.
 
 This is achieved by disallowing side effects and ensuring that builds operate
 within hermetic (isolated) environments, with no hidden dependencies on global
-system state. While this functional approach greatly enhances reproducibility,
-it can sometimes introduce complexity for package maintainers, especially for
-software that needs to download external assets during installation (e.g.,
-certain Bioconductor packages). For end-users, however, this complexity is
-largely abstracted away. Additionally, [Nix]{.pkg} supports multiple versions or
-*variants* of a package on the same system.
+system state. The principles of functional package management (hermetic builds,
+immutable artifacts, and declarative dependencies) are designed to produce
+deterministic outputs. The effectiveness of this model was recently validated in
+the most extensive study of build reproducibility to date. The effectiveness of
+this model was recently validated at unprecedented scale by @malka2025, who
+rebuilt 709,816 packages from historical nixpkgs snapshots (2017–2023). They
+found rebuildability rates exceeding 99% and bitwise reproducibility rates
+between 69% and 91%, with an upward trend over time. Importantly, they
+identified that about 15% of unreproducible builds failed due to embedded build
+timestamps, which a solvable issue rather than a fundamental limitation.
 
-[Nix]{.pkg} installs all packages into a centralised, content-addressed
-directory called the [Nix]{.pkg} store (typically `/nix/store`). Each package
-gets a unique subdirectory whose name includes a hash of all its inputs: source
-code, dependencies, build instructions. This means
-`/nix/store/abc123-dplyr-1.0.0` and `/nix/store/xyz789-dplyr-1.1.0` can coexist
-without conflicts.
+While this functional approach greatly enhances reproducibility, it can
+sometimes introduce complexity for package maintainers, especially for software
+that needs to download external assets during installation (e.g., certain
+Bioconductor packages). For end-users, however, this complexity is largely
+abstracted away thanks to both [rix]{.pkg} and [rixpress]{.pkg}.
+
+Additionally, [Nix]{.pkg} supports multiple versions or *variants* of a package
+on the same system. [Nix]{.pkg} installs all packages into a centralised,
+content-addressed directory called the [Nix]{.pkg} store (typically
+`/nix/store`). Each package gets a unique subdirectory whose name includes a
+hash of all its inputs: source code, dependencies, build instructions. This
+means `/nix/store/abc123-dplyr-1.0.0` and `/nix/store/xyz789-dplyr-1.1.0` can
+coexist without conflicts.
 
 This isolation ensures that projects always use their intended software
 versions, allowing multiple versions of [R]{.proglang} to coexist and preventing
@@ -941,13 +967,12 @@ providing two key benefits:
      artefacts), ensuring they are rebuilt if the environment changes, keeping
      environment and outputs always in sync.
 
-To illustrate these capabilities with a realistic research task, we present a
-polyglot pipeline that simulates a Real Business Cycle (RBC) model in
-[Julia]{.proglang}, uses the resulting data to train an
-[XGBoost]{.pkg} forecasting model in [Python]{.proglang}, visualises the results
-in [R]{.proglang} with [ggplot2]{.pkg}, and finally compiles a [Quarto]{.pkg}
-report. The code for this example can be found in the [following
-repository](https://github.com/b-rodrigues/rixpress_demos/tree/master/rbc)^[https://github.com/b-rodrigues/rixpress_demos/tree/master/rbc],
+To illustrate these capabilities, we present a polyglot pipeline that simulates
+a Real Business Cycle (RBC) model in [Julia]{.proglang}, uses the resulting data
+to train an [XGBoost]{.pkg} forecasting model in [Python]{.proglang}, visualises
+the results in [R]{.proglang} with [ggplot2]{.pkg}, and finally compiles a
+[Quarto]{.pkg} report. The code for this example can be found in the [following
+repository](https://github.com/b-rodrigues/rixpress_demos/tree/master/case-study)^[https://github.com/b-rodrigues/rixpress_demos/tree/master/case-study],
 with additional details provided in the Appendix of this manuscript.
 
 For new projects, [rixpress]{.pkg} provides `rxp_init()`, which generates the
@@ -1126,7 +1151,8 @@ package to the `py_conf` argument of `rix()`.
 
 ![Graphical representation of the polyglot pipeline. Purple nodes are
 [Julia]{.proglang}, yellow nodes are [Python]{.pkg}, light blue nodes are
-[R]{.proglang}, and dark blue nodes are Quarto derivations.](images/dag.png){#fig-dag}
+[R]{.proglang}, and dark blue nodes are Quarto
+derivations.](images/dag.png){#fig-dag}
 
 The package can then generate a visual representation of the pipeline's directed
 acyclic graph by running `rxp_dag()`, as can be seen in @fig-dag.
@@ -1145,6 +1171,183 @@ to work interactively and seamlessly with both [rix]{.pkg} and [rixpress]{.pkg},
 enabling a smooth, reproducible workflow from within the development
 environment. Detailed setup instructions are provided in the vignettes of both
 packages.
+
+## A Comparison of Pipeline Paradigms: Imperative vs. Declarative {#sec-comparison}
+
+To illustrate the practical benefits of our framework, we implemented the RBC
+pipeline example from Section @sec-rixpress using two distinct paradigms. The
+first is a traditional, imperative stack combining Docker for environment
+isolation, Make for workflow orchestration, and language-specific package
+managers. The second is our proposed declarative framework using `rix` and
+`rixpress`. While both approaches successfully execute the same polyglot
+analysis to produce identical outputs, their comparison illuminates fundamental
+differences in conceptual models, system complexity, and the nature of the
+reproducibility guarantees they provide.
+
+### The Imperative Composition of Specialized Tools
+
+The traditional approach represents a composition of specialized tools, each
+solving part of the reproducibility puzzle. This paradigm is entirely
+imperative; the researcher must explicitly script the procedural steps for both
+environment construction and workflow execution.
+
+The codification of the environment is a procedural build process specified in a
+`Dockerfile`. Successfully authoring such a file necessitates that the
+researcher act as a system administrator, manually scripting a sequence of shell
+commands to install each component. This includes managing `apt` repositories
+for R, invoking external installers like `uv` and `rig` for Python and R
+runtimes, and using `curl` and `tar` for Julia. Subsequently, separate commands
+must be run to install packages within each language's ecosystem. The procedural
+verbosity and intertwined concerns of this approach are reflected in the
+resulting `Dockerfile`, which spans 108 lines to define the complete
+environment.
+
+Here is a sketch of this `Dockerfile`:
+
+```dockerfile
+# Add R repository and install specific version
+RUN apt-get update && apt-get install -y software-properties-common
+RUN add-apt-repository ppa:...
+RUN curl -L https://rig.r-pkg.org/... | sh
+RUN rig add 4.5.1
+
+# Install Python with uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+RUN uv python install 3.13
+
+# Download and extract Julia
+RUN curl -fsSL https://julialang-s3.julialang.org/... -o julia.tar.gz
+RUN tar -xzf julia.tar.gz -C /opt/
+
+# Install packages for each language separately
+RUN echo 'options(repos = c(CRAN = ...))' > /root/.Rprofile
+RUN Rscript -e 'install.packages(...)'
+
+# Install Python packages using uv with specific versions for reproducibility.
+RUN echo "pandas==2.3.3" > /tmp/requirements.txt && \
+    echo "scikit-learn==1.7.2" >> /tmp/requirements.txt && \
+    # ... more packages ...
+
+RUN uv pip install --no-cache -r /tmp/requirements.txt && \
+    rm /tmp/requirements.txt
+
+# Install specific versions of Julia packages for reproducibility
+RUN julia -e 'using Pkg; \
+    Pkg.add(name="Arrow", version="2.8.0"); \
+    # ... more packages ...'
+```
+
+This procedural philosophy extends from environment definition to workflow
+orchestration. A `Makefile` defines the pipeline as a directed acyclic graph of
+file dependencies. While robust, this model requires the researcher to manually
+encode the dependency graph, tightly coupling the analytical logic to specific
+file paths. Furthermore, since `make` is agnostic to the content of these files,
+it provides no mechanism to enforce type or schema consistency between steps.
+
+A direct consequence of this file-based orchestration model is the proliferation
+of wrapper scripts. Each step in the `Makefile` invokes a script containing a
+significant amount of procedural boilerplate unrelated to the scientific logic.
+This includes parsing command-line arguments, handling data serialization and
+deserialization, and managing file paths. The core analytical functions are thus
+obscured by this necessary but distracting scaffolding.
+
+The cumulative effect is a system of high structural complexity. The traditional
+implementation requires nine separate files to fully specify the environment,
+workflow, and analysis. This includes the `Dockerfile`, `Makefile`, three
+wrapper scripts for orchestration, and three `functions` files containing the
+core logic, in addition to the final report. The cognitive overhead is
+substantial, as a user must comprehend the conventions and interactions of this
+entire toolchain.
+
+### A Unified Declarative Framework
+
+The Nix-based framework inverts this imperative model. Instead of scripting the
+procedural construction of the environment and workflow, the researcher declares
+the desired end-state.
+
+Environment specification is reduced to a single declarative statement in the
+`gen-env.R` script. The researcher specifies *what* the environment should
+contain, leaving the procedural implementation of *how* to build it entirely to
+the Nix toolchain. The `gen-env.R` script replaces the 108-line `Dockerfile`,
+abstracting away all system administration details. `rix` translates this
+high-level specification into a formal Nix expression that deterministically
+resolves all transitive dependencies for the complete polyglot environment.
+
+```r
+library(rix)
+rix(
+  date = "2025-10-14",
+  r_pkgs = c("ggplot2", "dplyr", "arrow"),
+  jl_conf = list(jl_version = "lts", ...),
+  py_conf = list(py_version = "3.13", ...),
+  ...
+)
+```
+
+Workflow orchestration undergoes a similar conceptual shift from procedural to
+declarative. The `gen-pipeline.R` script defines the pipeline not as a set of
+file rules, but as a graph of data objects. Dependencies are not manually
+specified but are automatically inferred by `rixpress` from the functional
+relationships in the code. This object-centric model renders the procedural
+wrapper scripts unnecessary. The scientific logic is expressed as a set of pure
+functions that accept data structures as inputs and return them as outputs, free
+of any boilerplate for file I/O or command-line parsing.
+
+```python
+# functions/functions.py
+def train_and_predict_output(simulated_df: pd.DataFrame) -> pd.DataFrame:
+    # ... scientific logic ...
+    return format_results(predictions)
+```
+
+This declarative approach significantly reduces system complexity. The entire
+implementation requires only six files: two for the high-level environment and
+pipeline declarations, three containing the pure scientific functions, and the
+final report. The reduction is not merely quantitative; the remaining files are
+conceptually simpler, containing only analytical logic and specifications, with
+all procedural scaffolding abstracted away by the framework.
+
+### Reproducibility Guarantees: Space and Time
+
+The critical distinction between the two paradigms lies in the nature of their
+reproducibility guarantees. The traditional stack, anchored by Docker, provides
+strong **spatial reproducibility**—the ability to execute the analysis
+identically across different machines. However, it is vulnerable to **temporal
+drift**, a concept that distinguishes reproducibility across space from
+consistency over time [@malka2025space]. This temporal vulnerability arises from
+several sources, including the resolution of mutable base image tags (e.g.,
+`ubuntu:24.04`) and the potential for language-level package managers to resolve
+dependencies differently over time.
+
+The Nix-based approach is architected to solve this problem of temporal drift.
+By pinning the entire software ecosystem to a single, immutable revision of the
+`nixpkgs` repository, the framework provides strong guarantees of **temporal
+reproducibility**. This claim is supported by large-scale empirical evidence; a
+study by @malka2024yes, which rebuilt over 700,000 historical packages,
+confirmed that Nix's functional model achieves a bit-for-bit reproducibility
+rate exceeding 90% and a rebuildability rate over 99% across a multi-year
+timeframe.
+
+### Summary of Differences
+
+| Dimension | Traditional Stack | Nix-Based Framework |
+|-----------|------------------|---------------------|
+| **Paradigm** | Imperative composition of specialized tools | Declarative specification in unified framework |
+| **Environment setup** | Step-by-step shell commands | High-level specification |
+| **Workflow definition** | File-based rules in Make syntax | Object-based graph in R syntax |
+| **Scientific code** | Wrapped in CLI parsing and file I/O boilerplate | Pure functions with no plumbing |
+| **File count** | 9 files (4 for orchestration and plumbing) | 6 files (2 for orchestration) |
+| **Expertise required** | Linux system administration, Make syntax | R programming |
+| **Spatial reproducibility** | Strong (via Docker isolation) | Strong (via Nix isolation) |
+| **Temporal reproducibility** | Moderate (vulnerable to drift) | Strong (validated empirically [@malka2025]) |
+
+This declarative rigor, however, is not without pragmatic costs. Our validation
+on GitHub Actions shows that the imperative Docker-based runner completes the
+entire pipeline in approximately three minutes, whereas the declarative
+Nix-based runner takes around five minutes. This difference reflects the
+trade-off between the upfront computational cost of Nix's rigorous dependency
+resolution and the faster, but more brittle, imperative builds of the
+traditional approach.
 
 ## Conclusion {#sec-conclusion}
 
@@ -1263,7 +1466,7 @@ The complete, runnable source code for this example is available in the paper's
 GitHub repository. A shell script, `run_polyglot_example.sh`, is provided to
 automate the entire process from environment creation to final output, as
 described at the end of this
-section^[\url{https://github.com/b-rodrigues/rix_paper/blob/master/polyglot-example/run_polyglot_example.sh}].
+section^[\url{https://github.com/b-rodrigues/rix_paper/blob/master/repro-script/run_polyglot_example.sh}].
 
 #### Project Structure and Components
 
