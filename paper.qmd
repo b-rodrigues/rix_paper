@@ -19,6 +19,16 @@ author:
     orcid: 0000-0002-3211-3689
     email: bruno@brodrigues.co
     url: https://www.brodrigues.co
+  - name: Philipp Baumann
+    affiliations:
+      - name: Alliance SwissPass, Switzerland
+        department: Data and Analytics
+        address: 7, Länggassstrasse
+        city: Bern
+        country: Switzerland
+        postal-code: 3012
+    orcid: 0000-0002-3194-8975
+    email: baumann-philipp@protonmail.com
 abstract: |
   Reproducible analysis requires more than clean, well-documented code; it
   demands the precise management of software dependencies, computational
@@ -57,7 +67,7 @@ level when what Roger Peng called *linked and executable code and data* are
 provided.
 
 By *linked and executable code and data*, Peng referred to compiled source code
-and runnable scripts. In this paper, I interpret this notion more broadly as the
+and runnable scripts. In this paper, we interpret this notion more broadly as the
 *computational environment*: the complete set of software required to execute an
 analysis. Here too, a continuum exists. At the minimal end, authors might only
 name the main software used—say, the [R]{.proglang} programming language
@@ -88,11 +98,11 @@ another barrier to reproducibility.
 
 This paper focuses on two critical but often overlooked aspects of
 reproducibility: *computational environment management* and *workflow
-orchestration*. I present a comprehensive framework addressing both challenges
+orchestration*. We present a comprehensive framework addressing both challenges
 using the [Nix]{.pkg} package manager [@dolstra2004nix], making it accessible to
 researchers through two [R]{.proglang} packages: [rix]{.pkg} and
-[rixpress]{.pkg}. Before introducing these packages, I survey existing tools and
-their limitations to contextualise my contribution.
+[rixpress]{.pkg}. Before introducing these packages, we survey existing tools and
+their limitations to contextualise our contributions.
 
 A range of tools now exist to help researchers approach the gold standard of
 full reproducibility, or to consistently deploy the same development environment
@@ -171,7 +181,7 @@ When an author includes this information, others attempting to reproduce the
 study (future readers, collaborators, or even the author at a later time) can
 see which version of [R]{.proglang} and which packages (with their versions)
 were used. However, reproducing the environment still requires manually
-installing the correct package versions—a process that becomes difficult when
+installing the correct package versions --- a process that becomes difficult when
 packages depend on system-level libraries. For example, the [sf]{.pkg} package
 requires [GDAL]{.pkg}, [GEOS]{.pkg}, and [PROJ]{.pkg} libraries. Installing and
 configuring these dependencies varies substantially across operating systems and
@@ -184,7 +194,7 @@ environments* module, or third-party tools like [uv]{.pkg}, which manages both
 project-specific interpreters and package libraries using a lock file mechanism.
 
 In the [R]{.proglang} ecosystem, virtual environments are not built-in as they
-are in [Python]{.proglang}, but tools like [renv]{.pkg} provide equivalent
+are in [Python]{.proglang}, however tools like [renv]{.pkg} provide equivalent
 functionality. [renv]{.pkg} captures the project’s software state and writes it
 to a lock file (`renv.lock`), which includes the exact versions of
 [R]{.proglang} and all required packages. This lockfile serves as a blueprint
@@ -323,7 +333,7 @@ framework. However, it has a steep learning curve, with its own functional
 language for declaratively defining software builds and configurations. While
 this ensures reproducibility, it also creates a barrier to adoption.
 
-To make [Nix]{.pkg} accessible to researchers, I developed two [R]{.proglang}
+To make [Nix]{.pkg} accessible to researchers, we developed two [R]{.proglang}
 packages:
 
 - [rix]{.pkg} generates [Nix]{.pkg} expressions from intuitive R function calls,
@@ -497,7 +507,7 @@ niche packages may be missing or fail to build across platforms.
 
 To make these capabilities more approachable for [R]{.proglang} users seeking
 reproducible, project-specific environments without learning the full
-[Nix]{.proglang} language, I created the [rix]{.pkg} and [rixpress]{.pkg}
+[Nix]{.proglang} language, we created the [rix]{.pkg} and [rixpress]{.pkg}
 packages.
 
 ## Reproducible development environments with Nix {#sec-repro-nix}
@@ -554,7 +564,7 @@ any startup options.
 
 This expression can be saved in a file called `default.nix`. The environment can
 then be built on a system with [Nix]{.pkg} installed using the `nix-build`
-command.^[For installing [Nix]{.pkg}, I recommend the Determinate Systems
+command.^[For installing [Nix]{.pkg}, we recommend the Determinate Systems
 installer: \url{https://determinate.systems/posts/determinate-nix-installer}].
 Once the build completes, the user can enter the interactive shell with
 `nix-shell`, which executes following steps:
@@ -573,8 +583,8 @@ can be used for development, similar to activating a virtual environment in the
 Writing [Nix]{.pkg} expressions can be challenging for users unfamiliar with the
 [Nix]{.proglang} language. However, the ability to define a fully reproducible
 development environment in a single text file and then rebuild it anywhere is
-highly appealing. To lower the barrier to adoption of [Nix]{.pkg} for
-reproducibility, I developed the [rix]{.pkg} package.
+highly appealing. [rix]{.pkg} aims to lower the barrier to adoption of [Nix]{.pkg} for
+reproducibility.
 
 [rix]{.pkg} provides the `rix()` function, which simplifies generating
 [Nix]{.pkg} expressions. It is available on CRAN and can be installed like any
@@ -851,7 +861,7 @@ R> rix(date = "2024-12-14", ...)
 \end{CodeInput}
 ```
 
-I strive to provide an available date per week: each Monday, a GitHub Action
+We strive to provide an available date per week: each Monday, a GitHub Action
 tests popular packages on Linux and macOS, and only if all tests succeed is the
 date added to the list of available dates in [rix]{.pkg}. This ensures users can
 reliably install packages, and allows me to backport fixes if needed. For
@@ -861,7 +871,7 @@ backported the fix to the `rstats-on-nix` fork, making RStudio available to
 users of [rix]{.pkg} earlier than upstream, as merging PRs in the official
 repository can take some time.
 
-I have backported fixes to the `rstats-on-nix` `nixpkgs` fork as far back as
+We have backported fixes to the `rstats-on-nix` `nixpkgs` fork as far back as
 March 2019. The process involves checking out a `nixpkgs` commit on the selected
 date, updating the [R]{.proglang} package set using Posit CRAN and Bioconductor
 snapshots, backporting fixes, and ensuring popular packages work on both
@@ -872,7 +882,7 @@ available dates with `rix::available_dates()`.
 A drawback of forking `nixpkgs` is that backported packages are not included
 upstream and thus are not prebuilt by Nix’s CI platform, Hydra. Users may need
 to build many packages from source, which can be time-consuming. To mitigate
-this, I provide a binary cache sponsored by [Cachix](https://www.cachix.org/),
+this, we provide a binary cache sponsored by [Cachix](https://www.cachix.org/),
 complementing the public Nix cache. Instructions for using Cachix are in
 [rix]{.pkg}’s documentation. Using the cache significantly speeds up
 installations, as prebuilt packages are downloaded rather than compiled.
@@ -888,15 +898,15 @@ this fork—they retain the ability to point directly to any commit in the
 upstream `nixpkgs` repository, maintaining full access to the official
 [Nix]{.pkg} ecosystem. The fork introduces no fundamental architectural changes
 or proprietary extensions; it functions as a convenience layer providing tested
-package sets and dated snapshots. Should maintenance cease (which is unlikely,
-as I directly use it myself), users could seamlessly transition to upstream
-`nixpkgs` commits, though with trade-offs: less frequent [R]{.proglang} and
-[Julia]{.proglang} package updates. The fork's value lies not in creating
-dependency, but in reducing friction through testing infrastructure and curated
-"known-good" dates. Thus, the fork represents an enhancement to user experience
-rather than a critical single point of failure—the underlying [Nix]{.pkg}
-infrastructure and official `nixpkgs` repository remain the foundation, ensuring
-long-term viability of environments created with [rix]{.pkg}.
+package sets and dated snapshots. Should maintenance cease, users could
+seamlessly transition to upstream `nixpkgs` commits, though with trade-offs:
+less frequent [R]{.proglang} and [Julia]{.proglang} package updates. The fork's
+value lies not in creating dependency, but in reducing friction through testing
+infrastructure and curated "known-good" dates. Thus, the fork represents an
+enhancement to user experience rather than a critical single point of
+failure—the underlying [Nix]{.pkg} infrastructure and official `nixpkgs`
+repository remain the foundation, ensuring long-term viability of environments
+created with [rix]{.pkg}.
 
 ## Orchestrating the workflow with rixpress {#sec-rixpress}
 
@@ -931,7 +941,7 @@ providing two key benefits:
      artefacts), ensuring they are rebuilt if the environment changes, keeping
      environment and outputs always in sync.
 
-To illustrate these capabilities with a realistic research task, I present a
+To illustrate these capabilities with a realistic research task, we present a
 polyglot pipeline that simulates a Real Business Cycle (RBC) model in
 [Julia]{.proglang}, uses the resulting data to train an
 [XGBoost]{.pkg} forecasting model in [Python]{.proglang}, visualises the results
@@ -1145,7 +1155,7 @@ dependencies. This makes [Nix]{.pkg} particularly powerful for reproducible
 research.
 
 However, solving such a complex problem makes [Nix]{.pkg} a complex tool. With
-[rix]{.pkg}, I aim to make [Nix]{.pkg} more accessible to [R]{.proglang} users
+[rix]{.pkg}, we aim to make [Nix]{.pkg} more accessible to [R]{.proglang} users
 by providing a familiar interface and workflow. By building reproducible
 development shells with [Nix]{.pkg}, researchers can accommodate a wide range of
 use cases: running scripts and pipelines, developing interactive [shiny]{.pkg}
@@ -1194,15 +1204,15 @@ simpler tools avoid.
 
 ## Acknowledgments {.unnumbered}
 
-I thank the rOpenSci reviewers and contributors who provided valuable feedback
-on the development of [rix]{.pkg} and [rixpress]{.pkg}. In particular, I am
+We thank the rOpenSci reviewers and contributors who provided valuable feedback
+on the development of [rix]{.pkg} and [rixpress]{.pkg}. In particular, we are
 grateful to David Watkins and Jacob Wujiciak-Jens for their reviews of
 [rix]{.pkg}, and to William Landau and Anthony Martinez for their reviews of
-[rixpress]{.pkg}. I also acknowledge the contributions of Philipp Baumann,
-[rix]{.pkg}’s co-author, Richard J. Acton, Jordi Rosell, Elio Campitelli, László
-Kupcsik, and Michael Heming for [rix]{.pkg}. Their expertise and feedback
-greatly improved the quality and usability of these packages. I would also like
-to thank Pol Dellaiera and Edvin Syk for providing feedback on the manuscript.
+[rixpress]{.pkg}. We also acknowledge the contributions of Richard J. Acton,
+Jordi Rosell, Elio Campitelli, László Kupcsik, and Michael Heming for
+[rix]{.pkg}. Their expertise and feedback greatly improved the quality and
+usability of these packages. We would also like to thank Pol Dellaiera and Edvin
+Syk for providing feedback on the manuscript.
 
 ## References {.unnumbered}
 
