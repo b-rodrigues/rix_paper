@@ -1360,11 +1360,12 @@ def train_and_predict_output(simulated_df: pd.DataFrame) -> pd.DataFrame:
 :::
 
 ```{=tex}
+\begin{CodeInput}
 # functions/functions.py
 Py> def train_and_predict_output(simulated_df: pd.DataFrame) -> pd.DataFrame:
 +     # ... scientific logic ...
 +     return format_results(predictions)
-end{CodeInput}
+\end{CodeInput}
 ```
 
 This declarative approach significantly reduces system complexity. The entire
