@@ -440,34 +440,45 @@ As @dolstra2004nix explains:
 In other words, every package deployment includes everything it needs to run,
 with no hidden dependencies on the host system.
 
-While comprehensive dependency tracking could theoretically be implemented in
-any package manager, what distinguishes [Nix]{.pkg} (alongside its cousin
-[Guix]{.pkg}) is its *functional package management* paradigm. Traditional
-package managers require imperative, step-by-step installation instructions: *do
-this, then this, then that*. [Nix]{.pkg} inverts this model; users declare the
-desired end state (*I require an environment with these packages*), and
-[Nix]{.pkg} determines how to achieve it.
+Comprehensive dependency tracking, however, is not unique to [Nix]{.pkg}. The
+[r2u]{.pkg} project by @r2u achieves something similar for Ubuntu: once the r2u
+repository is configured, every [R]{.pkg} package is installed as a binary with
+all its dependencies automatically resolved. In principle, any package manager
+could implement such tracking.
 
-This is possible because [Nix]{.pkg} packages are defined as *derivations*:
-declarative blueprints specifying all inputs (source code, build commands,
-dependencies) needed to build a package. When installing software, [Nix]{.pkg}
-evaluates expressions written in the [Nix]{.proglang} language to produce these
-derivations. The declarative nature ensures every build process is fully
-specified and independent of the execution environment.
+What distinguishes [Nix]{.pkg} (and its sibling [Guix]{.pkg}, the only other
+functional package manager) is its *functional package* management model. This
+model makes full dependency specification intrinsic to the system, mandatory by
+design, and replaces the imperative, step-by-step nature of traditional package
+managers (*install this, then that*) with a declarative one: users describe the
+desired end state (*an environment with these packages*), and [Nix]{.pkg}
+determines how to realize it.
+
+A further advantage is that packages built by [Nix]{.pkg} act as universal
+binaries across any Linux system where [Nix]{.pkg} is installed. This “build
+once, run anywhere” property has long been solved by [Nix]{.pkg}, and is now
+being revisited by Posit through its initiative to provide portable CRAN
+binaries [@posit_portable_r_binaries].
+
+This universality stems from [Nix]{.pkg}’s use of derivations, declarative
+blueprints that specify all inputs (source code, build commands, dependencies)
+required to build a package. When software is installed, [Nix]{.pkg} evaluates
+expressions written in the [Nix]{.proglang} language to produce these
+derivations. Because every input is explicitly declared, builds are fully
+reproducible and independent of the surrounding environment.
 
 For example, the [rJava]{.pkg} package definition includes the correct
-`JAVA_HOME` configuration pointing to the [jdk]{.pkg} dependency. Outside
+`JAVA_HOME` configuration pointing to its [jdk]{.pkg} dependency. Outside
 [Nix]{.pkg}, users must manually set this variable if automatic detection fails.
-With [Nix]{.pkg}, the package maintainers handle this complexity once (by
-writing the correct [Nix]{.pkg} expressions that perform the installation
-purely), and all users benefit.
+Within [Nix]{.pkg}, maintainers encode such details once, ensuring every user
+benefits from a consistent, reliable installation.
 
-[Nix]{.pkg} conceptualizes software builds as *pure functions* from functional
-programming. In mathematics, a pure function always produces the same output for
-a given input: if $f(x) = x^2$, then $f(2) = 4$ invariably holds. Analogously,
-[Nix]{.pkg} ensures that identical inputs (source code, dependencies, build
-instructions) produce identical outputs (built packages), regardless of when or
-where the build occurs.
+At its core, [Nix]{.pkg} treats software builds as pure functions, a concept
+borrowed from functional programming. A pure function always produces the same
+output for a given input—for example, if $f(x) = x^2$, then $f(2) = 4$
+invariably holds. Likewise, [Nix]{.pkg} guarantees that identical inputs (source
+code, dependencies, build instructions) yield identical outputs (built
+packages), regardless of when or where the build occurs.
 
 This determinism is achieved through hermetic (isolated) builds with no hidden
 dependencies on global system state nor undeclared side effects. The
