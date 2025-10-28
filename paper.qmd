@@ -455,10 +455,10 @@ desired end state (*an environment with these packages*), and [Nix]{.pkg}
 determines how to realize it.
 
 A further advantage is that packages built by [Nix]{.pkg} act as universal
-binaries across any Linux system where [Nix]{.pkg} is installed. This “build
-once, run anywhere” property has long been solved by [Nix]{.pkg}, and is now
-being revisited by Posit through its initiative to provide portable CRAN
-binaries [@posit_portable_r_binaries].
+binaries across any Linux system (on the same architecture) where [Nix]{.pkg} is
+installed. This “build once, run anywhere” property has long been solved by
+[Nix]{.pkg}, and is now being revisited by Posit through its initiative to
+provide portable CRAN binaries [@posit_portable_r_binaries].
 
 This universality stems from [Nix]{.pkg}’s use of derivations, declarative
 blueprints that specify all inputs (source code, build commands, dependencies)
