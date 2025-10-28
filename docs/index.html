@@ -2933,7 +2933,7 @@ Van Rossum, Guido, and Fred L. Drake. 2009.<em><span> 3 Reference Manual</span><
 <section id="a-complete-polyglot-example-with-rixpress" class="level3" data-number="8.2">
 <h3 data-number="8.2" class="anchored" data-anchor-id="a-complete-polyglot-example-with-rixpress"><span class="header-section-number">8.2</span> A Complete Polyglot Example with rixpress</h3>
 <p>This appendix provides a conceptual walk-through of the polyglot pipeline example discussed in Section 5. The pipeline simulates a RBC model in <code>Julia</code>, trains an <code>XGBoost</code> model in <code>Python</code>, visualises the results in <code>R</code>, and compiles a final report with <code>Quarto</code>.</p>
-<p>The complete, runnable source code for this example is available in the paper’s GitHub repository. A shell script, <code>run_polyglot_example.sh</code>, is provided to automate the entire process from environment creation to final output, as described at the end of this section<a href="#fn16" class="footnote-ref" id="fnref16" role="doc-noteref"><sup>16</sup></a>.</p>
+<p>The complete, runnable source code for this example is available in the paper’s GitHub repository. A shell script, <code>repro_script.sh</code>, is provided to automate the entire process from environment creation to final output, as described at the end of this section<a href="#fn16" class="footnote-ref" id="fnref16" role="doc-noteref"><sup>16</sup></a>.</p>
 <section id="project-structure-and-components" class="level4" data-number="8.2.1">
 <h4 data-number="8.2.1" class="anchored" data-anchor-id="project-structure-and-components"><span class="header-section-number">8.2.1</span> Project Structure and Components</h4>
 <p>The project is organized into a set of scripts, each with a distinct responsibility. The core logic is separated from the environment definition and pipeline orchestration.</p>
@@ -2988,7 +2988,7 @@ Van Rossum, Guido, and Fred L. Drake. 2009.<em><span> 3 Reference Manual</span><
 </section>
 <section id="running-the-project" class="level4" data-number="8.2.5">
 <h4 data-number="8.2.5" class="anchored" data-anchor-id="running-the-project"><span class="header-section-number">8.2.5</span> Running the Project</h4>
-<p>This entire example can be executed by running the <code>run_polyglot_example.sh</code> script available in the root of the paper’s repository. This script automates the full process: 1. It first executes <code>gen-env.R</code> inside a temporary <code>Nix</code> shell to build the <code>default.nix</code> file. 2. It then executes <code>gen-pipeline.R</code> inside the newly defined environment. This triggers <code>Nix</code> to run the entire polyglot pipeline in the correct order.</p>
+<p>This entire example can be executed by running the <code>repro_script.sh</code> script available in the root of the paper’s repository. This script automates the full process: 1. It first executes <code>gen-env.R</code> inside a temporary <code>Nix</code> shell to build the <code>default.nix</code> file. 2. It then executes <code>gen-pipeline.R</code> inside the newly defined environment. This triggers <code>Nix</code> to run the entire polyglot pipeline in the correct order.</p>
 <p>Upon completion, the script will have generated all intermediate artefacts and the final <code>readme.html</code> report found in the <code>pipeline-output</code> folder containing the visualisation.</p>
 </section>
 </section>
