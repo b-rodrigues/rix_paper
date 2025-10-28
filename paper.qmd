@@ -271,8 +271,8 @@ ephemeral container filesystems mean that changes made during a session are lost
 by default. Consequently, a common workflow involves developing an analysis
 interactively on a host system and only containerizing it post-hoc, which
 achieves reproducibility as an afterthought rather than as a continuous
-guarantee during the research process. Packages like @dockerfiler are specifically
-made to enable this type of post-hoc reproducibility.
+guarantee during the research process. Packages like [dockerfiler]{.pkg} 
+[@dockerfiler] are specifically made to enable this type of post-hoc reproducibility.
 
 Second, the effective use of [Docker]{.pkg} introduces a considerable learning
 curve. Authoring a reliable and truly reproducible `Dockerfile` requires a
@@ -920,7 +920,7 @@ succeed is the date added to the list of available dates in [rix]{.pkg}. Users
 can see all available dates with `rix::available_dates()`. This ensures users
 can reliably install packages, and allows us to backport fixes if needed. For
 example, when RStudio was temporarily broken due to a dependency issue
-(`boost`), a pull request was submitted to the official `nixpkgs` repository. I
+([boost]{.pkg}), a pull request was submitted to the official `nixpkgs` repository. I
 backported the fix to the `rstats-on-nix` fork, making RStudio available to
 users of [rix]{.pkg} earlier than upstream, as merging PRs in the official
 repository can take some time.
@@ -1169,7 +1169,7 @@ function `rxp_qmd()` is used to compile a [Quarto]{.pkg} document (there is also
 The `rxp_populate()` function translates this [R]{.proglang} list into a
 `pipeline.nix` file, which declaratively defines the entire workflow. Data flows
 from derivation to derivation by being serialised into the efficient and
-language-agnostic Arrow format using the pair of `encoder/decoder` functions.
+language-agnostic [Arrow]{.pkg} format using the pair of `encoder/decoder` functions.
 Other universal formats, such as `csv` or `json` could have been used. It should
 also be noted that if interoperability libraries such as [reticulate]{.pkg} or 
 [rds2py]{.pkg} are available, it becomes possible to seamlessly transfer
