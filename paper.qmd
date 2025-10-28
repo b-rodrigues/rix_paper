@@ -1400,7 +1400,7 @@ def train_and_predict_output(simulated_df: pd.DataFrame) -> pd.DataFrame:
 ```{=tex}
 \begin{CodeInput}
 # functions/functions.py
-Py> def train_and_predict_output(simulated_df: pd.DataFrame) -> pd.DataFrame:
+>>> def train_and_predict_output(simulated_df: pd.DataFrame) -> pd.DataFrame:
 +     # ... scientific logic ...
 +     return format_results(predictions)
 \end{CodeInput}
@@ -1674,8 +1674,8 @@ rxp_make()
 
 ```{=tex}
 \begin{CodeInput}
-Python> from ryxpress import rxp_make
-Python> rxp_make()
+>>> from ryxpress import rxp_make
+>>> rxp_make()
 \end{CodeInput}
 ```
 
