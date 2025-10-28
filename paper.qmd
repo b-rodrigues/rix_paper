@@ -750,7 +750,9 @@ build specifications, have broken dependencies, or are abandoned. Because of
 this heterogeneity, [Nix]{.pkg} maintainers cannot automatically package all of
 PyPI as they do for CRAN or the [Julia]{.proglang} registry. Instead, they
 manually curate and package individual [Python]{.proglang} packages that meet
-quality standards. This means some [Python]{.proglang} packages, or specific
+quality standards.^[On October 2025, this amounts to roughly 10000 packages, 
+according to the search engine for [Nix]{.pkg} packages.] 
+This means some [Python]{.proglang} packages, or specific
 versions, may not be available through [Nix]{.pkg}.
 
 For projects requiring [Python]{.proglang} packages not available in
@@ -1409,7 +1411,7 @@ timeframe.
 
 ### Summary of Differences
 
-| Dimension | Traditional Stack | Nix-Based Framework |
+| Dimension | Traditional Stack | Nix-Based Framework with rix and rixpress |
 |-----------|------------------|---------------------|
 | **Paradigm** | Imperative composition of specialized tools | Declarative specification in unified framework |
 | **Environment setup** | Step-by-step shell commands | High-level specification |
