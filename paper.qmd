@@ -1172,7 +1172,11 @@ The `rxp_populate()` function translates this [R]{.proglang} list into a
 `pipeline.nix` file, which declaratively defines the entire workflow. Data flows
 from derivation to derivation by being serialised into the efficient and
 language-agnostic Arrow format using the pair of `encoder/decoder` functions.
-Other universal formats, such as `csv` or `json` could have been used.
+Other universal formats, such as `csv` or `json` could have been used. It should
+also be noted that if interoperability libraries such as [reticulate]{.pkg} or 
+[rds2py]{.pkg} are available, it becomes possible to seamlessly transfer
+supported objects to and from [R]{.proglang} and [Python]{.proglang} (for now,
+such a feature is not yet integrated for conversion of arbitrary [Julia]{.proglang} objects).
 
 As a sidenote: [Python]{.proglang} users who wish to use [ryxpress]{.pkg} define
 pipelines using the same [R]{.proglang}-based DSL shown above. This design
