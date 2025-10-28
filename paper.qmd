@@ -1558,10 +1558,10 @@ visualises the results in [R]{.proglang}, and compiles a final report with
 [Quarto]{.pkg}.
 
 The complete, runnable source code for this example is available in the paper's
-GitHub repository. A shell script, `run_polyglot_example.sh`, is provided to
+GitHub repository. A shell script, `repro_script.sh`, is provided to
 automate the entire process from environment creation to final output, as
 described at the end of this
-section^[\url{https://github.com/b-rodrigues/rix_paper/blob/master/repro-script/run_polyglot_example.sh}].
+section^[\url{https://github.com/b-rodrigues/rix_paper/blob/master/repro-script/repro_script.sh}].
 
 #### Project Structure and Components
 
@@ -1681,7 +1681,7 @@ Python> rxp_make()
 
 #### Running the Project
 
-This entire example can be executed by running the `run_polyglot_example.sh`
+This entire example can be executed by running the `repro_script.sh`
 script available in the root of the paper's repository.
 This script automates the full process:
 1.  It first executes `gen-env.R` inside a temporary [Nix]{.pkg} shell to build
