@@ -216,12 +216,11 @@ date-based package installation, while the Posit Package Manager provides dated
 CRAN snapshots. However, like [renv]{.pkg}, these focus on R packages and do not
 address system-level dependencies or R version management. 
 Furthermore, using pre-compiled binaries of packages simplifies installation but do not eliminate the need for
-system libraries required at runtime.
-
-These tools represent significant progress in reproducibility within their
+system libraries required at runtime. These tools represent significant progress in reproducibility within their
 ecosystems, but they share a common limitation: none handles system-level
 dependencies or the increasingly polyglot nature of modern data science. 
-The era of a single tool dominating an entire analytical pipeline is giving 
+
+Indeed, there is evidence that the era of a single tool dominating an entire analytical pipeline is giving 
 way to a more pragmatic approach where researchers combine the complementary 
 strengths of multiple languages [@peng2018]. This trend is particularly evident
 in the synergistic use of [R]{.proglang}, with its rich ecosystem for statistical modeling, 
@@ -230,7 +229,6 @@ for complex simulations through the use of interoperability libraries such as [P
 (calling [Python]{.proglang} from [Julia]{.proglang}), [JuliaCall]{.pkg} 
 (calling [Julia]{.proglang} from [Python]{.proglang} or [R]{.proglang}), [reticulate]{.pkg} 
 (calling [Python]{.proglang} from [R]{.proglang}), [rpy2]{.pkg} and [ryp]{.pkg} (calling [R]{.proglang} from [Python]{.proglang}) [@osborne2024, @navarro2024].
-
 Recent survey data confirms this trend, showing that research scientists use, on average, 
 nearly two programming languages in their work, with the [R]{.proglang} and [Python]{.proglang} combination being 
 the most prevalent [@chen2025]. This creates a significant challenge for reproducibility:
@@ -242,8 +240,8 @@ libraries.
 The demand for solutions that can manage this complexity is not merely academic; 
 it is reflected in major strategic shifts within the industry. A prominent example is the 
 evolution of Posit (formerly RStudio), which has pivoted from its origins as a premier R-centric 
-development environment to a multi-language scientific data platform that treats Python as a 
-first-class citizen. This industry trend, coupled with the proliferation of academic research
+service and software supplier to a company that treats [Python]{.proglang} as a 
+first-class citizen alongside [R]{.proglang}. This industry trend, coupled with the proliferation of academic research
 into polyglot tooling, underscores a critical reality: the central challenge for modern reproducible
 science is no longer *if* polyglot workflows should be used, but *how* they can be managed in a unified, 
 efficient, and reproducible manner.
