@@ -228,7 +228,7 @@ in the synergistic use of [R]{.proglang}, with its rich ecosystem for statistica
 for complex simulations through the use of interoperability libraries such as [PythonCall]{.pkg} 
 (calling [Python]{.proglang} from [Julia]{.proglang}), [JuliaCall]{.pkg} 
 (calling [Julia]{.proglang} from [Python]{.proglang} or [R]{.proglang}), [reticulate]{.pkg} 
-(calling [Python]{.proglang} from [R]{.proglang}), [rpy2]{.pkg} and [ryp]{.pkg} (calling [R]{.proglang} from [Python]{.proglang}) [@osborne2024, @navarro2024].
+(calling [Python]{.proglang} from [R]{.proglang}), [rpy2]{.pkg} and [ryp]{.pkg} (calling [R]{.proglang} from [Python]{.proglang}) [@osborne2024; @navarro2024].
 Recent survey data confirms this trend, showing that research scientists use, on average, 
 nearly two programming languages in their work, with the [R]{.proglang} and [Python]{.proglang} combination being 
 the most prevalent [@chen2025]. This creates a significant challenge for reproducibility:
