@@ -188,7 +188,7 @@ configuring these dependencies varies substantially across operating systems and
 can be prohibitively difficult on some platforms.
 
 A more robust approach than simply listing package versions is to use tools that
-define per-project environments. This is common for [Python]{.proglang} users,
+define per-project environments. This is common for [Python]{.proglang} [@python3] users,
 who have many tools at their disposal, such as the built-in *virtual
 environments* module, or third-party tools like [uv]{.pkg} [@uv], which manages both
 project-specific interpreters and package libraries using a lock file mechanism.
@@ -210,20 +210,43 @@ version 3.0 but the system has version 2.4 installed, neither tool can resolve
 this conflict. Users must manually install system libraries, and the process
 differs across operating systems.
 
-Pre-compiled binaries simplify installation but do not eliminate the need for
-system libraries required at runtime. Other [R]{.proglang} packages such as
+Other [R]{.proglang} packages such as
 [groundhog]{.pkg} [@simonsohn2023] and [rang]{.pkg} [@chan2023] enable
 date-based package installation, while the Posit Package Manager provides dated
 CRAN snapshots. However, like [renv]{.pkg}, these focus on R packages and do not
-address system-level dependencies or R version management.
+address system-level dependencies or R version management. 
+Furthermore, using pre-compiled binaries of packages simplifies installation but do not eliminate the need for
+system libraries required at runtime.
 
 These tools represent significant progress in reproducibility within their
 ecosystems, but they share a common limitation: none handles system-level
-dependencies or polyglot environments. A project using [R]{.proglang},
-[Python]{.proglang} [@python3], and system tools like [Quarto]{.pkg} or \LaTeX
-requires coordinating multiple package managers ([renv]{.pkg} for R, [uv]{.pkg}
-for [Python]{.proglang}, manual installation for system tools), each with its own
-configuration and potential conflicts.
+dependencies or the increasingly polyglot nature of modern data science. 
+The era of a single tool dominating an entire analytical pipeline is giving 
+way to a more pragmatic approach where researchers combine the complementary 
+strengths of multiple languages [@peng2018]. This trend is particularly evident
+in the synergistic use of [R]{.proglang}, with its rich ecosystem for statistical modeling, 
+[Python]{.proglang}, with its extensive libraries for machine learning, and [Julia]{.proglang} 
+for complex simulations through the use of interoperability libraries such as [PythonCall]{.pkg} 
+(calling [Python]{.proglang} from [Julia]{.proglang}), [JuliaCall]{.pkg} 
+(calling [Julia]{.proglang} from [Python]{.proglang} or [R]{.proglang}), [reticulate]{.pkg} 
+(calling [Python]{.proglang} from [R]{.proglang}), [rpy2]{.pkg} and [ryp]{.pkg} (calling [R]{.proglang} from [Python]{.proglang}) [@osborne2024, @navarro2024].
+
+Recent survey data confirms this trend, showing that research scientists use, on average, 
+nearly two programming languages in their work, with the [R]{.proglang} and [Python]{.proglang} combination being 
+the most prevalent [@chen2025]. This creates a significant challenge for reproducibility:
+a project using [R]{.proglang}, [Python]{.proglang}, and system tools like
+[Quarto]{.pkg} or \LaTeX requires coordinating multiple, disparate package managers, 
+each with its own configuration and potential for conflict and using interoperability
+libraries.
+
+The demand for solutions that can manage this complexity is not merely academic; 
+it is reflected in major strategic shifts within the industry. A prominent example is the 
+evolution of Posit (formerly RStudio), which has pivoted from its origins as a premier R-centric 
+development environment to a multi-language scientific data platform that treats Python as a 
+first-class citizen. This industry trend, coupled with the proliferation of academic research
+into polyglot tooling, underscores a critical reality: the central challenge for modern reproducible
+science is no longer *if* polyglot workflows should be used, but *how* they can be managed in a unified, 
+efficient, and reproducible manner.
 
 The most comprehensive approach to managing a complete computational environment
 to date is containerization, for which [Docker]{.pkg} has become the de facto
