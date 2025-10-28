@@ -190,7 +190,7 @@ can be prohibitively difficult on some platforms.
 A more robust approach than simply listing package versions is to use tools that
 define per-project environments. This is common for [Python]{.proglang} users,
 who have many tools at their disposal, such as the built-in *virtual
-environments* module, or third-party tools like [uv]{.pkg}, which manages both
+environments* module, or third-party tools like [uv]{.pkg} [@uv], which manages both
 project-specific interpreters and package libraries using a lock file mechanism.
 
 In the [R]{.proglang} ecosystem, virtual environments are not built-in as they
@@ -380,7 +380,9 @@ packages, including nearly all of CRAN and Bioconductor.^[Only about 80 packages
 currently fail to build on the NixOS build farm, plus roughly 30 packages marked as broken
 by the maintainers of the [R]{.proglang} ecosystem. These could, in principle, be fixed, 
 but doing so would require significant effort. Marking them as broken signals to users 
-that their build failures are known and intentional.] According to Repology,
+that their build failures are known and intentional. It should be further noted that some
+packages may build successfully, but then fail at runtime as they try to further install
+runtime dependencies on first run. One such example is [torch]{.pkg}.] According to Repology,
 a service tracking package repositories across distributions, `nixpkgs` is both
 the largest and among the most up-to-date repositories available (Figure
 @fig-repology).
@@ -910,7 +912,8 @@ committed to a dated branch in `rstats-on-nix/nixpkgs`.
 A drawback of forking `nixpkgs` is that backported packages are not included
 upstream and thus are not prebuilt by Nix’s CI platform, Hydra. Users may need
 to build many packages from source, which can be time-consuming. To mitigate
-this, we provide a binary cache sponsored by [Cachix](https://www.cachix.org/),
+this, we provide a binary cache sponsored by 
+[Cachix](https://www.cachix.org/)^[[https://www.cachix.org/](https://www.cachix.org/)],
 complementing the public Nix cache. Instructions for using Cachix are in
 [rix]{.pkg}’s documentation. Using the cache significantly speeds up
 installations, as prebuilt packages are downloaded rather than compiled.
@@ -1187,7 +1190,11 @@ To illustrate the practical benefits of our framework, we implemented the RBC
 pipeline example from Section @sec-rixpress using two distinct paradigms. The
 first is a traditional, imperative, stack combining Docker for environment
 isolation, Make for workflow orchestration, and language-specific package
-managers. The second is our proposed declarative framework using `rix` and
+managers.^[This choice of tools is illustrative: we could have used, for instance,
+[Snakemake]{.pkg} [@moelder2021snakemake] for workflow orchestration or [conda]{.pkg} [@anaconda] 
+instead of [uv]{.pkg}, 
+but the broader point remains—these are all imperative approaches] 
+The second is our proposed declarative framework using `rix` and
 `rixpress`. While both approaches successfully execute the same polyglot
 analysis to produce identical outputs, their comparison illuminates fundamental
 differences in conceptual models, system complexity, and the nature of the
@@ -1416,7 +1423,9 @@ timeframe.
 This declarative rigor, however, is not without pragmatic costs. Our validation
 on GitHub Actions shows that the imperative Docker-based runner completes the
 entire pipeline in approximately three minutes, whereas the declarative
-Nix-based runner takes around five minutes. Nix’s deterministic dependency
+Nix-based runner takes around five minutes.^[To run the benchmark yourself,
+fork the paper’s repository, enable GitHub Actions, and push a single change to
+trigger the runs.] Nix’s deterministic dependency
 resolution guarantees bit-for-bit reproducibility at the expense of initial
 computation time, whereas the imperative system prioritizes immediacy over
 long-term stability.
