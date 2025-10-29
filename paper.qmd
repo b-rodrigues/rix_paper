@@ -15,7 +15,6 @@ author:
         city: Luxembourg
         country: Luxembourg
         postal-code: 2327
-      - Journal of Statistical Software
     orcid: 0000-0002-3211-3689
     email: bruno@brodrigues.co
     url: https://www.brodrigues.co
