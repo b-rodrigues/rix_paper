@@ -39,6 +39,6 @@ keywords:
   - Julia
   - Nix
 license: GPL-3.0-only
-repository-code: https://github.com/your-org/your-paper-repo
+repository-code: https://github.com/b-rodrigues/rix_paper
 date-released: 2025-10-30
 type: software
