@@ -1,0 +1,47 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Nix for Polyglot, Reproducible Data Science Workflows"
+authors:
+  - family-names: Rodrigues
+    given-names: Bruno
+    orcid: https://orcid.org/0000-0002-3211-3689
+    affiliation: Ministry of Research and Higher Education, Luxembourg
+    address: 18, Montée de la Pétrusse, 2327 Luxembourg, Luxembourg
+    email: bruno@brodrigues.co
+    url: https://www.brodrigues.co
+  - family-names: Baumann
+    given-names: Philipp
+    orcid: https://orcid.org/0000-0002-3194-8975
+    affiliation: Alliance SwissPass, Switzerland
+    address: 7, Länggassstrasse, 3012 Bern, Switzerland
+    email: baumann-philipp@protonmail.com
+abstract: |
+  Reproducible analysis requires more than clean, well-documented code; it
+  demands the precise management of software dependencies, computational
+  environments, and workflow execution. While researchers can combine tools like
+  [Docker]{.pkg}, [renv]{.pkg} for [R]{.proglang} packages (or [uv]{.pkg} for
+  [Python]{.proglang} packages) and [Make]{.pkg} to address these needs, the
+  resulting toolchain is often complex and fragile, requiring the coordination
+  of multiple disparate systems. This paper introduces a unified framework built
+  on the [Nix]{.pkg} package manager, made accessible through two [R]{.proglang}
+  packages. The first, [rix]{.pkg}, generates declarative [Nix]{.pkg}
+  expressions to define version-pinned, reproducible environments that encompass
+  [R]{.proglang}, [Python]{.proglang}, [Julia]{.proglang}, and system-level
+  dependencies. The second, [rixpress]{.pkg} (and its [Python]{.proglang} port,
+  [ryxpress]{.pkg}), leverages these environments to orchestrate polyglot
+  pipelines where each computational step runs in a hermetically sealed,
+  language-specific environment with automatic caching. By treating the entire
+  computational environment as code, this integrated approach ensures a high
+  degree of reproducibility, supports collaboration across heterogeneous
+  systems, and helps guarantee that analyses remain executable long into the
+  future.
+keywords:
+  - reproducibility
+  - R
+  - Python
+  - Julia
+  - Nix
+license: GPL-3.0-only
+repository-code: https://github.com/your-org/your-paper-repo
+date-released: 2025-10-30
+type: article
