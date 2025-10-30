@@ -1228,6 +1228,10 @@ In summary, [rixpress]{.pkg} extends the guarantees of [rix]{.pkg}
 from static environments to dynamic workflows, enabling end-to-end, polyglot
 reproducibility.
 
+## Reproducible Nix container environments for continous deployment
+
+
+
 ## A Comparison of Pipeline Paradigms: Imperative vs. Declarative {#sec-comparison}
 
 To illustrate the practical benefits of our framework, we implemented the RBC
