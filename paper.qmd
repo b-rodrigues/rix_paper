@@ -99,9 +99,9 @@ This paper focuses on two critical but often overlooked aspects of
 reproducibility: *computational environment management* and *workflow
 orchestration*. We present a comprehensive framework addressing both challenges
 using the [Nix]{.pkg} package manager [@dolstra2004nix], making it accessible to
-researchers through two [R]{.proglang} packages: [rix]{.pkg} and
-[rixpress]{.pkg}. Before introducing these packages, we survey existing tools
-and their limitations to contextualise our contributions.
+researchers through two [R]{.proglang} packages: [rix]{.pkg} [@R-rix] and
+[rixpress]{.pkg} [@R-rixpress]. Before introducing these packages, we survey
+existing tools and their limitations to contextualise our contributions.
 
 A range of tools now exist to help researchers approach the gold standard of
 full reproducibility, or to consistently deploy the same development environment
@@ -309,6 +309,9 @@ workflow. Its utility for production deployment, continuous integration, and
 cross-platform distribution is well-established. Indeed, the two approaches are
 not mutually exclusive. As shall be explained in @sec-nix, it is possible to use
 [Nix]{.pkg} within [Docker]{.pkg} to benefit from the advantages of both tools.
+
+Provisioning [Nix]{.pkg} in container images lowers the burden to install it on
+the operating system of the host.
 
 Making sure the development environment is reproducible is but one piece of the
 puzzle, though. Even with a perfectly reproducible environment, researchers face
@@ -1227,9 +1230,6 @@ packages.
 In summary, [rixpress]{.pkg} extends the guarantees of [rix]{.pkg}
 from static environments to dynamic workflows, enabling end-to-end, polyglot
 reproducibility.
-
-## Reproducible Nix container environments for continous deployment
-
 
 
 ## A Comparison of Pipeline Paradigms: Imperative vs. Declarative {#sec-comparison}
