@@ -1013,7 +1013,7 @@ Cycle (RBC) model in [Julia]{.proglang}, trains an [XGBoost]{.pkg} forecasting
 model in [Python]{.proglang} on the simulated data, visualises results in
 [R]{.proglang}, and compiles a [Quarto]{.pkg} report. The code for this example
 can be found in the [following
-repository](https://github.com/b-rodrigues/rixpress_demos/tree/master/case-study)^[https://github.com/b-rodrigues/rixpress_demos/tree/master/case-study],
+repository](https://github.com/b-rodrigues/rix_paper/tree/master/case-study)^[https://github.com/b-rodrigues/rix_paper/tree/master/case-study],
 with additional details provided in the Appendix of this manuscript. Although
 this example is purely synthetic and not of scientific significance, it
 effectively demonstrates the capabilities of [rixpress]{.pkg}. It should also
