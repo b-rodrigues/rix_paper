@@ -310,8 +310,10 @@ cross-platform distribution is well-established. Indeed, the two approaches are
 not mutually exclusive. As shall be explained in @sec-nix, it is possible to use
 [Nix]{.pkg} within [Docker]{.pkg} to benefit from the advantages of both tools.
 
-Provisioning [Nix]{.pkg} in container images lowers the burden to install it on
-the operating system of the host.
+By combining the strengths of Nix and container technologies, it is possible to
+enhance both build-time and runtime isolation. For example, installing [Nix].pkg
+directly into container images reduces the setup overhead by avoiding the need
+to install derivations into the host operating system's `/nix` directory.
 
 Making sure the development environment is reproducible is but one piece of the
 puzzle, though. Even with a perfectly reproducible environment, researchers face
