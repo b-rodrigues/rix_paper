@@ -326,6 +326,20 @@ incompatible dependencies or different language versions—this becomes
 problematic. Running [targets]{.pkg} inside a [Docker]{.pkg} container ensures
 reproducibility but forces the entire pipeline to share one environment.
 
+An instructive example of combining functional package management with workflow
+orchestration is PiGx (Pipelines in Genomics), a collection of genomics
+pipelines that uses [Guix]{.pkg} for environment management and
+[Snakemake]{.pkg} for workflow execution [@wurmus2018]. While this hybrid
+approach ensures that all tools—including [Snakemake]{.pkg} itself—are
+reproducibly installed via [Guix]{.pkg}, the workflow execution occurs
+*outside* the package manager's build system. This means the analysis code runs
+in the Guix-provided environment but does not benefit from the additional
+reproducibility guarantees that come from executing within the sandboxed,
+hermetic build process of a derivation. As we will show, [rixpress]{.pkg} takes
+a different approach: each pipeline step is itself a [Nix]{.pkg} derivation,
+meaning the entire analysis—not just the environment—is subject to the same
+deterministic build guarantees.
+
 The current state-of-the-art in reproducible research exemplifies the complexity
 of navigating this fragmented landscape. The work of @mcdermott2021 provides an
 excellent case study in best practices, with an accompanying repository that is
