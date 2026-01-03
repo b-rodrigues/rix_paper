@@ -215,7 +215,7 @@ Other [R]{.proglang} packages such as [groundhog]{.pkg} [@simonsohn2023] and
 Package Manager provides dated CRAN snapshots. However, like [renv]{.pkg}, these
 focus on [R]{.proglang} packages and do not address system-level dependencies or [R]{.proglang} version
 management. Furthermore, using pre-compiled binaries of packages simplifies
-installation but do not eliminate the need for system libraries required at
+installation but does not eliminate the need for system libraries required at
 runtime. These tools represent significant progress in reproducibility within
 their ecosystems, but they share a common limitation: none handles system-level
 dependencies or the increasingly polyglot nature of modern data science.
@@ -388,8 +388,10 @@ this ensures reproducibility, it also creates a barrier to adoption.
 To make [Nix]{.pkg} accessible to researchers, we developed two [R]{.proglang}
 packages:
 
-- [rix]{.pkg} generates [Nix]{.pkg} expressions from intuitive R function calls,
-  eliminating the need to learn the [Nix]{.proglang} language. It handles
+- [rix]{.pkg} generates [Nix]{.pkg} expressions from intuitive [R]{.proglang}
+  function calls, eliminating the need to learn the [Nix]{.proglang}
+  language—a purely functional language that, as we discuss in Section
+  @sec-nix, represents a significant barrier to adoption. [rix]{.pkg} handles
   environment definitions including [R]{.proglang}, [Python]{.proglang},
   [Julia]{.proglang} [@bezanson2017julia], system tools, and dependencies.
 
@@ -424,9 +426,9 @@ currently fail to build on the NixOS build farm, plus roughly 30 packages marked
 as broken by the maintainers of the [R]{.proglang} ecosystem. These could, in
 principle, be fixed, but doing so would require significant effort. Marking them
 as broken signals to users that their build failures are known and intentional.
-It should be further noted that some packages may build successfully, but then
-fail at runtime as they try to further install runtime dependencies on first
-run. One such example is [torch]{.pkg}.] According to Repology, a service
+It should also be noted that some packages may build successfully but fail at
+runtime when attempting to install additional dependencies; one such example is
+[torch]{.pkg}.] According to Repology, a service
 tracking package repositories across distributions, `nixpkgs` is both the
 largest and among the most up-to-date repositories available (Figure
 @fig-repology).
@@ -556,7 +558,10 @@ functional package manager, has addressed this concern through integration with
 Software Heritage [@courtes2024; @softwareheritage2025]. [Guix]{.pkg} can
 automatically fall back to archived versions of source code when original
 locations become unavailable, providing an additional layer of long-term
-reproducibility assurance that [Nix]{.pkg} currently lacks.
+reproducibility assurance that [Nix]{.pkg} currently lacks. However,
+[Guix]{.pkg} is only supported on Linux, making it unsuitable for researchers
+working on macOS or Windows (where WSL2 support for [Guix]{.pkg} is non-trivial
+to configure).
 
 [Nix]{.pkg} offers robust cross-platform support, running natively on Linux
 (x86_64) with optimal functionality. On macOS (Intel and Apple Silicon),
@@ -585,7 +590,7 @@ of [Docker]{.pkg}. Given the extensive infrastructure and community knowledge
 built around containerization, [Nix]{.pkg} can be perceived as a competing
 rather than a complementary technology. This perception, however, is a false
 dichotomy. [Docker]{.pkg} and [Nix]{.pkg} allow researchers to solve similar
-issues but these tools are not alternatives of one another. Thus, a powerful
+issues but these tools are not alternatives to one another. Thus, a powerful
 hybrid model involves using [Nix]{.pkg} to deterministically build the
 environment *during the construction of a [Docker]{.pkg} image*, which is then
 deployed using standard container infrastructure. This approach leverages the
@@ -866,8 +871,8 @@ artefacts) it provides a pragmatic balance: comprehensive [Python]{.proglang}
 package availability with reasonable reproducibility guarantees. For polyglot
 projects, this means [R]{.proglang} and system-level dependencies remain fully
 reproducible through [Nix]{.pkg}, while [Python]{.proglang} packages gain the
-reproducibility that [uv]{.pkg} can provide. We recommend of course to use
-[Python]{.pkg} through [Nix]{.pkg} whenever possible and only resort to the
+reproducibility that [uv]{.pkg} can provide. We recommend, of course, using
+[Python]{.proglang} through [Nix]{.pkg} whenever possible and only resorting to the
 hybrid approach with [uv]{.pkg} as a last resort.^[It is also possible to
 package the missing [Python]{.pkg} for [Nix]{.pkg} and submit a pull request to
 `nixpkgs`, but we recognise that this option may not be beginner-friendly.]
@@ -900,117 +905,42 @@ cd /path/to/project/ && nix-shell default.nix --run "Rscript analysis.R"
 This command runs `Rscript` and executes the `analysis.R` script, which in this
 example should be located in the same directory as `default.nix`.
 
-## The rstats-on-nix fork of nixpkgs {#sec-fork}
+### The rstats-on-nix fork of nixpkgs {#sec-fork}
 
-As explained earlier, [Nix]{.pkg} uses expressions from the `nixpkgs` GitHub
-repository to build software. However, when generating expressions with
-[rix]{.pkg}, the fork `rstats-on-nix/nixpkgs` is used instead.
+When generating expressions with [rix]{.pkg}, the fork `rstats-on-nix/nixpkgs`
+is used instead of the official repository. This fork addresses a key
+limitation: while CRAN and Bioconductor update daily, the [R]{.proglang}
+packages in upstream `nixpkgs` are only updated with new [R]{.proglang}
+releases, as [Nix]{.pkg}'s governance prioritises system-level stability over
+rapid language ecosystem updates.
 
-Using a fork offers several advantages. First, it provides flexibility that the
-official `nixpkgs` repository cannot always accommodate. Because [Nix]{.pkg}
-serves as the package manager for the NixOS Linux distribution, upstream
-priorities center on system-level stability rather than rapid updates to
-language ecosystems like [R]{.proglang} or [Julia]{.proglang}.
+The `rstats-on-nix` fork provides daily snapshots of CRAN and the
+[Julia]{.proglang} registry. Each day, updated packages are committed to dated
+branches via GitHub Actions. Users select a specific date with
+`rix(date = "2024-12-14", ...)`, and can view available dates with
+`rix::available_dates()`. Each Monday, automated tests verify that popular
+packages build correctly on Linux and macOS before a date is added to this
+list. This infrastructure also allows us to backport fixes—for example, when
+RStudio was temporarily broken due to a [boost]{.pkg} dependency issue, we
+backported the fix before it was merged upstream.
 
-For instance, while [Nix]{.pkg} can theoretically support multiple versions (or
-*variants*) of the same package, in practice maintainers cannot provide several
-variants for all [R]{.proglang} packages, given the size of the ecosystem (over
-20,000 CRAN and Bioconductor packages). This makes it difficult to install a
-specific version of an [R]{.proglang} package not included in a particular
-`nixpkgs` commit. With [rix]{.pkg}, users can install a specific package version
-from source, e.g.:
+Because forked packages are not prebuilt by Nix's CI platform (Hydra), we
+provide a binary cache sponsored by Cachix to avoid lengthy source builds.
+Instructions for using this cache are in [rix]{.pkg}'s documentation.
 
-::: {.content-hidden when-format="pdf"}
-```r
-rix(..., r_pkgs = "dplyr@1.0.7", ...)
-```
-:::
-
-```{=tex}
-\begin{CodeInput}
-R> rix(..., r_pkgs = "dplyr@1.0.7", ...)
-\end{CodeInput}
-```
-
-However, installing from source might fail, especially if the package needs to
-be compiled.
-
-Additionally, updating the full [R]{.proglang} package set on [Nix]{.pkg} daily
-is impractical. While CRAN and Bioconductor update daily, the [R]{.proglang}
-packages in `nixpkgs` are only updated with new [R]{.proglang} releases. This
-limitation is due to [Nix]{.pkg}’s governance as a Linux distribution package
-manager.
-
-The `rstats-on-nix` fork allows us to circumvent these limitations. For example,
-it provides daily snapshots of CRAN and the [Julia]{.proglang}. Each day, the
-[R]{.proglang} package set is updated and committed to a dated branch using
-GitHub Actions. Users can select a specific date with:
-
-::: {.content-hidden when-format="pdf"}
-```r
-rix(date = "2024-12-14", ...)
-```
-:::
-
-```{=tex}
-\begin{CodeInput}
-R> rix(date = "2024-12-14", ...)
-\end{CodeInput}
-```
-
-We strive to provide an available date per week: each Monday, a GitHub Action
-tests popular [R]{.proglang} packages on Linux and macOS, and only if all tests
-succeed is the date added to the list of available dates in [rix]{.pkg}. Users
-can see all available dates with `rix::available_dates()`. This ensures users
-can reliably install packages, and allows us to backport fixes if needed. For
-example, when RStudio was temporarily broken due to a dependency issue
-([boost]{.pkg}), a pull request was submitted to the official `nixpkgs`
-repository. I backported the fix to the `rstats-on-nix` fork, making RStudio
-available to users of [rix]{.pkg} earlier than upstream, as merging PRs in the
-official repository can take some time.
-
-We have backported fixes to the `rstats-on-nix` `nixpkgs` fork as far back as
-March 2019. The process involves checking out a `nixpkgs` commit on the selected
-date, updating the [R]{.proglang} package set using Posit CRAN and Bioconductor
-snapshots, backporting fixes, and ensuring popular packages work on both
-x86-linux (including WSL2) and aarch64-darwin (Apple Silicon). These changes are
-committed to a dated branch in `rstats-on-nix/nixpkgs`.
-
-A drawback of forking `nixpkgs` is that backported packages are not included
-upstream and thus are not prebuilt by Nix’s CI platform, Hydra. Users may need
-to build many packages from source, which can be time-consuming. To mitigate
-this, we provide a binary cache sponsored by
-[Cachix](https://www.cachix.org/)^[[https://www.cachix.org/](https://www.cachix.org/)],
-complementing the public [Nix]{.pkg} cache. Instructions for using Cachix are in
-[rix]{.pkg}’s documentation. Using the cache significantly speeds up
-installations, as prebuilt packages are downloaded rather than compiled.
-
-The fork also allows us to catch issues (such as packages’ builds breaking) early
-on, and prepare fixes that can then be contributed upstream.
-
-While the reliance on the `rstats-on-nix` fork might initially raise
-sustainability concerns, this risk should be contextualized. The fork serves a
-focused purpose: it updates CRAN and [Julia]{.proglang} package registries daily
-and backports fixes when builds break. Importantly, users are never locked into
-this fork—they retain the ability to point directly to any commit in the
-upstream `nixpkgs` repository, maintaining full access to the official
-[Nix]{.pkg} ecosystem. The fork introduces no fundamental architectural changes
-or proprietary extensions; it functions as a convenience layer providing tested
-package sets and dated snapshots. Should maintenance cease, users could
-seamlessly transition to upstream `nixpkgs` commits, though with trade-offs:
-less frequent [R]{.proglang} and [Julia]{.proglang} package updates. The fork's
-value lies not in creating dependency, but in reducing friction through testing
-infrastructure and curated "known-good" dates. Thus, the fork represents an
-enhancement to user experience rather than a critical single point of
-failure—the underlying [Nix]{.pkg} infrastructure and official `nixpkgs`
-repository remain the foundation, ensuring long-term viability of environments
-created with [rix]{.pkg}.
+Regarding sustainability: users are never locked into the fork—they can point
+directly to any upstream `nixpkgs` commit. The fork introduces no proprietary
+extensions; it simply provides tested, dated snapshots. Should maintenance
+cease, users would transition seamlessly to upstream commits, with the only
+trade-off being less frequent [R]{.proglang} package updates.
 
 ## Orchestrating the workflow with rixpress {#sec-rixpress}
 
-Defining a reproducible environment with [rix]{.pkg} addresses the first major
-challenge of reproducibility: environment capture. The second challenge, reliably
-and efficiently executing the analysis workflow within that environment, is
+Having established how [rix]{.pkg} creates reproducible *environments*, we now
+turn to the second challenge: reproducible *execution*. Defining a reproducible
+environment with [rix]{.pkg} addresses the first major challenge of
+reproducibility: environment capture. The second challenge, reliably and
+efficiently executing the analysis workflow within that environment, is
 addressed by [rixpress]{.pkg} (or [ryxpress]{.pkg} for [Python]{.proglang}
 users).
 
@@ -1046,9 +976,9 @@ can be found in the [following
 repository](https://github.com/b-rodrigues/rix_paper/tree/master/case-study)^[https://github.com/b-rodrigues/rix_paper/tree/master/case-study],
 with additional details provided in the Appendix of this manuscript. Although
 this example is purely synthetic and not of scientific significance, it
-effectively demonstrates the capabilities of [rixpress]{.pkg}. It should also
-be noted that the code [Julia]{.proglang}, [Python]{.proglang} and [R]{.proglang}
-was generated by a large language model.
+effectively demonstrates the capabilities of [rixpress]{.pkg}. Note that the
+scientific code for this synthetic example was generated by a large language
+model to demonstrate the framework's capabilities.
 
 For new projects, [rixpress]{.pkg} provides `rxp_init()`, which generates the
 necessary boilerplate structure including a pipeline definition file and
