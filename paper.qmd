@@ -1505,8 +1505,9 @@ grateful to David Watkins and Jacob Wujiciak-Jens for their reviews of
 [rixpress]{.pkg}. We also acknowledge the contributions of Richard J. Acton,
 Jordi Rosell, Elio Campitelli, László Kupcsik, and Michael Heming for
 [rix]{.pkg}. Their expertise and feedback greatly improved the quality and
-usability of these packages. We would also like to thank Pol Dellaiera and Edvin
-Syk for providing feedback on the manuscript.
+usability of these packages. We would also like to thank Pol Dellaiera, Edvin
+Syk, Matthias Spichiger, and Jadey Ryan for providing feedback on the
+manuscript.
 
 ## References {.unnumbered}
 
