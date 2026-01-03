@@ -9,7 +9,7 @@ format:
 author:
   - name: Bruno Rodrigues
     affiliations:
-      - name: Ministry of Research and Higher education, Luxembourg
+      - name: Ministry of Research and Higher education
         department: Department of Statistics
         address: 18, Montée de la Pétrusse
         city: Luxembourg
@@ -20,7 +20,7 @@ author:
     url: https://www.brodrigues.co
   - name: Philipp Baumann
     affiliations:
-      - name: Alliance SwissPass, Switzerland
+      - name: Alliance SwissPass
         department: Data and Analytics
         address: 7, Länggassstrasse
         city: Bern
