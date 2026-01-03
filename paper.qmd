@@ -335,10 +335,15 @@ reproducibly installed via [Guix]{.pkg}, the workflow execution occurs
 *outside* the package manager's build system. This means the analysis code runs
 in the [Guix]{.pkg}-provided environment but does not benefit from the additional
 reproducibility guarantees that come from executing within the sandboxed,
-hermetic build process of a derivation. As we will show, [rixpress]{.pkg} takes
-a different approach: each pipeline step is itself a [Nix]{.pkg} derivation,
-meaning the entire analysis—not just the environment—is subject to the same
-deterministic build guarantees.
+hermetic build process of a derivation. [BioNix]{.pkg} [@bionix2020] takes this
+further by modelling bioinformatics workflow stages as pure functions directly
+within [Nix]{.pkg}, gaining the full reproducibility guarantees that the build
+system provides. As we will show, [rixpress]{.pkg} follows a similar approach:
+each pipeline step is itself a [Nix]{.pkg} derivation, meaning the entire
+analysis—not just the environment—is subject to the same deterministic build
+guarantees. Unlike [BioNix]{.pkg}, which requires users to write [Nix]{.proglang}
+expressions, [rixpress]{.pkg} provides an accessible [R]{.proglang} (or
+[Python]{.proglang}) interface for defining pipelines.
 
 The current state-of-the-art in reproducible research exemplifies the complexity
 of navigating this fragmented landscape. The work of @mcdermott2021 provides an
