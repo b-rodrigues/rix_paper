@@ -1509,6 +1509,20 @@ usability of these packages. We would also like to thank Pol Dellaiera, Edvin
 Syk, Matthias Spichiger, and Jadey Ryan for providing feedback on the
 manuscript.
 
+## Software Availability {.unnumbered}
+
+The [rix]{.pkg} package is available from CRAN
+([https://cran.r-project.org/package=rix](https://cran.r-project.org/package=rix))
+and rOpenSci ([https://docs.ropensci.org/rix/](https://docs.ropensci.org/rix/)).
+The [rixpress]{.pkg} package is available from CRAN
+([https://cran.r-project.org/package=rixpress](https://cran.r-project.org/package=rixpress))
+and rOpenSci ([https://github.com/ropensci/rixpress/](https://github.com/ropensci/rixpress/)).
+The [ryxpress]{.pkg} package ([Python]{.proglang} port) is available from PyPI
+([https://pypi.org/project/ryxpress/](https://pypi.org/project/ryxpress/)).
+All packages are released under the GPL-3 license. The source code for this
+manuscript and all replication materials are available at
+[https://github.com/b-rodrigues/rix_paper](https://github.com/b-rodrigues/rix_paper).
+
 ## References {.unnumbered}
 
 :::{#refs}
