@@ -1,3 +1,6 @@
+[![DOI](https://zenodo.org/badge/717253846.svg)](https://doi.org/10.5281/zenodo.18138617)
+
+
 # Nix for Polyglot, Reproducible Data Science Workflows
 
 This repository contains the source code and reproducible environment for the
