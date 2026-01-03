@@ -194,7 +194,7 @@ manages both project-specific interpreters and package libraries using a lock
 file mechanism.
 
 In the [R]{.proglang} ecosystem, virtual environments are not built-in as they
-are in [Python]{.proglang}, however tools like [renv]{.pkg} provide equivalent
+are in [Python]{.proglang}, however tools like [renv]{.pkg} [@renv] provide equivalent
 functionality. [renv]{.pkg} captures the project’s software state and writes it
 to a lock file (`renv.lock`), which includes the exact versions of
 [R]{.proglang} and all required packages. This lockfile serves as a blueprint
@@ -310,10 +310,15 @@ cross-platform distribution is well-established. Indeed, the two approaches are
 not mutually exclusive. As shall be explained in @sec-nix, it is possible to use
 [Nix]{.pkg} within [Docker]{.pkg} to benefit from the advantages of both tools.
 
-By combining the strengths of Nix and container technologies, it is possible to
-enhance both build-time and runtime isolation. For example, installing [Nix].pkg
-directly into container images reduces the setup overhead by avoiding the need
-to install derivations into the host operating system's `/nix` directory.
+By combining the strengths of [Nix]{.pkg} and container technologies, it is
+possible to enhance both build-time and runtime isolation. [Nix]{.pkg} can
+build container images entirely with its own toolchain (using
+`dockerTools.buildImage`), bypassing the imperative `Dockerfile` approach
+altogether and producing images with stronger reproducibility guarantees.
+Alternatively, running a [Nix]{.pkg} environment inside a container based on
+another Linux image can be a simpler way to integrate [Nix]{.pkg} with existing
+CI tooling, avoiding the need to install derivations into the host system's
+`/nix` directory.
 
 Making sure the development environment is reproducible is but one piece of the
 puzzle, though. Even with a perfectly reproducible environment, researchers face
@@ -340,7 +345,7 @@ reproducibly installed via [Guix]{.pkg}, the workflow execution occurs
 *outside* the package manager's build system. This means the analysis code runs
 in the [Guix]{.pkg}-provided environment but does not benefit from the additional
 reproducibility guarantees that come from executing within the sandboxed,
-hermetic build process of a derivation. [BioNix]{.pkg} [@bionix2020] takes this
+hermetic build process of a derivation. [BioNix]{.pkg} [@bedo_unifying_2020] takes this
 further by modelling bioinformatics workflow stages as pure functions directly
 within [Nix]{.pkg}, gaining the full reproducibility guarantees that the build
 system provides. As we will show, [rixpress]{.pkg} follows a similar approach:
@@ -414,10 +419,12 @@ accessible without systems administration expertise.
 
 The remainder of this paper proceeds as follows. Section 2 introduces
 [Nix]{.pkg} and explains how its functional model enables reproducibility.
-Section 3 presents [rix]{.pkg} and demonstrates environment definition. Section
-4 discusses the `rstats-on-nix` fork of the package repository. Section 5
-introduces [rixpress]{.pkg} and demonstrates polyglot pipeline orchestration.
-Section 6 concludes with discussion of future directions.
+Section 3 presents [rix]{.pkg} and demonstrates environment definition,
+including a discussion of the `rstats-on-nix` fork of the package repository.
+Section 4 introduces [rixpress]{.pkg} and demonstrates polyglot pipeline
+orchestration. Section 5 compares the declarative [Nix]{.pkg}-based approach
+with traditional imperative toolchains. Section 6 concludes with discussion of
+future directions.
 
 ## The Nix Package Manager {#sec-nix}
 
@@ -1574,7 +1581,7 @@ computational environment, specifying:
 
 *   The exact versions of [R]{.proglang}, [Python]{.proglang}, and
     [Julia]{.proglang}.
-*   A list of required packages for each language (e.g., [ggplot2]{.pkg} for
+*   A list of required packages for each language (e.g., [ggplot2]{.pkg} [@ggplot2] for
   [R]{.proglang}, [xgboost]{.pkg} for [Python]{.proglang}, [DataFrames]{.pkg}
   for [Julia]{.proglang}).
 *   System-level dependencies like [Quarto]{.pkg}.
