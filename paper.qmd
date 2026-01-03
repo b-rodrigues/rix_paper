@@ -496,7 +496,7 @@ the same software versions and configurations if rebuilt years later, provided
 the `nixpkgs` repository remains accessible (it is archived and distributed
 across multiple mirrors).
 
-[Nix]{.pkg} installs all packages into a content-addressed directory called the
+[Nix]{.pkg} installs all packages into a dedicated directory called the
 Nix store (typically `/nix/store`). Each package occupies a unique subdirectory
 whose name includes a cryptographic hash of all its inputs: source code,
 dependencies, and build instructions. This means `/nix/store/abc123-dplyr-1.0.0`
