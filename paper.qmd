@@ -523,10 +523,21 @@ environments, seamlessly integrating [R]{.proglang}, [Python]{.proglang},
 [Julia]{.proglang}, a [LaTeX]{.proglang} distribution, and any of the numerous
 other tools available in `nixpkgs`. This enables the creation of a truly
 complete, project-specific, and deeply reproducible environment suitable for
-both interactive development and non-interactive, automated analysis. The
-long-term viability of this reproducibility is contingent only on the continued
-accessibility of the `nixpkgs` repository or a suitable fork, as will be
-discussed in Section @sec-fork.
+both interactive development and non-interactive, automated analysis. However,
+long-term reproducibility depends not only on the continued accessibility of the
+`nixpkgs` repository (or a suitable fork, as discussed in Section @sec-fork),
+but also on the availability of source code for all packages in the dependency
+tree. While `nixpkgs` documents the precise version information and
+cryptographic hashes needed to verify source code integrity, the actual source
+files must still be retrievable from their original locations (or mirrors) at
+build time. If a source repository becomes unavailable, users would need to
+locate the source code themselves and manually supply it to the build process.
+This limitation is noteworthy because [Guix]{.pkg}, [Nix]{.pkg}'s sibling
+functional package manager, has addressed this concern through integration with
+Software Heritage [@courtes2024; @softwareheritage2025]. [Guix]{.pkg} can
+automatically fall back to archived versions of source code when original
+locations become unavailable, providing an additional layer of long-term
+reproducibility assurance that [Nix]{.pkg} currently lacks.
 
 [Nix]{.pkg} offers robust cross-platform support, running natively on Linux
 (x86_64) with optimal functionality. On macOS (Intel and Apple Silicon),
