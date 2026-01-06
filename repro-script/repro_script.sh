@@ -401,4 +401,4 @@ run_with_spinner "$CMD2" "Running the polyglot analysis pipeline"
 
 echo -e "\n${GREEN}--- Pipeline execution complete! ---${NC}"
 echo "All artifacts, including the final report and plot, have been generated."
-echo "You can view the final HTML report by opening: ${BLUE}final_report/readme.html${NC}"
+echo "You can view the final HTML report by opening: ${BLUE}pipeline-output/readme.html${NC}"
