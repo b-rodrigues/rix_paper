@@ -1014,7 +1014,13 @@ substantial for large environments when pre-built binary artifacts are not
 available from a cache, and the immutable [Nix]{.pkg} store leads to higher disk
 usage compared to traditional package managers. [rixpress]{.pkg} pipelines lack
 features such as automatic detection of outdated derivations, and there is
-currently no support for HPC scheduler integration.
+currently no support for HPC scheduler integration. In HPC settings,
+[Apptainer]{.pkg} (formerly Singularity) and [Docker]{.pkg}---standardised
+through the Open Container Initiative (OCI)---address deployment by packaging
+environments as images. These containers *package* an environment, whereas
+[Nix]{.pkg} *reproducibly constructs* it; the two approaches are complementary,
+with [Nix]{.pkg} providing build-time determinism that containers alone do not
+guarantee.
 
 **Maintenance overhead.** The `rstats-on-nix` fork requires ongoing maintenance
 to keep pace with upstream `nixpkgs` and CRAN. While the fork introduces no
