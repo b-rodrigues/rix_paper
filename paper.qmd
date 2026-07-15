@@ -372,7 +372,10 @@ architecture-specific performance, whereas [Nix]{.pkg} prioritizes deterministic
 builds and immutable dependency graphs. Researchers working on HPC systems may
 find [Spack]{.pkg} better suited to their infrastructure requirements, while
 [Nix]{.pkg} is better suited to workflows where long-term reproducibility is the
-primary concern.
+primary concern. In HPC settings, [Apptainer]{.pkg} (formerly Singularity)
+addresses deployment in much the same way as [Docker]{.pkg}; the same
+distinction applies: containers package an environment, whereas [Nix]{.pkg}
+reproducibly constructs it.
 
 ### Workflow Orchestration
 
@@ -460,9 +463,10 @@ you’ll find essentials at your destination, while [Nix]{.pkg} packs everything
 you need. This produces self-contained software environments that behave
 identically across machines and over time.
 
-[Nix]{.pkg} can serve the roles commonly assigned to [Docker]{.pkg} for
-isolation, [renv]{.pkg} for package management, and [Make]{.pkg} for
-orchestration—all within a single, unified framework. However, it has a steep
+[Nix]{.pkg} can provide, within a single framework, functionality that is
+commonly distributed across separate tools such as [Docker]{.pkg} for
+deployment, [renv]{.pkg} for language-specific package management, and
+[Make]{.pkg} for workflow orchestration. However, it has a steep
 learning curve, with its own functional language for declaratively defining
 software builds and configurations. While this ensures reproducibility, it also
 creates a barrier to adoption.
