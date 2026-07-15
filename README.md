@@ -55,17 +55,17 @@ from scratch.
 
 1.  **Navigate to the example directory:**
     ```bash
-    cd polyglot-example 
+    cd repro-script
     ```
 
 2.  **Make the script executable:**
     ```bash
-    chmod +x run_polyglot_example.sh
+    chmod +x repro_script.sh
     ```
 
 3.  **Run the script:**
     ```bash
-    ./run_polyglot_example.sh
+    ./repro_script.sh
     ```
 
 This script will:
@@ -75,14 +75,14 @@ This script will:
 3.  Execute the entire analysis pipeline defined in `gen-pipeline.R`.
 
 The final output will be an HTML report located at
-`polyglot-example/pipeline-output/readme.html`.
+`repro-script/pipeline-output/readme.html`.
 
 ## Repository Structure
 
 -   `paper.qmd`: The Quarto source file for the manuscript.
 -   `bibliography.bib`: The BibTeX file containing all citations.
 -   `default.nix`: The Nix expression that defines the environment for compiling the paper.
--   `polyglot-example/`: A directory containing the self-contained script to run the paper's main example.
+-   `repro-script/`: A directory containing the self-contained script to run the paper's main example.
 -   `.github/workflows/`: Contains the GitHub Actions configuration, which automatically re-compiles the paper on every push to validate its reproducibility.
 
 ## License
