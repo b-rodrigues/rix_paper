@@ -260,7 +260,14 @@ but *how* they can be managed in a unified, efficient, and reproducible manner.
 
 The most comprehensive approach to managing a complete computational environment
 to date is containerization, for which [Docker]{.pkg} has become the de facto
-standard. Docker's principal strength lies in its capacity to package an entire
+standard.^[Container technology is standardised by the Open Container Initiative
+(OCI, \url{https://opencontainers.org}), which defines common specifications for
+container images and runtimes. Several OCI-compliant alternatives to
+[Docker]{.pkg} exist, notably [Podman]{.pkg} (\url{https://podman.io}), a
+daemonless engine that is increasingly adopted in enterprise and HPC settings,
+and [Apptainer]{.pkg} (\url{https://apptainer.org}), formerly known as
+Singularity, which is widely used in HPC environments where Docker's
+root-privilege requirements are prohibitive.] Docker's principal strength lies in its capacity to package an entire
 data product—including the operating system, all system-level libraries,
 programming language runtimes, and packages—into a single, self-contained
 artifact known as an image. Once this image is built, the analysis can be
