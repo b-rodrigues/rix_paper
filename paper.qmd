@@ -9,7 +9,7 @@ format:
 author:
   - name: Bruno Rodrigues
     affiliations:
-      - name: Ministry of Research and Higher education
+      - name: Ministry of Research and Higher Education
         department: Department of Statistics
         address: 18, Montée de la Pétrusse
         city: Luxembourg
@@ -56,9 +56,9 @@ number-sections: true
 bibliography: bibliography.bib
 ---
 
-## Introduction: Reproducibility is also about software {#sec-intro}
+## Introduction {#sec-intro}
 
-### Reproducibility and environment management
+### The reproducibility continuum
 
 @peng2011 introduced reproducibility as a *continuum*, ranging from a paper-only description to fully linked and executable code and data. We extend this continuum to the *computational environment*: the complete set of software required to execute an analysis. At the minimal end, authors name the language used; more carefully, they specify versions and packages. Rarely, however, do authors document the operating system or provide step-by-step installation instructions---even though platform differences can lead to divergent results [@neupane2019].
 
@@ -70,26 +70,7 @@ researchers through two [R]{.proglang} packages: [rix]{.pkg} [@R-rix] and
 [rixpress]{.pkg} [@R-rixpress]. Before introducing these packages, we survey
 existing tools and their limitations to contextualise our contributions.
 
-A range of tools now exist to help researchers approach the gold standard of
-full reproducibility. In [R]{.proglang}, the `sessionInfo()` function reports
-loaded packages and versions, but reproducing the environment still requires
-manually installing the correct package versions---a process that becomes difficult
-when packages depend on system-level libraries such as [GDAL]{.pkg}, [GEOS]{.pkg},
-and [PROJ]{.pkg} for the [sf]{.pkg} package.
-
-More robust approaches define per-project environments. In [Python]{.proglang},
-tools like [uv]{.pkg} [@uv] manage interpreters and packages via lock files.
-In [R]{.proglang}, [renv]{.pkg} [@renv] captures the project's software state
-in a lock file (`renv.lock`). These tools are highly effective within their
-intended scope---but neither manages the language runtime itself (e.g., the
-version of [R]{.proglang}) nor system-level dependencies. Other tools such as
-[groundhog]{.pkg} [@simonsohn2023], [rang]{.pkg} [@chan2023], and the Posit
-Package Manager provide date-based CRAN snapshots, but similarly focus on
-[R]{.proglang} packages alone. For researchers who work across multiple
-languages and need full-stack reproducibility, these tools must be composed
-with other solutions, which introduces coordination overhead.
-
-### The Polyglot Challenge
+### The polyglot challenge
 
 Indeed, there is evidence that the era of a single tool dominating an entire
 analytical pipeline is giving way to a more pragmatic approach where researchers
@@ -107,204 +88,21 @@ that research scientists use, on average, nearly two programming languages in
 their work, with the [R]{.proglang} and [Python]{.proglang} combination being
 the most prevalent [@chen2025]. This creates a significant challenge for
 reproducibility: a project using [R]{.proglang}, [Python]{.proglang}, and system
-tools like [Quarto]{.pkg} or \LaTeX requires coordinating multiple, disparate
+tools like [Quarto]{.pkg} or {\LaTeX} requires coordinating multiple, disparate
 package managers, each with its own configuration and potential for conflict and
 using interoperability libraries.
 
 The demand for solutions that can manage this complexity is not merely academic;
 it is reflected in major strategic shifts within the industry. A prominent
 example is the evolution of Posit (formerly RStudio), which has pivoted from its
-origins as a premier R-centric service and software supplier to a company that
+origins as a premier \proglang{R}-centric service and software supplier to a company that
 treats [Python]{.proglang} as a first-class citizen alongside [R]{.proglang}.
 This industry trend, coupled with the proliferation of academic research into
 polyglot tooling, underscores a critical reality: the central challenge for
 modern reproducible science is no longer *if* polyglot workflows should be used,
 but *how* they can be managed in a unified, efficient, and reproducible manner.
 
-### Containerization: Strengths and Limitations
-
-The most comprehensive approach to managing a complete computational environment
-to date is containerization, for which [Docker]{.pkg} has become the de facto
-standard.^[Container technology is standardised by the Open Container Initiative
-(OCI, \url{https://opencontainers.org}), which defines common specifications for
-container images and runtimes. Several OCI-compliant alternatives to
-[Docker]{.pkg} exist, notably [Podman]{.pkg} (\url{https://podman.io}), a
-daemonless engine that is increasingly adopted in enterprise and HPC settings,
-and [Apptainer]{.pkg} (\url{https://apptainer.org}), formerly known as
-Singularity, which is widely used in HPC environments where Docker's
-root-privilege requirements are prohibitive.] Docker's principal strength lies in its capacity to package an entire
-data product—including the operating system, all system-level libraries,
-programming language runtimes, and packages—into a single, self-contained
-artifact known as an image. Once this image is built, the analysis can be
-executed within a container, which is a running instance of that image. This
-methodology effectively addresses the problem of missing system-level dependencies;
-because [Docker]{.pkg} images are typically minimal Linux systems, they can bundle the
-specific versions of libraries like [GDAL]{.pkg} or [GEOS]{.pkg} required by
-packages such as [sf]{.pkg}. These images can then be shared via public
-registries, enabling a high degree of reproducibility across different host
-systems. The Rocker project, for instance, provides invaluable pre-built [Docker]{.pkg}
-images tailored for the [R]{.proglang} community, offering a convenient
-foundation for reproducible research environments [@boettiger2017].
-
-However, while [Docker]{.pkg} excels at providing this form of spatial reproducibility,
-its application in interactive research workflows reveals several significant
-limitations. First, the container model is often poorly aligned with the
-iterative, interactive nature of data analysis. Running graphical applications
-like RStudio Desktop requires complex and platform-specific configuration, while
-ephemeral container filesystems mean that changes made during a session are lost
-by default. Consequently, many research workflows develop interactively on a host
-system and containerize later, reproducing the deployment environment
-effectively but without a continuous reproducibility guarantee throughout the
-research process. Packages like [dockerfiler]{.pkg} [@dockerfiler] are
-specifically made to support this type of workflow.
-
-Second, the effective use of [Docker]{.pkg} introduces a considerable learning
-curve. Authoring a reliable and truly reproducible `Dockerfile` requires a
-degree of familiarity with Linux system administration. Best practices, such as
-referencing base images by their immutable content digests rather than mutable
-tags, are necessary for long-term stability but are not widely adopted.
-Furthermore, while [Docker]{.pkg} can house polyglot environments, it offers no
-native mechanism for orchestrating a pipeline where distinct steps might require
-different, and potentially conflicting, sets of dependencies. The entire
-analysis is typically confined to a single, monolithic environment.
-
-The most critical limitation, however, lies in its guarantees of temporal
-reproducibility. As noted by @dellaieraMasterThesis2024, reproducibility is best
-viewed as a spectrum. [Docker]{.pkg} provides strong run-time reproducibility
-(consistency across space), but offers weaker build-time reproducibility
-(consistency over time). The imperative commands within a `Dockerfile`, such as
-`apt-get update`, are non-deterministic by nature and can introduce temporal
-drift, where rebuilding the same file at different times yields different binary
-artifacts. As empirically demonstrated by @malka2025, achieving deterministic
-builds requires a system designed for this purpose, a role for which functional
-package managers—which ensure that identical inputs always produce identical
-outputs—like [Nix]{.pkg} are architecturally better suited.^[This
-contrast between the procedural, imperative commands of a `Dockerfile` and the
-declarative, functional model of [Nix]{.pkg} highlights a fundamental dichotomy
-in approaches to reproducibility, a concept we will examine in detail as we
-introduce the [Nix]{.pkg} package manager in Section @sec-nix.]
-
-This is not to say that [Docker]{.pkg} has no place in a reproducible research
-workflow. Its utility for production deployment, continuous integration, and
-cross-platform distribution is well-established. Indeed, the two approaches are
-not mutually exclusive. As shall be explained in @sec-nix, it is possible to use
-[Nix]{.pkg} within [Docker]{.pkg} to benefit from the advantages of both tools.
-
-By combining the strengths of [Nix]{.pkg} and container technologies, it is
-possible to enhance both build-time and runtime isolation. [Nix]{.pkg} can
-build container images directly, bypassing the imperative `Dockerfile` approach
-and producing images with stronger reproducibility guarantees.
-Alternatively, running a [Nix]{.pkg} environment inside a container can be a
-simpler way to integrate [Nix]{.pkg} with existing CI tooling.
-
-### Conda and Spack
-
-Beyond containerization, other tools address system-level dependencies.
-[conda]{.pkg} [@anaconda] is a cross-platform package and environment manager
-that has been widely adopted since its release in 2012, particularly in the
-[Python]{.proglang} and data science communities. A related tool in this space
-is [Pixi]{.pkg} (\url{https://prefix.dev/pixi}), which builds on the
-[conda]{.pkg} ecosystem and therefore inherits many of its advantages and
-limitations regarding deterministic rebuilding.
-
-The key differentiator between [Nix]{.pkg} and [conda]{.pkg} is not mutability
-per se, but the nature of their reproducibility guarantees. Most [conda]{.pkg}
-users consume pre-built binary packages rather than building from source, which
-works well in practice but means that reproducibility depends on the continued
-availability of packages in the channel and on the binary being built in a
-consistent environment. [Nix]{.pkg}, by contrast, stores packages in immutable,
-content-addressed paths under `/nix/store/` whose names are hashes of all build
-inputs—source code, compiler version, build flags, and dependencies—making
-package identity and provenance explicit. More critically, because [conda]{.pkg}
-channels are mutable repositories, rebuilding an old environment may produce
-different results if packages have been updated or removed; [Nix]{.pkg} pins the
-entire repository to a specific [Git]{.pkg} commit, ensuring that the
-complete build tree—including compilers—is reconstructed exactly as it was. As
-discussed in Section @sec-nix and empirically validated by @malka2025, this
-functional model achieves high rebuildability and bit-for-bit reproducibility
-rates even across multi-year timeframes.
-
-[Spack]{.pkg} [@gamblin2015spack] occupies a different niche: it is aimed
-primarily at HPC environments, where its goal is configurability rather than
-reproducibility. [Spack]{.pkg} excels at building software with fine-grained
-control over compiler flags, MPI implementations, and architecture-specific
-optimizations. [Nix]{.pkg} and [Spack]{.pkg} therefore have largely different
-optimization targets—[Spack]{.pkg} prioritizes flexibility and
-architecture-specific performance, whereas [Nix]{.pkg} prioritizes deterministic
-builds and immutable dependency graphs. Researchers working on HPC systems may
-find [Spack]{.pkg} better suited to their infrastructure requirements, while
-[Nix]{.pkg} is better suited to workflows where long-term reproducibility is the
-primary concern. In HPC settings, [Apptainer]{.pkg} (formerly Singularity)
-addresses deployment in much the same way as [Docker]{.pkg}; the same
-distinction applies: containers package an environment, whereas [Nix]{.pkg}
-reproducibly constructs it.
-
-### Workflow Orchestration
-
-Making sure the development environment is reproducible is but one piece of the
-puzzle, though. Even with a perfectly reproducible environment, researchers face
-another challenge: reliably executing the analysis workflow. Which scripts run
-first? What are the dependencies between steps? Manual execution is error-prone
-and poorly documented. Build automation tools like [Make]{.pkg} address this by
-defining analyses as ordered, reproducible steps.
-
-Within [R]{.proglang}, the [targets]{.pkg} package [@landau2021] provides a
-modern, declarative approach to workflow management. It tracks dependencies,
-caches results, and only recomputes affected steps, improving efficiency for
-complex analyses. However, [targets]{.pkg} assumes a single software environment
-for the entire pipeline. For truly polyglot pipelines—where steps may require
-incompatible dependencies or different language versions—this becomes
-problematic. Running [targets]{.pkg} inside a [Docker]{.pkg} container helps ensure
-reproducibility but forces all steps to share one environment.
-
-An instructive example of combining functional package management with workflow
-orchestration is PiGx (Pipelines in Genomics), a collection of genomics
-pipelines that uses [Guix]{.pkg} (a functional package manager closely related
-to [Nix]{.pkg}) for environment management and [Snakemake]{.pkg} for workflow
-execution [@wurmus2018]. While this hybrid approach helps ensure that all
-tools—including [Snakemake]{.pkg} itself—are reproducibly installed via
-[Guix]{.pkg}, the workflow execution occurs *outside* the package manager's
-build system. This means the analysis code runs in the [Guix]{.pkg}-provided
-environment but does not benefit from the additional reproducibility guarantees
-that come from executing within the package manager's sandboxed, hermetic
-(i.e., fully isolated and self-contained) build process.
-[BioNix]{.pkg} [@bedo_unifying_2020] takes this further by modelling
-bioinformatics workflow stages as pure functions directly within [Nix]{.pkg},
-gaining build-time reproducibility guarantees. As we will show,
-[rixpress]{.pkg} follows a similar approach: each pipeline step is built within
-this same hermetic environment, meaning the entire analysis—not just the
-environment—is subject to the same deterministic build guarantees. Unlike
-[BioNix]{.pkg}, which requires users to write [Nix]{.proglang} expressions,
-[rixpress]{.pkg} provides an accessible [R]{.proglang} (or [Python]{.proglang})
-interface for defining pipelines.
-
-[Guix]{.pkg} deserves a direct comparison. It provides many of the same
-theoretical guarantees as [Nix]{.pkg}: functional package management,
-content-addressed storage, and hermetic builds. Our contribution is therefore
-not a new package manager, but making the [Nix]{.pkg} ecosystem accessible to
-[R]{.proglang} users through [rix]{.pkg}, and extending it with an
-[R]{.proglang}-native interface for polyglot workflow orchestration through
-[rixpress]{.pkg}. The choice of [Nix]{.pkg} over [Guix]{.pkg} as the
-underlying system reflects the maturity and size of the `nixpkgs` package
-collection—one of the largest in existence—and the active community maintaining
-[R]{.proglang} and [Python]{.proglang} packages within it.
-
-The current state-of-the-art in reproducible research exemplifies the complexity
-of navigating this fragmented landscape. The work of @mcdermott2021 provides an
-excellent case study in best practices, with an accompanying repository that is
-fully reproducible.^[See
-[https://github.com/grantmcdermott/skeptic-priors](https://github.com/grantmcdermott/skeptic-priors)]
-Achieving this level of reproducibility required the integration of
-multiple complementary tools: [renv]{.pkg} for managing [R]{.proglang}
-packages, [Docker]{.pkg} for containerizing the system environment, and
-[Make]{.pkg} for orchestrating the analysis. Each tool is effective at its
-specific task, but their coordination demands expertise across multiple domains
-and careful maintenance of the glue code that connects them.
-
-Furthermore, the complexity increases for polyglot projects, which must manage
-multiple ecosystems simultaneously.
-
-### Our Contribution
+### Our contribution
 
 The [Nix]{.pkg} package manager provides the capabilities researchers need:
 complete environment management, multi-language support, interactive workflows,
@@ -314,19 +112,29 @@ its own functional programming language, which creates a barrier to adoption.
 
 Our contribution is not a new reproducibility engine, but a user-friendly
 interface that makes [Nix]{.pkg} accessible to data scientists. We developed two
-[R]{.proglang} packages:
+[R]{.proglang} packages and a supporting infrastructure layer:
 
-- **[rix]{.pkg}** provides an R-native (and Python-native via [ryxpress]{.pkg})
-  declarative interface to [Nix]{.pkg}. It generates [Nix]{.pkg} expressions from
-  intuitive function calls, eliminating the need to learn the [Nix]{.proglang}
-  language. [rix]{.pkg} handles environment definitions including
-  [R]{.proglang}, [Python]{.proglang}, [Julia]{.proglang}
+- **[rix]{.pkg}** makes [Nix]{.pkg} accessible to the average data scientist. It
+  provides an R-native (and [Python]{.proglang}-native via [ryxpress]{.pkg})
+  declarative interface to [Nix]{.pkg}, generating [Nix]{.pkg} expressions from
+  intuitive function calls and eliminating the need to learn the
+  [Nix]{.proglang} language. It handles environment definitions
+  including [R]{.proglang}, [Python]{.proglang}, [Julia]{.proglang}
   [@bezanson2017julia], system tools, and dependencies.
 
-- **[rixpress]{.pkg}** orchestrates polyglot analytical pipelines using
-  [Nix]{.pkg} as the build engine. Each step runs in its own hermetic environment
-  with automatic caching and dependency tracking, enabling polyglot workflows
-  across [R]{.proglang}, [Python]{.proglang}, and [Julia]{.proglang}.
+- **[rixpress]{.pkg}** (and its [Python]{.proglang} counterpart [ryxpress]{.pkg})
+  distinguishes itself from other polyglot pipeline tools in two ways: (1) tight
+  integration with [rix]{.pkg} means that the software management tool and the
+  workflow orchestration tool are part of a single coherent framework; and (2)
+  seamless data transfer between pipeline steps written in [R]{.proglang},
+  [Python]{.proglang}, or [Julia]{.proglang} is handled automatically, without
+  the user needing to manage intermediate file formats.
+
+- The **`rstats-on-nix`** fork of `nixpkgs` is a critical piece of
+  infrastructure underlying both packages. It provides daily snapshots of CRAN
+  and the [Julia]{.proglang} registry along with pre-built binary caches, so that
+  users benefit from [Nix]{.pkg}'s reproducibility guarantees without the
+  compilation overhead of building packages from source.
 
 Together, these packages provide a unified approach to managing reproducible,
 polyglot environments and executing complex workflows with step-level isolation.
@@ -339,13 +147,15 @@ The remainder of this paper proceeds as follows. Section 2 introduces
 Section 3 presents [rix]{.pkg} and demonstrates environment definition,
 including a discussion of the `rstats-on-nix` fork of the package repository.
 Section 4 introduces [rixpress]{.pkg} and demonstrates polyglot pipeline
-orchestration. Section 5 compares the declarative [Nix]{.pkg}-based approach
-with traditional imperative toolchains. Section 6 discusses limitations, and
-Section 7 concludes.
+orchestration. Section 5 surveys related work and compares [rix]{.pkg} and
+[rixpress]{.pkg} to alternative tools in the ecosystem. Section 6 compares
+the declarative [Nix]{.pkg}-based approach with traditional imperative
+toolchains using a case study. Section 7 discusses limitations, and Section 8
+concludes.
 
-## The Nix Package Manager {#sec-nix}
+## The Nix package manager {#sec-nix}
 
-### How Nix Manages Dependencies
+### How Nix manages dependencies
 
 [Nix]{.pkg} is a cross-platform package manager designed for reproducible
 software installation and deployment. Unlike traditional package managers,
@@ -404,7 +214,7 @@ installed. This “build once, run anywhere” property has long been solved by
 [Nix]{.pkg}, and is now being revisited by Posit through its initiative to
 provide portable CRAN binaries [@posit_portable_r_binaries].
 
-### Derivations and Reproducible Builds
+### Derivations and reproducible builds
 
 This universality stems from [Nix]{.pkg}’s use of derivations, declarative
 blueprints that specify all inputs (source code, build commands, dependencies)
@@ -444,7 +254,7 @@ across multiple mirrors).
 package occupies a unique subdirectory named by a cryptographic hash of its inputs.
 This allows multiple [R]{.proglang} versions to coexist without conflicts.
 
-### Practical Considerations
+### Practical considerations
 
 While this functional approach enhances reproducibility, it can introduce
 complexity for package maintainers, particularly for software downloading
@@ -550,7 +360,7 @@ This shell contains all the packages specified in `default.nix` and can be used
 for development, similar to activating a virtual environment in the
 [Python]{.proglang} ecosystem.
 
-### Generating Environments with rix
+### Generating environments with rix
 
 Writing [Nix]{.pkg} expressions can be challenging for users unfamiliar with the
 [Nix]{.proglang} language. However, the ability to define a fully reproducible
@@ -625,9 +435,15 @@ R> rix(r_ver = "4.3.1",
 
 [rix]{.pkg} can also handle more complex setups, including version pinning, TeXLive packages, GitHub packages, and IDE configuration. A complete example is provided in Appendix A.1.
 
-Under the hood, [rix]{.pkg} implements version pinning (such as "[AER]{.pkg}@1.2-8") and GitHub package retrieval by generating [Nix]{.pkg} expressions that fetch the repository at the specified commit hash and build it within [Nix]{.pkg}'s isolated sandbox. While the `@` syntax is convenient, it has limitations: the CRAN Archive only indexes superseded packages, and dependency resolution uses the holistic `nixpkgs` snapshot rather than the original release date of the overridden package, which can lead to build failures. The recommended approach is to select a `nixpkgs` snapshot date where all required package versions are naturally co-compatible.
+Under the hood, [rix]{.pkg} enables version pinning (such as "[AER]{.pkg}\@1.2-8") by programmatically downloading the source tarball for that exact package version from the CRAN Archive (using `pkgs.fetchzip` pointing to the archive URL) and compiling it using the `buildRPackage` helper in [Nix]{.pkg}. 
 
-### Polyglot Environments and Python Handling
+While the `@` syntax is convenient, it has critical limitations:
+1. **CRAN Archive restrictions**: It cannot download the *latest* version of a package from the CRAN Archive because active package versions reside in the main CRAN `/contrib/` directory rather than the `/Archive/` directory. Thus, attempts to pin the current version of a package will return an HTTP 404 error.
+2. **Dependency version mismatches**: The package is built from source using the package dependencies present in the requested `nixpkgs` snapshot, *not* the dependencies that existed when that package version was originally released on CRAN. This can lead to compilation or runtime namespace version failures (for example, attempting to compile a legacy version of [dplyr]{.pkg} that requires a newer version of [rlang]{.pkg} than is available in the selected `nixpkgs` snapshot).
+
+Due to these compatibility challenges, manual version pinning should generally be discouraged. The recommended practice is to identify a single `nixpkgs` snapshot date where all required package versions are naturally co-compatible.
+
+### Polyglot environments and Python handling
 
 It is also possible to include [Python]{.proglang} and [Julia]{.proglang}
 packages using the `py_conf` and `jl_conf` arguments respectively.
@@ -707,11 +523,11 @@ For workflows requiring custom compiled binaries (such as a custom [C++]{.progla
 
 We recommend the second option: although it has a steeper learning curve (especially for researchers unfamiliar with the [Nix]{.pkg} expression language), it represents the cleanest and most reproducible approach. While [rix]{.pkg} does not directly automate the creation of custom derivations, the generated `default.nix` file can serve as a foundation. Generative AI tools (such as Large Language Models, or LLMs) can make writing custom derivations highly accessible. For best practices, rather than allowing an LLM to directly modify the generated `default.nix` in an ad-hoc manner, users should instruct it to write a separate [Nix]{.pkg} expression in its own file (e.g., `custom-package.nix`), which can then be cleanly imported into or composed with the main environment.
 
-### Practical Usage Patterns
+### Practical usage patterns
 
 Anywhere [Nix]{.pkg} can be installed, users can benefit from its features. For
 instance, the repository containing the source code for this
-article^[https://github.com/b-rodrigues/rix_paper] uses GitHub Actions to
+article^[\url{https://github.com/b-rodrigues/rix\_paper}] uses GitHub Actions to
 compile the paper. Each time a push is made to the master branch, a runner
 installs [Nix]{.pkg}, generates the environment from the hosted `default.nix`
 file, and compiles the paper using [Quarto]{.pkg} within the reproducible
@@ -776,7 +592,7 @@ maintenance burden is currently absorbed by the [rix]{.pkg} development team,
 with the long-term goal of upstreaming the necessary infrastructure to
 `nixpkgs` proper.
 
-## Orchestrating the workflow with rixpress {#sec-rixpress}
+## Orchestrating workflows with rixpress {#sec-rixpress}
 
 Having established how [rix]{.pkg} creates reproducible *environments*, we now
 turn to the second challenge: reproducible *execution*. Defining a reproducible
@@ -802,7 +618,7 @@ providing two key benefits:
 
   1. True Polyglot Pipelines: Each step can have its own [Nix]{.pkg} environment. A
      [Python]{.proglang} step can run in a pure [Python]{.proglang} environment,
-     an [R]{.proglang} step in an [R]{.proglang} environment, and a Quarto
+     an [R]{.proglang} step in an [R]{.proglang} environment, and a [Quarto]{.pkg}
      rendering step in yet another, all within the same pipeline.
   2. Deep Reproducibility: Each step is a hermetically sealed [Nix]{.pkg}
      derivation whose output is cached in the [Nix]{.pkg} store based on the
@@ -810,14 +626,14 @@ providing two key benefits:
      computational environment, ensuring that any change in dependencies
      triggers a rebuild.
 
-### Defining a Polyglot Pipeline
+### Defining a polyglot pipeline
 
 As an example, we demonstrate a polyglot pipeline that simulates a Real Business
 Cycle (RBC) model in [Julia]{.proglang}, trains an [XGBoost]{.pkg} forecasting
 model in [Python]{.proglang} on the simulated data, visualises results in
 [R]{.proglang}, and compiles a [Quarto]{.pkg} report. The code for this example
 can be found in the [following
-repository](https://github.com/b-rodrigues/rix_paper/tree/master/case-study)^[https://github.com/b-rodrigues/rix_paper/tree/master/case-study],
+repository](\url{https://github.com/b-rodrigues/rix\_paper}/tree/master/case-study)^[\url{https://github.com/b-rodrigues/rix\_paper}/tree/master/case-study],
 with additional details provided in the Appendix of this manuscript. Although
 this example is purely synthetic and not of scientific significance, it
 effectively demonstrates the capabilities of [rixpress]{.pkg}. Note that the
@@ -842,7 +658,7 @@ orchestration.
 
 The following example demonstrates how [rixpress]{.pkg} orchestrates a granular,
 multi-step data science workflow that crosses language boundaries. (Complete
-setup instructions and a detailed walkthrough are provided in Appendix)
+setup instructions and a detailed walkthrough are provided in the Appendix.)
 
 ::: {.content-hidden when-format="pdf"}
 ```r
@@ -898,7 +714,7 @@ pipeline_steps <- list(
     decoder = arrow::read_feather
   ),
 
-  # STEP 4: Quarto - Compile the final report
+  # STEP 4: [Quarto]{.pkg} - Compile the final report
   rxp_qmd(
     name = final_report,
     qmd_file = "readme.qmd"
@@ -964,7 +780,7 @@ R> pipeline_steps <- list(
 +    decoder = arrow::read_feather
 +  ),
 +
-+  # STEP 4: Quarto - Compile the final report
++  # STEP 4: [Quarto]{.pkg} - Compile the final report
 +  rxp_qmd(
 +    name = final_report,
 +    qmd_file = "readme.qmd"
@@ -1005,11 +821,11 @@ choice keeps the pipeline definition language consistent across both
 `pipeline.nix` file. To use [ryxpress]{.pkg}, one should simply add this
 package to the `py_conf` argument of `rix()`.
 
-### Executing and Inspecting Results
+### Executing and inspecting results
 
 ![Graphical representation of the polyglot pipeline. Purple nodes are
 [Julia]{.proglang}, yellow nodes are [Python]{.pkg}, light blue nodes are
-[R]{.proglang}, and dark blue nodes are Quarto
+[R]{.proglang}, and dark blue nodes are [Quarto]{.pkg}
 derivations.](images/dag.png){#fig-dag}
 
 The package can then generate a visual representation of the pipeline's directed
@@ -1078,7 +894,229 @@ environments, whereas [rixpress]{.pkg} currently only supports local
 parallelization.
 
 
-## A Comparison of Pipeline Paradigms: Imperative vs. Declarative {#sec-comparison}
+## Related work and ecosystem comparison {#sec-related}
+
+To contextualise our contributions, we survey existing tools and compare their design targets and capabilities with [rix]{.pkg} and [rixpress]{.pkg}.
+
+### Package and environment management
+
+A range of tools now exist to help researchers approach the gold standard of
+full reproducibility. In [R]{.proglang}, the `sessionInfo()` function reports
+loaded packages and versions, but reproducing the environment still requires
+manually installing the correct package versions---a process that becomes difficult
+when packages depend on system-level libraries such as [GDAL]{.pkg}, [GEOS]{.pkg},
+and [PROJ]{.pkg} for the [sf]{.pkg} package.
+
+More robust approaches define per-project environments. In [Python]{.proglang},
+tools like [uv]{.pkg} [@uv] manage interpreters and packages via lock files.
+In [R]{.proglang}, [renv]{.pkg} [@renv] captures the project's software state
+in a lock file (`renv.lock`). These tools are highly effective within their
+intended scope---but neither manages the language runtime itself (e.g., the
+version of [R]{.proglang}) nor system-level dependencies. Other tools such as
+[groundhog]{.pkg} [@simonsohn2023], [rang]{.pkg} [@chan2023], and the Posit
+Package Manager provide date-based CRAN snapshots, but similarly focus on
+[R]{.proglang} packages alone. For researchers who work across multiple
+languages and need full-stack reproducibility, these tools must be composed
+with other solutions, which introduces coordination overhead.
+
+Beyond containerization, other tools address system-level dependencies.
+[conda]{.pkg} [@anaconda] is a cross-platform package and environment manager
+that has been widely adopted since its release in 2012, particularly in the
+[Python]{.proglang} and data science communities. A related tool in this space
+is [Pixi]{.pkg} (\url{https://prefix.dev/pixi}), which builds on the
+[conda]{.pkg} ecosystem and therefore inherits many of its advantages and
+limitations regarding deterministic rebuilding.
+
+The key differentiator between [Nix]{.pkg} and [conda]{.pkg} is not mutability
+per se, but the nature of their reproducibility guarantees. Most [conda]{.pkg}
+users consume pre-built binary packages rather than building from source, which
+works well in practice but means that reproducibility depends on the continued
+availability of packages in the channel and on the binary being built in a
+consistent environment. [Nix]{.pkg}, by contrast, stores packages in immutable,
+content-addressed paths under `/nix/store/` whose names are hashes of all build
+inputs—source code, compiler version, build flags, and dependencies—making
+package identity and provenance explicit. More critically, because [conda]{.pkg}
+channels are mutable repositories, rebuilding an old environment may produce
+different results if packages have been updated or removed; [Nix]{.pkg} pins the
+entire repository to a specific [Git]{.pkg} commit, ensuring that the
+complete build tree—including compilers—is reconstructed exactly as it was. As
+discussed in Section @sec-nix and empirically validated by @malka2025, this
+functional model achieves high rebuildability and bit-for-bit reproducibility
+rates even across multi-year timeframes.
+
+[Spack]{.pkg} [@gamblin2015spack] occupies a different niche: it is aimed
+primarily at HPC environments, where its goal is configurability rather than
+reproducibility. [Spack]{.pkg} excels at building software with fine-grained
+control over compiler flags, MPI implementations, and architecture-specific
+optimizations. [Nix]{.pkg} and [Spack]{.pkg} therefore have largely different
+optimization targets—[Spack]{.pkg} prioritizes flexibility and
+architecture-specific performance, whereas [Nix]{.pkg} prioritizes deterministic
+builds and immutable dependency graphs. Researchers working on HPC systems may
+find [Spack]{.pkg} better suited to their infrastructure requirements, while
+[Nix]{.pkg} is better suited to workflows where long-term reproducibility is the
+primary concern. In HPC settings, [Apptainer]{.pkg} (formerly Singularity)
+addresses deployment in much the same way as [Docker]{.pkg}; the same
+distinction applies: containers package an environment, whereas [Nix]{.pkg}
+reproducibly constructs it.
+Beyond language-specific managers, cross-platform environment managers like [conda]{.pkg} [@anaconda] and its modern wrapper [Pixi]{.pkg} (\url{https://prefix.dev/pixi}) handle system-level dependencies. In high-performance computing (HPC) settings, [Spack]{.pkg} [@gamblin2015spack] is widely used to manage dependencies with compiler-level control. Like [Nix]{.pkg}, these tools can manage system environment variables; for example, both [Nix]{.pkg} and [conda-forge]{.pkg} automatically configure environment variables like `JAVA_HOME` when installing packages such as [rJava]{.pkg} to prevent manual setup errors.
+
+However, the reproducibility model differs fundamentally:
+1. **Repository mutability**: While [conda]{.pkg} channels are mutable and can experience package updates or removals, [Nix]{.pkg} pins the entire repository to an immutable [Git]{.pkg} commit, ensuring the complete build tree (including compilers) is reconstructed identically.
+2. **Build hermeticity**: [conda]{.pkg} and [Spack]{.pkg} default to downloading pre-built binaries or compiling them in the host environment, whereas [Nix]{.pkg} enforces hermetic builds inside an isolated sandbox, ensuring builds are fully independent of host system configurations.
+
+### Containerization and execution environments
+
+The most comprehensive approach to managing a complete computational environment
+to date is containerization, for which [Docker]{.pkg} has become the de facto
+standard.^[Container technology is standardised by the Open Container Initiative
+(OCI, \url{https://opencontainers.org}), which defines common specifications for
+container images and runtimes. Several OCI-compliant alternatives to
+[Docker]{.pkg} exist, notably [Podman]{.pkg} (\url{https://podman.io}), a
+daemonless engine that is increasingly adopted in enterprise and HPC settings,
+and [Apptainer]{.pkg} (\url{https://apptainer.org}), formerly known as
+Singularity, which is widely used in HPC environments where Docker's
+root-privilege requirements are prohibitive.] Docker's principal strength lies in its capacity to package an entire
+data product—including the operating system, all system-level libraries,
+programming language runtimes, and packages—into a single, self-contained
+artifact known as an image. Once this image is built, the analysis can be
+executed within a container, which is a running instance of that image. This
+methodology effectively addresses the problem of missing system-level dependencies;
+because [Docker]{.pkg} images are typically minimal Linux systems, they can bundle the
+specific versions of libraries like [GDAL]{.pkg} or [GEOS]{.pkg} required by
+packages such as [sf]{.pkg}. These images can then be shared via public
+registries, enabling a high degree of reproducibility across different host
+systems. The Rocker project, for instance, provides invaluable pre-built [Docker]{.pkg}
+images tailored for the [R]{.proglang} community, offering a convenient
+foundation for reproducible research environments [@boettiger2017].
+
+However, while [Docker]{.pkg} excels at providing this form of spatial reproducibility,
+its application in interactive research workflows reveals several significant
+limitations. First, the container model is often poorly aligned with the
+iterative, interactive nature of data analysis. Running graphical applications
+like RStudio Desktop requires complex and platform-specific configuration, while
+ephemeral container filesystems mean that changes made during a session are lost
+by default. Consequently, many research workflows develop interactively on a host
+system and containerize later, reproducing the deployment environment
+effectively but without a continuous reproducibility guarantee throughout the
+research process. Packages like [dockerfiler]{.pkg} [@dockerfiler] are
+specifically made to support this type of workflow.
+
+Second, the effective use of [Docker]{.pkg} introduces a considerable learning
+curve. Authoring a reliable and truly reproducible `Dockerfile` requires a
+degree of familiarity with Linux system administration. Best practices, such as
+referencing base images by their immutable content digests rather than mutable
+tags, are necessary for long-term stability but are not widely adopted.
+Furthermore, while [Docker]{.pkg} can house polyglot environments, it offers no
+native mechanism for orchestrating a pipeline where distinct steps might require
+different, and potentially conflicting, sets of dependencies. The entire
+analysis is typically confined to a single, monolithic environment.
+
+The most critical limitation, however, lies in its guarantees of temporal
+reproducibility. As noted by @dellaieraMasterThesis2024, reproducibility is best
+viewed as a spectrum. [Docker]{.pkg} provides strong run-time reproducibility
+(consistency across space), but offers weaker build-time reproducibility
+(consistency over time). The imperative commands within a `Dockerfile`, such as
+`apt-get update`, are non-deterministic by nature and can introduce temporal
+drift, where rebuilding the same file at different times yields different binary
+artifacts. As empirically demonstrated by @malka2025, achieving deterministic
+builds requires a system designed for this purpose, a role for which functional
+package managers—which ensure that identical inputs always produce identical
+outputs—like [Nix]{.pkg} are architecturally better suited.^[This
+contrast between the procedural, imperative commands of a `Dockerfile` and the
+declarative, functional model of [Nix]{.pkg} highlights a fundamental dichotomy
+in approaches to reproducibility, a concept we will examine in detail as we
+introduce the [Nix]{.pkg} package manager in Section @sec-nix.]
+
+This is not to say that [Docker]{.pkg} has no place in a reproducible research
+workflow. Its utility for production deployment, continuous integration, and
+cross-platform distribution is well-established. Indeed, the two approaches are
+not mutually exclusive. As shall be explained in @sec-nix, it is possible to use
+[Nix]{.pkg} within [Docker]{.pkg} to benefit from the advantages of both tools.
+
+By combining the strengths of [Nix]{.pkg} and container technologies, it is
+possible to enhance both build-time and runtime isolation. [Nix]{.pkg} can
+build container images directly, bypassing the imperative `Dockerfile` approach
+and producing images with stronger reproducibility guarantees.
+Alternatively, running a [Nix]{.pkg} environment inside a container can be a
+simpler way to integrate [Nix]{.pkg} with existing CI tooling.
+
+### Workflow orchestration engines
+
+Making sure the development environment is reproducible is but one piece of the
+puzzle, though. Even with a perfectly reproducible environment, researchers face
+another challenge: reliably executing the analysis workflow. Which scripts run
+first? What are the dependencies between steps? Manual execution is error-prone
+and poorly documented. Build automation tools like [Make]{.pkg} address this by
+defining analyses as ordered, reproducible steps.
+
+Within [R]{.proglang}, the [targets]{.pkg} package [@landau2021] provides a
+modern, declarative approach to workflow management. It tracks dependencies,
+caches results, and only recomputes affected steps, improving efficiency for
+complex analyses. However, [targets]{.pkg} assumes a single software environment
+for the entire pipeline. For truly polyglot pipelines—where steps may require
+incompatible dependencies or different language versions—this becomes
+problematic. Running [targets]{.pkg} inside a [Docker]{.pkg} container helps ensure
+reproducibility but forces all steps to share one environment.
+
+An instructive example of combining functional package management with workflow
+orchestration is \pkg{PiGx} (Pipelines in Genomics), a collection of genomics
+pipelines that uses [Guix]{.pkg} (a functional package manager closely related
+to [Nix]{.pkg}) for environment management and [Snakemake]{.pkg} for workflow
+execution [@wurmus2018]. While this hybrid approach helps ensure that all
+tools—including [Snakemake]{.pkg} itself—are reproducibly installed via
+[Guix]{.pkg}, the workflow execution occurs *outside* the package manager's
+build system. This means the analysis code runs in the [Guix]{.pkg}-provided
+environment but does not benefit from the additional reproducibility guarantees
+that come from executing within the package manager's sandboxed, hermetic
+(i.e., fully isolated and self-contained) build process.
+[BioNix]{.pkg} [@bedo_unifying_2020] takes this further by modelling
+bioinformatics workflow stages as pure functions directly within [Nix]{.pkg},
+gaining build-time reproducibility guarantees. As we will show,
+[rixpress]{.pkg} follows a similar approach: each pipeline step is built within
+this same hermetic environment, meaning the entire analysis—not just the
+environment—is subject to the same deterministic build guarantees. Unlike
+[BioNix]{.pkg}, which requires users to write [Nix]{.proglang} expressions,
+[rixpress]{.pkg} provides an accessible [R]{.proglang} (or [Python]{.proglang})
+interface for defining pipelines.
+
+[Guix]{.pkg} deserves a direct comparison. It provides many of the same
+theoretical guarantees as [Nix]{.pkg}: functional package management,
+content-addressed storage, and hermetic builds. Our contribution is therefore
+not a new package manager, but making the [Nix]{.pkg} ecosystem accessible to
+[R]{.proglang} users through [rix]{.pkg}, and extending it with an
+[R]{.proglang}-native interface for polyglot workflow orchestration through
+[rixpress]{.pkg}. The choice of [Nix]{.pkg} over [Guix]{.pkg} as the
+underlying system reflects the maturity and size of the `nixpkgs` package
+collection—one of the largest in existence—and the active community maintaining
+[R]{.proglang} and [Python]{.proglang} packages within it.
+
+The current state-of-the-art in reproducible research exemplifies the complexity
+of navigating this fragmented landscape. The work of @mcdermott2021 provides an
+excellent case study in best practices, with an accompanying repository that is
+fully reproducible.^[See
+[https://github.com/grantmcdermott/skeptic-priors](https://github.com/grantmcdermott/skeptic-priors)]
+Achieving this level of reproducibility required the integration of
+multiple complementary tools: [renv]{.pkg} for managing [R]{.proglang}
+packages, [Docker]{.pkg} for containerizing the system environment, and
+[Make]{.pkg} for orchestrating the analysis. Each tool is effective at its
+specific task, but their coordination demands expertise across multiple domains
+and careful maintenance of the glue code that connects them.
+
+Furthermore, the complexity increases for polyglot projects, which must manage
+multiple ecosystems simultaneously.
+While GNU [Make]{.pkg} remains a classic tool for scientific workflows, modern polyglot workflow engines like [Snakemake]{.pkg} [@moelder2021snakemake] and [Nextflow]{.pkg} [@di2017nextflow] support separate computational environments per step using [conda]{.pkg} or containerization.
+
+[rixpress]{.pkg} differs from these workflow engines in several ways:
+1. **Unified declarative API**: By using [rix]{.pkg} and [rixpress]{.pkg} together, environment definition and workflow orchestration are handled through a single, unified [R]{.proglang} interface, avoiding the need to write separate Dockerfiles, Conda environment files, and workflow DSLs (such as Snakemake's Python dialect or Nextflow's Groovy-based DSL).
+2. **Implicit dependency inference**: [rixpress]{.pkg} automatically infers inter-step dependencies from the functional relationships in the R code, rather than requiring users to manually define file inputs and outputs for every target.
+3. **Seamless cross-language data transfer**: Data is passed between [R]{.proglang}, [Python]{.proglang}, and [Julia]{.proglang} steps automatically using the [Arrow]{.pkg} format, without requiring manual serialization wrapper code.
+
+However, [rixpress]{.pkg} has distinct limitations compared to mature engines:
+- **Ecosystem limits**: It is designed specifically for R, Python, and Julia. Workflow steps that require command-line utilities or other languages cannot be easily integrated, whereas Snakemake and Nextflow treat arbitrary shell commands as first-class steps.
+- **Storage and I/O overhead**: Because steps run as pure Nix derivations, [rixpress]{.pkg} copies all input and output data into the `/nix/store/` for caching. This introduces significant storage and performance overhead for workflows processing large datasets (e.g., gigabytes or terabytes).
+- **HPC and cloud support**: [rixpress]{.pkg} only supports local parallelization, whereas Snakemake and Nextflow have native executors for cluster schedulers (SLURM, SGE, LSF) and cloud environments.
+
+## Comparison of pipeline paradigms: Imperative vs. declarative {#sec-comparison}
 
 To illustrate the practical benefits of our framework, we implemented the RBC
 pipeline example from Section @sec-rixpress using two distinct paradigms. The
@@ -1087,14 +1125,14 @@ isolation, [Make]{.pkg} for workflow orchestration, and language-specific packag
 managers.^[This choice of tools is illustrative: we could have used, for
 instance, [Snakemake]{.pkg} [@moelder2021snakemake] for workflow orchestration
 or [conda]{.pkg} [@anaconda] instead of [uv]{.pkg}, but the broader point
-remains—these are all imperative approaches] The second is our proposed
+remains—these are all imperative approaches.] The second is our proposed
 declarative framework using [rix]{.pkg} and [rixpress]{.pkg}. While both approaches
 successfully execute the same polyglot analysis to produce identical outputs,
 their comparison illuminates fundamental differences in conceptual models,
 system complexity, and the nature of the reproducibility guarantees they
 provide.
 
-### The Imperative Composition of Specialized Tools
+### The imperative approach (Docker + Make)
 
 The traditional approach represents a composition of specialized tools, each
 solving part of the reproducibility puzzle. This paradigm is purely imperative;
@@ -1152,7 +1190,7 @@ This procedural philosophy extends from environment definition to workflow
 orchestration. A `Makefile` defines the pipeline as a directed acyclic graph of
 file dependencies. While robust, this model requires the researcher to manually
 encode the dependency graph, tightly coupling the analytical logic to specific
-file paths. Furthermore, since `make` is agnostic to the content of these files,
+file paths. Furthermore, since [Make]{.pkg} is agnostic to the content of these files,
 it provides no mechanism to enforce type or schema consistency between steps.
 
 A direct consequence of this file-based orchestration model is the proliferation
@@ -1170,7 +1208,7 @@ core logic, in addition to the final report. Each tool in this stack is mature
 and well-documented, but a user must comprehend the conventions and interactions
 of the entire toolchain.
 
-### A Unified Declarative Framework
+### The declarative approach (Nix + rix + rixpress)
 
 The Nix-based framework inverts this imperative model. Instead of scripting the
 procedural construction of the environment and workflow, the researcher declares
@@ -1244,7 +1282,7 @@ final report. The reduction is not merely quantitative; the remaining files are
 conceptually simpler, containing only analytical logic and specifications, with
 all procedural scaffolding abstracted away by the framework.
 
-### Reproducibility Guarantees: Space and Time
+### Spatial vs. temporal reproducibility
 
 The critical distinction between the two paradigms lies in the nature of their
 reproducibility guarantees. The traditional stack, anchored by Docker, provides
@@ -1264,7 +1302,7 @@ study by @malka2025, which rebuilt over 700,000 historical packages, confirmed
 that Nix's functional model achieves a bit-for-bit reproducibility rate
 exceeding 90% and a rebuildability rate over 99% across a multi-year time-frame.
 
-### Summary of Differences
+### Summary of differences
 
 | Dimension | Traditional Stack | Nix-Based Framework with rix and rixpress |
 |-----------|------------------|---------------------|
@@ -1371,7 +1409,7 @@ usability of these packages. We would also like to thank Pol Dellaiera, Edvin
 Syk, Matthias Spichiger, and Jadey Ryan for providing feedback on the
 manuscript.
 
-## Software Availability {.unnumbered}
+## Software availability {.unnumbered}
 
 The [rix]{.pkg} package is available from CRAN
 ([https://cran.r-project.org/package=rix](https://cran.r-project.org/package=rix))
@@ -1383,7 +1421,7 @@ The [ryxpress]{.pkg} package ([Python]{.proglang} port) is available from PyPI
 ([https://pypi.org/project/ryxpress/](https://pypi.org/project/ryxpress/)).
 All packages are released under the GPL-3 license. The source code for this
 manuscript and all replication materials are available at
-[https://github.com/b-rodrigues/rix_paper](https://github.com/b-rodrigues/rix_paper).
+[\url{https://github.com/b-rodrigues/rix\_paper}](\url{https://github.com/b-rodrigues/rix\_paper}).
 
 ## References {.unnumbered}
 
@@ -1397,7 +1435,7 @@ manuscript and all replication materials are available at
 
 The source code of this paper is hosted on GitHub and can be found
 at following
-[link](https://github.com/b-rodrigues/rix_paper)^[\url{https://github.com/b-rodrigues/rix_paper}].
+[link](\url{https://github.com/b-rodrigues/rix\_paper})^[\url{https://github.com/b-rodrigues/rix\_paper}}].
 The paper can be easily compiled by running the following command:
 
 ::: {.content-hidden when-format="pdf"}
@@ -1422,7 +1460,7 @@ format for viewing on smaller devices at this
 The PDF version of the manuscript can be found at
 [link](https://b-rodrigues.github.io/rix_paper/paper.pdf)^[[https://b-rodrigues.github.io/rix_paper/paper.pdf](https://b-rodrigues.github.io/rix_paper/paper.pdf)].
 
-### A Complete Polyglot Example with rixpress
+### A complete polyglot example with rixpress
 
 This appendix provides a conceptual walk-through of the polyglot pipeline
 example discussed in Section 5. The pipeline simulates a RBC model in
@@ -1434,9 +1472,9 @@ The complete, runnable source code for this example is available in the paper's
 GitHub repository. A shell script, `repro_script.sh`, is provided to
 automate the entire process from environment creation to final output, as
 described at the end of this
-section^[\url{https://github.com/b-rodrigues/rix_paper/blob/master/repro-script/repro_script.sh}].
+section^[\url{https://github.com/b-rodrigues/rix\_paper}/blob/master/repro-script/repro_script.sh}].
 
-#### Project Structure and Components
+#### Project structure and components
 
 The project is organized into a set of scripts, each with a distinct
 responsibility. The core logic is separated from the environment definition and
@@ -1449,7 +1487,7 @@ pipeline orchestration.
 *   `gen-env.R`: An [R]{.proglang} script that defines the reproducible computational environment.
 *   `gen-pipeline.R`: The main [R]{.proglang} script that defines and orchestrates the entire polyglot pipeline.
 
-#### Step 1: The Environment Definition
+#### Step 1: The environment definition
 
 The foundation of the project is the reproducible environment, defined in
 `gen-env.R`. This script uses the `rix()` function to programmatically generate
@@ -1489,7 +1527,7 @@ it is possible to generate the `default.nix` by sourcing `gen-env.R`. Then, one
 leaves this temporary shell, and builds the environment using the command
 `nix-shell`, which also drop the user into the development shell.
 
-#### Step 2: The Core Analytical Logic
+#### Step 2: The core analytical logic
 
 The scientific logic for each stage of the pipeline is encapsulated in the
 separate helper scripts within the `functions/` directory.
@@ -1509,7 +1547,7 @@ separate helper scripts within the `functions/` directory.
   designed to take the data frame of actual and predicted values produced by the
   [Python]{.proglang} script and generate a plot comparing the two series.
 
-#### Step 3: Orchestrating the Pipeline
+#### Step 3: Orchestrating the pipeline
 
 The entire workflow is defined and orchestrated by `gen-pipeline.R`. This script
 acts as the master plan, using functions from the [rixpress]{.pkg} package to
@@ -1526,7 +1564,7 @@ dependencies between steps:
   [rixpress]{.pkg} handles the passing of data between languages, in this case
   using the [Arrow]{.pkg} file format for efficiency.
 4.  Finally, it defines the **R visualisation** step, which depends on the final
-  predictions from the [Python]{.proglang} model, and a **Quarto rendering**
+  predictions from the [Python]{.proglang} model, and a **[Quarto]{.pkg} rendering**
   step that depends on the generated plot.
 
 When this script is run in the development shell (by executing
@@ -1552,10 +1590,10 @@ rxp_make()
 \end{CodeInput}
 ```
 
-#### Running the Project
+#### Running the project
 
 This entire example can be executed by running the `repro_script.sh`
-script available in the root of the paper's repository.
+script available in the `repro-script/` directory of the paper's repository.
 This script automates the full process:
 1.  It first executes `gen-env.R` inside a temporary [Nix]{.pkg} shell to build
     the `default.nix` file.
